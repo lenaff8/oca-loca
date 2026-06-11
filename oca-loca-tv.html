@@ -34,7 +34,8 @@ body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-heigh
       <div class="card" style="text-align:center;padding:24px 16px">
         <div class="label">CÓDIGO DE SALA</div>
         <div class="code" id="codeDisp">------</div>
-        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Los jugadores lo introducen en la app móvil</p>
+        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Escanea para unirte directamente</p>
+        <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
       </div>
       <div class="card" style="margin-top:12px">
         <div class="label">EQUIPOS (<span id="teamCountL">0</span>)</div>
@@ -55,6 +56,7 @@ body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-heigh
       <div class="card" style="text-align:center;padding:12px">
         <div class="label">SALA</div>
         <div style="font-size:2.8rem;font-weight:900;color:#e8b84b;letter-spacing:.15em" id="codeSmall"></div>
+        <div id="qrSmall" style="margin-top:8px;display:flex;justify-content:center"></div>
         <div class="status" id="connStatus">●  conectado</div>
       </div>
       <div class="card">
@@ -170,6 +172,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
+  const mobileUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
+  const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mobileUrl);
+  const qrSmUrl='https://api.qrserver.com/v1/create-qr-code/?size=100x100&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mobileUrl);
+  document.getElementById('qrBox').innerHTML='<img src="'+qrUrl+'" style="border-radius:10px;width:180px;height:180px" alt="QR">';
+  document.getElementById('qrSmall').innerHTML='<img src="'+qrSmUrl+'" style="border-radius:8px;width:100px;height:100px" alt="QR">';
   subscribe();
 });
 
