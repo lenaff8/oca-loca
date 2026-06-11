@@ -6,32 +6,58 @@
 <title>🪿 La Oca Loca — TV</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-height:100vh}
+:root{--felt:#0d1b0f;--panel:#152318;--card:#1d2f1f;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
+body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color:var(--parch);font-family:system-ui,sans-serif;min-height:100vh}
 .screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
-.card{background:#152318;border:1px solid #3d2b1a;border-radius:16px;padding:18px}
-.btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}
-.btn-gold{background:#e8b84b;color:#1a1200;padding:14px 28px;font-size:16px}
+.card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
+.btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s,box-shadow .15s}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(232,184,75,.35)}
 .btn-mini{background:#0d5f6e;color:#fff;padding:14px;font-size:16px;width:100%}
 .btn-evento{background:#7c4500;color:#fff;padding:14px;font-size:16px;width:100%}
 .btn-versus{background:#6d1b3a;color:#fff;padding:14px;font-size:16px;width:100%}
-.btn-ghost{background:rgba(240,221,176,.1);color:#f0ddb0;border:1px solid rgba(240,221,176,.2);padding:10px 20px;font-size:13px}
 .btn-clear{background:#3d1010;color:#fca5a5;padding:10px;font-size:13px;width:100%}
-.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:#e8b84b;text-align:center;line-height:1}
+.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.4)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
-.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(240,221,176,.07);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px}
-.role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(240,221,176,.05);border-radius:9px;margin-bottom:4px;font-size:13px}
-.tBtn{padding:9px 16px;border-radius:10px;border:3px solid transparent;font-weight:800;cursor:pointer;font-size:13px;font-family:inherit}
-.tBtn.sel{border-color:#e8b84b}
+.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(240,221,176,.07);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px;animation:popIn .3s ease both}
+@keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(240,221,176,.05);border-radius:9px;margin-bottom:4px;font-size:13px;animation:slideIn .35s ease both}
+@keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
+.tBtn{padding:9px 16px;border-radius:10px;border:3px solid transparent;font-weight:800;cursor:pointer;font-size:13px;font-family:inherit;transition:transform .12s}
+.tBtn:active{transform:scale(.95)}
+.tBtn.sel{border-color:var(--gold);transform:scale(1.06)}
 .status{font-size:11px;color:#f0ddb055;text-align:right;margin-top:4px}
+.grid2{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+@media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:300px 1fr}}
+
+/* ── Slot machine reveal ── */
+@keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}
+.slot-window{height:54px;overflow:hidden;position:relative}
+.slot-reel{display:flex;flex-direction:column}
+.slot-item{height:54px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#fff;flex-shrink:0}
+@keyframes chPop{0%{transform:scale(.7) rotate(-2deg);opacity:0}60%{transform:scale(1.04) rotate(.5deg)}100%{transform:scale(1) rotate(0)}}
+.ch-reveal{animation:chPop .55s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(232,184,75,.25)}50%{box-shadow:0 0 48px rgba(232,184,75,.55)}}
+
+/* ── Roulette on TV ── */
+.roul-name{padding:12px 22px;border-radius:14px;font-size:22px;font-weight:900;background:rgba(240,221,176,.06);border:2px solid transparent;transition:all .08s;color:rgba(240,221,176,.5)}
+.roul-name.lit{background:var(--gold);color:#1a1200;transform:scale(1.12);box-shadow:0 0 36px rgba(232,184,75,.7);border-color:#fff}
+.roul-name.winner{background:var(--gold);color:#1a1200;transform:scale(1.25);box-shadow:0 0 60px rgba(232,184,75,.95);border-color:#fff;animation:winnerBounce .5s ease 3}
+@keyframes winnerBounce{0%,100%{transform:scale(1.25)}50%{transform:scale(1.35)}}
+
+/* confetti */
+.confetti{position:fixed;width:10px;height:10px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
 </head>
 <body>
 
 <div id="sLobby" class="screen active">
-  <div style="display:grid;grid-template-columns:260px 1fr;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+  <div class="grid2 gridLobby">
     <div>
-      <div class="card" style="text-align:center;padding:24px 16px">
+      <div class="card" style="text-align:center;padding:24px 16px;animation:glowPulse 3s ease-in-out infinite">
         <div class="label">CÓDIGO DE SALA</div>
         <div class="code" id="codeDisp">------</div>
         <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Escanea para unirte directamente</p>
@@ -51,11 +77,11 @@ body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-heigh
 </div>
 
 <div id="sGame" class="screen">
-  <div style="display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+  <div class="grid2 gridGame">
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="card" style="text-align:center;padding:12px">
         <div class="label">SALA</div>
-        <div style="font-size:2.8rem;font-weight:900;color:#e8b84b;letter-spacing:.15em" id="codeSmall"></div>
+        <div style="font-size:2.4rem;font-weight:900;color:var(--gold);letter-spacing:.15em" id="codeSmall"></div>
         <div id="qrSmall" style="margin-top:8px;display:flex;justify-content:center"></div>
         <div class="status" id="connStatus">●  conectado</div>
       </div>
@@ -77,7 +103,7 @@ body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-heigh
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div id="chDisplay" class="card" style="min-height:260px;display:flex;align-items:center;justify-content:center">
+      <div id="chDisplay" class="card" style="min-height:300px;display:flex;align-items:center;justify-content:center">
         <p style="color:#f0ddb044;font-size:20px">Selecciona equipo activo y tipo de reto</p>
       </div>
       <div id="rolesCard" class="card" style="display:none">
@@ -89,7 +115,6 @@ body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-heigh
 </div>
 
 <script>
-// ── Challenge data ────────────────────────────────────────────────────────────
 const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
 const CH={
 minijuego:[
@@ -131,7 +156,7 @@ evento:[
  {n:"Eco Salvaje",d:"Uno por equipo participa. El moderador da la primera palabra. Cada uno sigue con la última sílaba.",rt:"rep_team",al:"JUGADOR",ad:"Tú participas en el Eco Salvaje.",bl:"HINCHA",bd:"Anima a tu representante."},
  {n:"Expedición Relámpago",d:"El moderador dice una letra. Todos buscan objetos que empiecen por esa letra en 60 segundos.",rt:"all"},
  {n:"Pareja Indisoluble",d:"Un par por equipo se ata los tobillos. El moderador propone una tarea absurda.",rt:"pair_team"},
- {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. Alguien le descubre?",rt:"assassin"},
+ {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. ¿Alguien le descubre?",rt:"assassin"},
  {n:"Instante Inmortal",d:"3 minutos para hacer la foto más épica posible. Votación anónima.",rt:"all"},
  {n:"Congelados",d:"Música → silencio → todos inmóviles. El que se mueva, eliminado.",rt:"all"},
  {n:"Flash Talent",d:"Cada equipo tiene 60 segundos para preparar un número de talento. El público vota.",rt:"all"},
@@ -161,10 +186,8 @@ versus:[
  {n:"Quién Ríe Primero",d:"Un representante de cada equipo se miran fijamente. Sus equipos intentan hacer reír al rival.",rt:"rep",al:"CARA SERIA",ad:"Mírate con el representante rival sin reírte 60 segundos.",bl:"BROMISTA",bd:"Haced reír al representante rival. Sin tocarlo."},
 ]};
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let topic='',players={},activeT=null,oppT=null,es=null,since=0;
+let topic='',players={},activeT=null,oppT=null,es=null,since=0,busy=false;
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
@@ -172,103 +195,70 @@ window.addEventListener('DOMContentLoaded',()=>{
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
-  const mobileUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
-  const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mobileUrl);
-  const qrSmUrl='https://api.qrserver.com/v1/create-qr-code/?size=100x100&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mobileUrl);
-  document.getElementById('qrBox').innerHTML='<img src="'+qrUrl+'" style="border-radius:10px;width:180px;height:180px" alt="QR">';
-  document.getElementById('qrSmall').innerHTML='<img src="'+qrSmUrl+'" style="border-radius:8px;width:100px;height:100px" alt="QR">';
+  const mUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
+  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
+  const q2='https://api.qrserver.com/v1/create-qr-code/?size=100x100&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
+  document.getElementById('qrBox').innerHTML='<img src="'+q1+'" style="border-radius:10px;width:180px;height:180px">';
+  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:100px;height:100px">';
   subscribe();
 });
 
 function subscribe(){
-  if(es){es.close();}
+  if(es)es.close();
   es=new EventSource('https://ntfy.sh/'+topic+'/sse?since='+since);
   es.addEventListener('message',onMsg);
-  es.onerror=()=>{
-    document.getElementById('connStatus').textContent='● reconectando...';
-    setTimeout(subscribe,3000);
-  };
-  es.onopen=()=>{
-    const el=document.getElementById('connStatus');
-    if(el)el.textContent='●  conectado';
-  };
+  es.onerror=()=>{document.getElementById('connStatus').textContent='● reconectando...';setTimeout(subscribe,3000);};
+  es.onopen=()=>{const el=document.getElementById('connStatus');if(el)el.textContent='●  conectado';};
 }
-
 function onMsg(e){
   try{
-    const n=JSON.parse(e.data);
-    const d=JSON.parse(n.message);
-    if(d.type==='join'){
-      players[d.name]={name:d.name,team:d.team};
-      renderPlayers();
-    }
+    const d=JSON.parse(JSON.parse(e.data).message);
+    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};renderPlayers();}
   }catch(err){}
 }
-
 async function pub(data){
-  try{
-    await fetch('https://ntfy.sh/'+topic,{
-      method:'POST',body:JSON.stringify(data),
-      headers:{'Content-Type':'text/plain'}
-    });
-  }catch(e){console.error('pub error',e);}
+  try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}
+  catch(e){console.error(e);}
 }
 
-// ── Player rendering ──────────────────────────────────────────────────────────
 function renderPlayers(){
   const ps=Object.values(players);
   document.getElementById('pCountL').textContent=ps.length;
   document.getElementById('pCountG').textContent=ps.length;
   const teams=[...new Set(ps.map(p=>p.team))].sort();
   document.getElementById('teamCountL').textContent=teams.length;
-
-  document.getElementById('pListL').innerHTML=ps.map(p=>`
-    <div class="chip"><div class="dot" style="background:${tc(p.team)}"></div>
-    <strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
-
-  document.getElementById('teamListL').innerHTML=teams.map(t=>{
-    const n=ps.filter(p=>p.team===t).length;
-    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)">
-      <div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong>
-      <span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;
-  }).join('');
-
-  document.getElementById('pListG').innerHTML=ps.map(p=>`
-    <div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px">
-      <div class="dot" style="background:${tc(p.team)}"></div>${p.name}
-      <span style="color:#f0ddb044;font-size:11px">Eq.${p.team}</span></div>`).join('');
-
-  // Team pickers
-  const ap=document.getElementById('activePicker');
-  const op=document.getElementById('oppPicker');
+  document.getElementById('pListL').innerHTML=ps.map(p=>`<div class="chip"><div class="dot" style="background:${tc(p.team)}"></div><strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
+  document.getElementById('teamListL').innerHTML=teams.map(t=>{const n=ps.filter(p=>p.team===t).length;
+    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)"><div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong><span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;}).join('');
+  document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div>${p.name}<span style="color:#f0ddb044;font-size:11px">Eq.${p.team}</span></div>`).join('');
+  const ap=document.getElementById('activePicker'),op=document.getElementById('oppPicker');
   ap.innerHTML=teams.map(t=>`<button class="tBtn ${activeT===t?'sel':''}" style="background:${tc(t)};color:#fff" onclick="selT('a','${t}')">Eq.${t}</button>`).join('');
-  op.innerHTML=teams.map(t=>`<button class="tBtn ${oppT===t?'sel':''}" style="background:${tc(t)};color:#fff;opacity:${t===activeT?.4:1}" onclick="selT('o','${t}')" ${t===activeT?'disabled':''}">Eq.${t}</button>`).join('');
+  op.innerHTML=teams.map(t=>`<button class="tBtn ${oppT===t?'sel':''}" style="background:${tc(t)};color:#fff;opacity:${t===activeT?.4:1}" onclick="selT('o','${t}')" ${t===activeT?'disabled':''}>Eq.${t}</button>`).join('');
 }
-
-function selT(w,t){
-  if(w==='a'){activeT=t;if(oppT===t)oppT=null;}
-  else oppT=t;
-  renderPlayers();
-}
-
+function selT(w,t){if(w==='a'){activeT=t;if(oppT===t)oppT=null;}else oppT=t;renderPlayers();}
 function goGame(){pub({type:'start'});show('sGame');}
 
-// ── Challenge selection ───────────────────────────────────────────────────────
+// ── Pick + roulette ───────────────────────────────────────────────────────────
 function pick(type){
+  if(busy)return;
   if(type!=='evento'&&!activeT){alert('Selecciona el equipo activo primero.');return;}
   if(type==='versus'&&!oppT){alert('Selecciona el equipo retado para Versus.');return;}
   const pool=CH[type];
   const ch=pool[Math.floor(Math.random()*pool.length)];
   const ps=Object.values(players);
   let active;
-  if(type==='minijuego') active=ps.filter(p=>p.team===activeT);
-  else if(type==='evento') active=ps;
+  if(type==='minijuego')active=ps.filter(p=>p.team===activeT);
+  else if(type==='evento')active=ps;
   else active=ps.filter(p=>p.team===activeT||p.team===oppT);
-  const roles=assignRoles(ch,active,ps,activeT,oppT);
-  const msg={type:'challenge',name:ch.n,desc:ch.d,ctype:type,roles};
+  const {roles,roulette}=assignRoles(ch,active,ps,activeT,oppT);
+  busy=true;
+  const msg={type:'challenge',name:ch.n,desc:ch.d,ctype:type,roles,roulette};
   pub(msg);
-  renderChallenge(ch,type);
-  renderRoles(roles,ps);
+  if(roulette){
+    playTVRoulette(roulette,()=>{revealChallenge(ch,type,roles,ps);busy=false;});
+  }else{
+    slotReveal(ch,type,()=>{renderRoles(roles,ps);busy=false;});
+  }
 }
 
 function clearCh(){
@@ -277,12 +267,36 @@ function clearCh(){
   document.getElementById('rolesCard').style.display='none';
 }
 
-function renderChallenge(ch,type){
+// Slot machine name reveal for challenges without roulette
+function slotReveal(ch,type,done){
+  const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
+  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
+  const lb={minijuego:'MINIJUEGO',evento:'⚡ EVENTO',versus:'VERSUS'}[type];
+  const names=CH[type].map(c=>c.n);
+  const seq=[];
+  for(let i=0;i<14;i++)seq.push(names[Math.floor(Math.random()*names.length)]);
+  seq.push(ch.n);
+  const disp=document.getElementById('chDisplay');
+  disp.innerHTML=`<div style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
+    <div style="font-size:64px">${em}</div>
+    <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
+    <div class="slot-window"><div id="slotTxt" class="slot-item" style="opacity:.7">···</div></div>
+  </div>`;
+  let i=0,delay=70;
+  (function step(){
+    document.getElementById('slotTxt').textContent=seq[i];
+    i++;
+    if(i<seq.length){delay*=1.18;setTimeout(step,delay);}
+    else setTimeout(()=>{finalChallenge(ch,type);done();},400);
+  })();
+}
+
+function finalChallenge(ch,type){
   const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   document.getElementById('chDisplay').innerHTML=`
-    <div style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
+    <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
       <div style="font-size:64px">${em}</div>
       <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
       <div style="color:#fff;font-size:34px;font-weight:900;margin-bottom:16px;line-height:1.1">${ch.n}</div>
@@ -290,23 +304,87 @@ function renderChallenge(ch,type){
     </div>`;
 }
 
+// TV roulette: names light in sequence
+function playTVRoulette(r,done){
+  const disp=document.getElementById('chDisplay');
+  disp.innerHTML=`<div style="text-align:center;width:100%">
+    <div style="font-size:48px;margin-bottom:8px">🎰</div>
+    <div style="color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.14em;margin-bottom:24px">SORTEANDO...</div>
+    <div id="roulNames" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center"></div>
+  </div>`;
+  document.getElementById('rolesCard').style.display='none';
+  const cont=document.getElementById('roulNames');
+  cont.innerHTML=r.order.map((n,i)=>`<div class="roul-name" id="rn${i}">${n}</div>`).join('');
+  let idx=0,step=0;
+  const totalSteps=r.steps.length;
+  (function tick(){
+    document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
+    const cur=step%r.order.length;
+    document.getElementById('rn'+cur).classList.add('lit');
+    step++;
+    if(step<totalSteps){setTimeout(tick,r.steps[step]);}
+    else{
+      const w=document.getElementById('rn'+r.winnerIdx);
+      document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
+      w.classList.add('winner');
+      confetti();
+      setTimeout(done,2200);
+    }
+  })();
+}
+
+function revealChallenge(ch,type,roles,ps){
+  finalChallenge(ch,type);
+  renderRoles(roles,ps);
+}
+
 function renderRoles(roles,ps){
   document.getElementById('rolesCard').style.display='block';
-  document.getElementById('roleList').innerHTML=ps.map(p=>{
+  document.getElementById('roleList').innerHTML=ps.map((p,i)=>{
     const r=roles[p.name];if(!r)return'';
-    return`<div class="role-row">
+    return`<div class="role-row" style="animation-delay:${i*60}ms">
       <div class="dot" style="background:${tc(p.team)}"></div>
       <strong style="flex:1">${p.name}</strong>
       <span style="font-size:16px">${r.emoji}</span>
-      <span style="color:${r.isSecret?'#f472b6':'#e8b84b'};font-weight:700;font-size:12px">${r.label}</span>
+      <span style="color:${r.isSecret?'#f472b6':'var(--gold)'};font-weight:700;font-size:12px">${r.isSecret?'SECRETO':r.label}</span>
       ${r.isSecret?'<span style="color:#f472b6;font-size:11px">🔒</span>':''}
     </div>`;
   }).join('');
 }
 
-// ── Role assignment ───────────────────────────────────────────────────────────
+function confetti(){
+  const colors=['#e8b84b','#e74c3c','#3498db','#2ecc71','#f39c12','#e91e8c'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=Math.random()*0.8+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5000);
+  }
+}
+
+// Build decelerating roulette schedule
+function buildRoulette(candidates,winnerName){
+  const order=[...candidates].sort(()=>Math.random()-.5);
+  const winnerIdx=order.indexOf(winnerName);
+  const loops=2+Math.floor(Math.random()*2);
+  const totalSteps=loops*order.length+winnerIdx+1;
+  const steps=[];
+  let d=90;
+  for(let i=0;i<totalSteps;i++){
+    steps.push(Math.round(d));
+    const remaining=totalSteps-i;
+    if(remaining<8)d*=1.35;else d*=1.02;
+  }
+  return{order,steps,winnerIdx};
+}
+
 function assignRoles(ch,active,allPs,aT,oT){
-  const R={};
+  const R={};let roulette=null;
   const teams=[...new Set(active.map(p=>p.team))];
   const inactive=allPs.filter(p=>!active.find(a=>a.name===p.name));
   inactive.forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'};});
@@ -320,24 +398,24 @@ function assignRoles(ch,active,allPs,aT,oT){
     case'actor':{
       const tp=active.filter(p=>p.team===aT);
       const actor=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),actor.name);
       tp.forEach(p=>{R[p.name]=p.name===actor.name
-        ?{label:ch.al,emoji:'⭐',isSecret:false,roleDesc:ch.ad}
+        ?{label:ch.al,emoji:'⭐',isSecret:false,roleDesc:ch.ad,chosen:true}
         :{label:ch.bl,emoji:'👥',isSecret:false,roleDesc:ch.bd};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'chain':{
       const tp=shuf(active.filter(p=>p.team===aT));
-      tp.forEach((p,i)=>{
-        const f=i===0,l=i===tp.length-1;
+      tp.forEach((p,i)=>{const f=i===0,l=i===tp.length-1;
         R[p.name]={label:f?'PRIMERO':l?'ÚLTIMO':'#'+(i+1),emoji:f?'1️⃣':l?'🔚':(i+1)+'️⃣',isSecret:false,
-          roleDesc:f?'Tú empiezas la cadena.':l?'Tú cierras la cadena.':'Eres el número '+(i+1)+' en la cadena.'};
-      });
+          roleDesc:f?'Tú empiezas la cadena.':l?'Tú cierras la cadena.':'Eres el número '+(i+1)+' en la cadena.'};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'artist_back':{
       const tp=shuf(active.filter(p=>p.team===aT));
       if(tp.length>=2){
-        R[tp[0].name]={label:'ARTISTA',emoji:'✍️',isSecret:false,roleDesc:'Dibuja con el dedo en la espalda de '+tp[1].name+'.'};
+        if(tp.length>2)roulette=buildRoulette(tp.map(p=>p.name),tp[0].name);
+        R[tp[0].name]={label:'ARTISTA',emoji:'✍️',isSecret:false,roleDesc:'Dibuja con el dedo en la espalda de '+tp[1].name+'.',chosen:true};
         R[tp[1].name]={label:'RECEPTOR',emoji:'🔮',isSecret:false,roleDesc:'Te dibujan en la espalda. Adivina qué es.'};
         tp.slice(2).forEach(p=>{R[p.name]={label:'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:'Tú también intentas adivinar.'};});
       }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
@@ -368,22 +446,28 @@ function assignRoles(ch,active,allPs,aT,oT){
         :{label:'VÍCTIMA',emoji:'😇',isSecret:true,roleDesc:'Si alguien te guiña el ojo, espera 5 segundos y cae dramáticamente. Si sabes quién es el asesino, di ¡Acusación!'};});
       break;}
     case'rep':{
+      let firstRep=null,cands=null;
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
+        if(!firstRep){firstRep=rep.name;cands=tp.map(p=>p.name);}
         tp.forEach(p=>{R[p.name]=p.name===rep.name
-          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú compites por tu equipo.'}
+          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú compites por tu equipo.',chosen:true}
           :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
       });
+      if(cands&&cands.length>1)roulette=buildRoulette(cands,firstRep);
       break;}
     case'rep_team':{
+      let firstRep=null,cands=null;
       teams.forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
+        if(!firstRep){firstRep=rep.name;cands=tp.map(p=>p.name);}
         tp.forEach(p=>{R[p.name]=p.name===rep.name
-          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú participas por tu equipo.'}
+          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú participas por tu equipo.',chosen:true}
           :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
       });
+      if(cands&&cands.length>1)roulette=buildRoulette(cands,firstRep);
       break;}
     case'pair_team':{
       teams.forEach(t=>{
@@ -405,7 +489,7 @@ function assignRoles(ch,active,allPs,aT,oT){
     default:
       active.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
   }
-  return R;
+  return{roles:R,roulette};
 }
 
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
