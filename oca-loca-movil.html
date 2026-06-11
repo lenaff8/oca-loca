@@ -19,7 +19,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
 input{background:rgba(240,221,176,.07);border:1px solid var(--wood);border-radius:12px;padding:14px 16px;color:var(--parch);font-size:17px;outline:none;width:100%;font-family:inherit;transition:border-color .15s}
 input:focus{border-color:var(--gold)}
 input::placeholder{color:#f0ddb044}
-.tBtn{padding:11px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:15px;font-family:inherit;flex:1;transition:transform .12s}
+.tBtn{padding:16px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:18px;font-family:inherit;transition:transform .12s}
 .tBtn:active{transform:scale(.92)}
 .tBtn.sel{border-color:#fff;transform:scale(1.08)}
 .role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;animation:rolePop .5s cubic-bezier(.2,1.4,.4,1) both}
@@ -70,7 +70,7 @@ input::placeholder{color:#f0ddb044}
     </div>
     <div>
       <div class="label">EQUIPO</div>
-      <div id="teamBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <div id="teamBtns" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
     </div>
     <div style="flex:1"></div>
     <button class="btn btn-gold" onclick="joinRoom()">Unirse →</button>
@@ -138,7 +138,8 @@ function renderTeamBtns(){
   document.getElementById('teamBtns').innerHTML=TEAMS.map((t,i)=>
     `<button class="tBtn ${myTeam===t?'sel':''}" style="background:${TC[i]};color:#fff" onclick="pickTeam('${t}')">${t}</button>`).join('');
 }
-function pickTeam(t){myTeam=t;renderTeamBtns();}
+function pickTeam(t){myTeam=t;renderTeamBtns();if(navigator.vibrate)navigator.vibrate(15);}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('sJoin').classList.contains('active'))joinRoom();});
 
 function joinRoom(){
   const code=document.getElementById('codeIn').value.trim().toUpperCase();
