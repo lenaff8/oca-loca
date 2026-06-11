@@ -143,7 +143,12 @@ window.addEventListener('DOMContentLoaded',()=>{
       myName=s.name;myTeam=s.team;myTopic='oca-'+s.code;mySince=Math.floor(Date.now()/1000);
       document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
       document.getElementById('waitCode').textContent=s.code;
-      show('sWait');announce();subscribe();
+      const savedCh=localStorage.getItem('ocaChallenge');
+      if(savedCh){
+        try{showChallenge(JSON.parse(savedCh));}
+        catch(e){show('sWait');}
+      }else{show('sWait');}
+      announce();subscribe();
       return;
     }catch(e){localStorage.removeItem('ocaSession');}
   }
@@ -152,6 +157,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 function leaveSession(){
   localStorage.removeItem('ocaSession');
+  localStorage.removeItem('ocaChallenge');
   if(es)es.close();
   myName='';myTopic='';
   const saved=document.getElementById('codeIn').value;
@@ -197,9 +203,13 @@ function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='challenge'){
+      localStorage.setItem('ocaChallenge',JSON.stringify(d));
       if(d.roulette){playRoulette(d);}
       else{showChallenge(d);}
-    }else if(d.type==='clear'){show('sWait');}
+    }else if(d.type==='clear'){
+      localStorage.removeItem('ocaChallenge');
+      show('sWait');
+    }
   }catch(err){}
 }
 
