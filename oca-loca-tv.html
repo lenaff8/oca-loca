@@ -68,6 +68,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
         <div id="teamListL" style="margin-top:6px"></div>
       </div>
       <button class="btn btn-gold" style="width:100%;margin-top:12px;font-size:18px;padding:16px" onclick="goGame()">▶ Empezar partida</button>
+      <button class="btn btn-back" style="width:100%;margin-top:8px" onclick="newRoom()">↻ Nueva sala</button>
     </div>
     <div class="card">
       <div class="label">JUGADORES CONECTADOS (<span id="pCountL">0</span>)</div>
@@ -88,6 +89,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
           <div id="qrSmall"></div>
         </div>
         <div class="status" id="connStatus">●  conectado</div>
+        <button class="btn btn-back" style="width:100%;margin-top:8px;font-size:11px;padding:7px" onclick="newRoom()">↻ Nueva sala</button>
       </div>
       <div class="card" style="flex:1;overflow-y:auto">
         <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
@@ -182,9 +184,21 @@ let topic='',players={},es=null,since=0,busy=false;
 let wState='cat', wType=null, wActive=null, wOpp=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  let code;
+  const saved=localStorage.getItem('ocaTV');
+  if(saved){
+    try{
+      const s=JSON.parse(saved);
+      code=s.code;players=s.players||{};
+      if(s.inGame){setTimeout(()=>{show('sGame');wizardReset();renderPlayers();},0);}
+    }catch(e){localStorage.removeItem('ocaTV');}
+  }
+  if(!code){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  }
   topic='oca-'+code;
+  saveTV();
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
@@ -206,7 +220,7 @@ function subscribe(){
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
-    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};renderPlayers();if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
+    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
 }
 async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}catch(e){}}
@@ -222,10 +236,24 @@ function renderPlayers(){
   document.getElementById('pListL').innerHTML=ps.map(p=>`<div class="chip"><div class="dot" style="background:${tc(p.team)}"></div><strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
   document.getElementById('teamListL').innerHTML=ts.map(t=>{const n=ps.filter(p=>p.team===t).length;
     return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)"><div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong><span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;}).join('');
-  document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div>${p.name}<span style="color:#f0ddb044;font-size:11px">Eq.${p.team}</span></div>`).join('');
+  document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div><span style="flex:1">${p.name}<span style="color:#f0ddb044;font-size:11px"> Eq.${p.team}</span></span><button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:13px;padding:0 4px">✕</button></div>`).join('');
 }
 
-function goGame(){pub({type:'start'});show('sGame');wizardReset();}
+function saveTV(){
+  const code=topic.replace('oca-','');
+  const inGame=document.getElementById('sGame').classList.contains('active');
+  localStorage.setItem('ocaTV',JSON.stringify({code,players,inGame}));
+}
+function goGame(){pub({type:'start'});show('sGame');wizardReset();saveTV();}
+function newRoom(){
+  if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores.'))return;
+  localStorage.removeItem('ocaTV');
+  location.reload();
+}
+function kickPlayer(name){
+  if(!confirm('¿Eliminar a '+name+' de la lista?'))return;
+  delete players[name];saveTV();renderPlayers();
+}
 
 // ════ WIZARD ════
 function wizardReset(){wState='cat';wType=null;wActive=null;wOpp=null;document.getElementById('rolesCard').style.display='none';renderWizard();}
