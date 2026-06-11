@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>🪿 La Oca Loca — Móvil</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;flex:1;padding:20px}.screen.active{display:flex}
+.card{background:#152318;border:1px solid #3d2b1a;border-radius:16px;padding:18px}
+.btn{border:none;border-radius:14px;font-weight:900;cursor:pointer;font-family:inherit;font-size:17px;padding:16px;width:100%}.btn:active{opacity:.75}
+.btn-gold{background:#e8b84b;color:#1a1200}
+.label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
+input{background:rgba(240,221,176,.07);border:1px solid #3d2b1a;border-radius:12px;padding:14px 16px;color:#f0ddb0;font-size:17px;outline:none;width:100%;font-family:inherit}
+input::placeholder{color:#f0ddb044}
+.tBtn{padding:11px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:15px;font-family:inherit;flex:1}
+.tBtn.sel{border-color:#fff}
+.role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px}
+.role-card.secret{background:linear-gradient(160deg,#3d0a2e,#1a0514)}
+.role-card.normal{background:linear-gradient(160deg,#0d2b1a,#0a1f13)}
+.ch-bar{border-radius:14px;padding:14px 16px;text-align:center}
+.ch-bar.minijuego{background:#0d5f6e}.ch-bar.evento{background:#7c4500}.ch-bar.versus{background:#6d1b3a}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
+.overlay.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- JOIN -->
+<div id="sJoin" class="screen active">
+  <div style="text-align:center;margin:36px 0 28px">
+    <div style="font-size:56px">🪿</div>
+    <h1 style="font-size:1.9rem;font-weight:900;margin-top:8px">La Oca Loca</h1>
+    <p style="color:#f0ddb077;font-size:14px;margin-top:4px">App Móvil</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;flex:1">
+    <div>
+      <div class="label">CÓDIGO DE SALA (6 letras de la TV)</div>
+      <input id="codeIn" type="text" maxlength="6" placeholder="ABCDEF"
+        style="text-transform:uppercase;font-size:2rem;font-weight:900;text-align:center;letter-spacing:.2em"
+        oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <div>
+      <div class="label">TU NOMBRE</div>
+      <input id="nameIn" type="text" placeholder="Nombre...">
+    </div>
+    <div>
+      <div class="label">EQUIPO</div>
+      <div id="teamBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn btn-gold" onclick="joinRoom()">Unirse →</button>
+    <p id="joinErr" style="color:#f87171;font-size:13px;text-align:center;display:none"></p>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div id="sWait" class="screen" style="align-items:center;justify-content:center">
+  <div style="text-align:center">
+    <div style="font-size:72px" class="pulse">🪿</div>
+    <h2 style="font-size:1.4rem;font-weight:900;margin-top:16px">Esperando reto...</h2>
+    <p style="color:#f0ddb055;font-size:14px;margin-top:8px" id="waitInfo"></p>
+    <div style="margin-top:20px;background:#152318;border-radius:14px;padding:12px 20px;display:inline-block">
+      <div class="label">SALA</div>
+      <div style="font-size:2rem;font-weight:900;color:#e8b84b;letter-spacing:.2em" id="waitCode">------</div>
+    </div>
+    <p style="color:#f0ddb033;font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
+  </div>
+</div>
+
+<!-- PLAYING -->
+<div id="sPlay" class="screen" style="gap:12px">
+  <div id="chBar" class="ch-bar minijuego">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.6" id="chType">MINIJUEGO</div>
+    <div style="font-size:20px;font-weight:900;color:#fff;margin-top:4px;line-height:1.2" id="chName">-</div>
+  </div>
+  <div class="card" style="font-size:14px;line-height:1.7;color:#f0ddb0cc" id="chDesc"></div>
+  <div id="roleCard" class="role-card normal" style="flex:1">
+    <div style="font-size:70px;line-height:1" id="roleEmoji">👥</div>
+    <div style="font-size:12px;font-weight:900;letter-spacing:.14em" id="roleLabel" style="color:#e8b84b">TU ROL</div>
+    <div style="font-size:28px;font-weight:900;color:#fff;line-height:1.2" id="roleName">-</div>
+    <div style="font-size:15px;line-height:1.65;color:rgba(255,255,255,.75);max-width:300px" id="roleDesc"></div>
+  </div>
+</div>
+
+<!-- SECRET OVERLAY -->
+<div id="secretOverlay" class="overlay hidden">
+  <div style="font-size:72px;margin-bottom:16px">🔒</div>
+  <h2 style="font-size:1.4rem;font-weight:900;color:#f472b6;margin-bottom:10px">ROL SECRETO</h2>
+  <p style="color:#f0ddb077;font-size:14px;margin-bottom:32px;line-height:1.6">Solo tú verás esto.<br>No lo enseñes a nadie.</p>
+  <button class="btn" style="background:#f472b6;color:#1a0514;max-width:280px" onclick="revealSecret()">Ver mi rol →</button>
+</div>
+
+<script>
+const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
+const TEAMS=['A','B','C','D','E','F','G','H'];
+let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null;
+
+window.addEventListener('DOMContentLoaded',()=>renderTeamBtns());
+
+function renderTeamBtns(){
+  document.getElementById('teamBtns').innerHTML=TEAMS.map((t,i)=>
+    `<button class="tBtn ${myTeam===t?'sel':''}" style="background:${TC[i]};color:#fff"
+      onclick="pickTeam('${t}')">${t}</button>`).join('');
+}
+function pickTeam(t){myTeam=t;renderTeamBtns();}
+
+function joinRoom(){
+  const code=document.getElementById('codeIn').value.trim().toUpperCase();
+  const name=document.getElementById('nameIn').value.trim();
+  const err=document.getElementById('joinErr');
+  if(!code||code.length<4){err.textContent='Introduce el código de sala.';err.style.display='block';return;}
+  if(!name){err.textContent='Escribe tu nombre.';err.style.display='block';return;}
+  if(!myTeam){err.textContent='Selecciona tu equipo.';err.style.display='block';return;}
+  err.style.display='none';
+  myName=name;
+  myTopic='oca-'+code;
+  mySince=Math.floor(Date.now()/1000);
+  document.getElementById('waitInfo').textContent=name+' · Equipo '+myTeam;
+  document.getElementById('waitCode').textContent=code;
+  show('sWait');
+  announce();
+  subscribe();
+}
+
+async function announce(){
+  try{
+    await fetch('https://ntfy.sh/'+myTopic,{
+      method:'POST',
+      body:JSON.stringify({type:'join',name:myName,team:myTeam}),
+      headers:{'Content-Type':'text/plain'}
+    });
+  }catch(e){
+    document.getElementById('connInfo').textContent='Sin conexión. Comprueba el WiFi.';
+  }
+}
+
+function subscribe(){
+  if(es){es.close();}
+  es=new EventSource('https://ntfy.sh/'+myTopic+'/sse?since='+mySince);
+  es.onopen=()=>{document.getElementById('connInfo').textContent='✓ Conectado';};
+  es.onerror=()=>{
+    document.getElementById('connInfo').textContent='Reconectando...';
+    setTimeout(subscribe,3000);
+  };
+  es.addEventListener('message',onMsg);
+}
+
+function onMsg(e){
+  try{
+    const n=JSON.parse(e.data);
+    const d=JSON.parse(n.message);
+    if(d.type==='challenge'){
+      showChallenge(d);
+    } else if(d.type==='clear'){
+      show('sWait');
+    }
+  }catch(err){}
+}
+
+function showChallenge(d){
+  const labels={minijuego:'🎮 MINIJUEGO',evento:'⚡ EVENTO',versus:'⚔️ VERSUS'};
+  document.getElementById('chType').textContent=labels[d.ctype]||d.ctype.toUpperCase();
+  document.getElementById('chName').textContent=d.name;
+  document.getElementById('chDesc').textContent=d.desc;
+  const bar=document.getElementById('chBar');
+  bar.className='ch-bar '+(d.ctype||'minijuego');
+  show('sPlay');
+
+  const role=d.roles&&d.roles[myName];
+  if(role){
+    if(role.isSecret){
+      pendingRole=role;
+      document.getElementById('secretOverlay').classList.remove('hidden');
+    } else {
+      applyRole(role,false);
+    }
+  } else {
+    applyRole({label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'},false);
+  }
+}
+
+function revealSecret(){
+  document.getElementById('secretOverlay').classList.add('hidden');
+  applyRole(pendingRole,true);
+  pendingRole=null;
+}
+
+function applyRole(role,secret){
+  const card=document.getElementById('roleCard');
+  card.className='role-card '+(secret?'secret':'normal');
+  document.getElementById('roleEmoji').textContent=role.emoji||'👥';
+  const lbl=document.getElementById('roleLabel');
+  lbl.textContent=secret?'⚠️ ROL SECRETO':'TU ROL';
+  lbl.style.color=secret?'#f472b6':'#e8b84b';
+  document.getElementById('roleName').textContent=role.label||'-';
+  document.getElementById('roleDesc').textContent=role.roleDesc||'';
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>
