@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🪿 La Oca Loca — TV</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-height:100vh}
+.screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
+.card{background:#152318;border:1px solid #3d2b1a;border-radius:16px;padding:18px}
+.btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:opacity .15s}.btn:hover{opacity:.85}
+.btn-gold{background:#e8b84b;color:#1a1200;padding:14px 28px;font-size:16px}
+.btn-mini{background:#0d5f6e;color:#fff;padding:14px;font-size:16px;width:100%}
+.btn-evento{background:#7c4500;color:#fff;padding:14px;font-size:16px;width:100%}
+.btn-versus{background:#6d1b3a;color:#fff;padding:14px;font-size:16px;width:100%}
+.btn-ghost{background:rgba(240,221,176,.1);color:#f0ddb0;border:1px solid rgba(240,221,176,.2);padding:10px 20px;font-size:13px}
+.btn-clear{background:#3d1010;color:#fca5a5;padding:10px;font-size:13px;width:100%}
+.code{font-size:5rem;font-weight:900;letter-spacing:.25em;color:#e8b84b;text-align:center;line-height:1}
+.label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
+.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(240,221,176,.07);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px}
+.role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(240,221,176,.05);border-radius:9px;margin-bottom:4px;font-size:13px}
+.tBtn{padding:9px 16px;border-radius:10px;border:3px solid transparent;font-weight:800;cursor:pointer;font-size:13px;font-family:inherit}
+.tBtn.sel{border-color:#e8b84b}
+.status{font-size:11px;color:#f0ddb055;text-align:right;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div id="sLobby" class="screen active">
+  <div style="display:grid;grid-template-columns:260px 1fr;gap:18px;margin-top:16px">
+    <div>
+      <div class="card" style="text-align:center;padding:24px 16px">
+        <div class="label">CÓDIGO DE SALA</div>
+        <div class="code" id="codeDisp">------</div>
+        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Los jugadores lo introducen en la app móvil</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="label">EQUIPOS (<span id="teamCountL">0</span>)</div>
+        <div id="teamListL" style="margin-top:6px"></div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;margin-top:12px;font-size:18px;padding:16px" onclick="goGame()">▶ Empezar partida</button>
+    </div>
+    <div class="card">
+      <div class="label">JUGADORES CONECTADOS (<span id="pCountL">0</span>)</div>
+      <div id="pListL" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<div id="sGame" class="screen">
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:16px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card" style="text-align:center;padding:12px">
+        <div class="label">SALA</div>
+        <div style="font-size:2.8rem;font-weight:900;color:#e8b84b;letter-spacing:.15em" id="codeSmall"></div>
+        <div class="status" id="connStatus">●  conectado</div>
+      </div>
+      <div class="card">
+        <div class="label">EQUIPO ACTIVO (quién tiró el dado)</div>
+        <div id="activePicker" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
+        <div class="label">EQUIPO RETADO (solo Versus)</div>
+        <div id="oppPicker" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px"></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <button class="btn btn-mini" onclick="pick('minijuego')">🎮 Minijuego</button>
+          <button class="btn btn-evento" onclick="pick('evento')">⚡ Evento</button>
+          <button class="btn btn-versus" onclick="pick('versus')">⚔️ Versus</button>
+        </div>
+        <button class="btn btn-clear" style="margin-top:8px" onclick="clearCh()">✕ Limpiar reto</button>
+      </div>
+      <div class="card" style="flex:1;overflow-y:auto">
+        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
+        <div id="pListG" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div id="chDisplay" class="card" style="min-height:260px;display:flex;align-items:center;justify-content:center">
+        <p style="color:#f0ddb044;font-size:20px">Selecciona equipo activo y tipo de reto</p>
+      </div>
+      <div id="rolesCard" class="card" style="display:none">
+        <div class="label">ROLES ASIGNADOS (visibles en los móviles)</div>
+        <div id="roleList" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Challenge data ────────────────────────────────────────────────────────────
+const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
+const CH={
+minijuego:[
+ {n:"Tiro de Honor",d:"Haz una canasta improvisada desde donde estéis. El grupo decide el aro y la pelota. Encested antes de 3 intentos.",rt:"actor",al:"LANZADOR",ad:"Tú eres quien tiene que encestar.",bl:"ÁRBITRO",bd:"Pon el aro y decide si ha encestado."},
+ {n:"Cadena Rota",d:"El primero susurra una frase al oído. Viaja por todo el equipo. El último la dice en voz alta. ¿Queda algo de la original?",rt:"chain"},
+ {n:"El Artista Invisible",d:"Dibuja una palabra en la espalda de otro con el dedo. Ese jugador debe adivinar qué es sin mirar.",rt:"artist_back"},
+ {n:"Sin Palabras",d:"Actúa sin hablar ni sonidos. Nada de señalar directamente. Los demás tienen 45 segundos para adivinar.",rt:"actor",al:"ACTOR",ad:"Actúas sin palabras ni sonidos.",bl:"ADIVINA",bd:"Intenta adivinar qué representa."},
+ {n:"El Reloj Humano",d:"Levantad la mano cuando creáis que han pasado exactamente 30 segundos. Sin mirar el reloj ni contar en voz alta.",rt:"all"},
+ {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
+ {n:"Buceador Lingüístico",d:"Aguanta el aliento y di una frase. Los demás adivinan qué has dicho.",rt:"actor",al:"BUCEADOR",ad:"Tú hablas aguantando el aliento.",bl:"OYENTE",bd:"Intentad adivinar qué dice."},
+ {n:"El Globo Traicionero",d:"Sostén un globo entre tú y otro sin usar las manos. Moved hasta la meta sin que caiga.",rt:"pair"},
+ {n:"Caza al Tesoro",d:"En 60 segundos traed el objeto más raro o absurdo que encontréis. El grupo vota.",rt:"all"},
+ {n:"Sin Vista",d:"Con los ojos vendados, coloca un papel en el punto exacto que te indica el equipo con instrucciones verbales.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Sigue las instrucciones de tu equipo.",bl:"GUÍA",bd:"Guiad al ciego solo con palabras."},
+ {n:"Mente Colmena",d:"Dos jugadores dicen una palabra al mismo tiempo. Buscan una que conecte ambas. Siguen hasta coincidir.",rt:"pair"},
+ {n:"Es un 10 pero...",d:"Di 'es un 10 pero...' con el defecto más absurdo. Los demás puntúan del 1 al 10 si quedarían.",rt:"actor",al:"DESCRICTOR",ad:"Tú propones el '10 pero...'. Hazlo absurdo.",bl:"JURADO",bd:"Puntúa del 1 al 10 si quedarías."},
+ {n:"Dado del Destino",d:"Tira el dado. El número marca cuántas sentadillas, flexiones o segundos bailando debe hacer todo el equipo.",rt:"all"},
+ {n:"El Equilibrista",d:"Cruza la sala con un vaso de agua en equilibrio sobre la cabeza. Si lo derramas, vuelves al inicio. 90 segundos.",rt:"actor",al:"EQUILIBRISTA",ad:"Cruzas la sala con el vaso en la cabeza.",bl:"ÁRBITRO",bd:"Controlad el tiempo y el vaso."},
+ {n:"Striptease con Globo",d:"Coloca un globo entre tu cuerpo y tu camiseta. Quítatela sin que caiga. Sin usar las manos.",rt:"actor",al:"INTÉRPRETE",ad:"Tú te quitas la camiseta sin que caiga el globo.",bl:"JURADO",bd:"Decidid si el globo ha tocado el suelo."},
+ {n:"Cifrado Secreto",d:"Pensad en una película o serie. Los demás piden letras de una en una. Máximo 10 letras.",rt:"all"},
+ {n:"Safari Urbano",d:"En 2 minutos haced la foto más absurda o creativa posible. El resto vota.",rt:"all"},
+ {n:"La Cadena",d:"Pasad una carta de naipes de boca en boca. Sin usar las manos. Si cae, vuelta a empezar. 90 segundos.",rt:"chain"},
+ {n:"Trazo Maestro",d:"Dibuja en el aire con el dedo índice. Los demás tienen 30 segundos para adivinar. Prohibido hablar.",rt:"actor",al:"DIBUJANTE",ad:"Dibuja en el aire con el dedo.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
+ {n:"El Jurado",d:"Haz el salto más espectacular posible desde parado. Los demás puntúan del 1 al 10.",rt:"actor",al:"SALTADOR",ad:"Haz el salto más épico desde parado.",bl:"JURADO",bd:"Puntúa del 1 al 10."},
+ {n:"Torre de Naipes",d:"Construid la torre más alta posible con cartas en 90 segundos.",rt:"all"},
+ {n:"Sopladores Profesionales",d:"Moved un objeto ligero solo soplando desde la salida hasta la meta.",rt:"all"},
+ {n:"El Precio Justo",d:"El moderador describe un objeto. El equipo tiene 30 segundos para adivinar su precio.",rt:"all"},
+ {n:"Nudo Humano",d:"Agarraos de las manos formando un nudo. Deshacedlo sin soltaros. 3 minutos.",rt:"all"},
+ {n:"Memoria Fotográfica",d:"El moderador muestra 10 objetos 30 segundos. Se tapan. 7 o más aciertos = superado.",rt:"all"},
+ {n:"El Espejo",d:"Uno lidera movimientos lentos, el otro los replica como espejo. 30 segundos.",rt:"mirror"},
+ {n:"Trabalenguas en Cadena",d:"Un trabalenguas viaja por el equipo. Dos fallos = reto fallado.",rt:"chain"},
+ {n:"Blindtest de Objetos",d:"Con los ojos vendados, toca 5 objetos e identifícalos. Solo pueden decir frío o caliente.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Identifica los objetos.",bl:"GUÍA",bd:"Pasad objetos. Solo podéis decir frío o caliente."},
+ {n:"Arquitectos de Papel",d:"Con 5 folios sin cinta, construid el puente más largo posible. 2 minutos.",rt:"all"},
+ {n:"El Cubo Imposible",d:"Lanzad un objeto blando a una papelera desde la distancia marcada. Mayoría encesta = superado.",rt:"all"},
+],
+evento:[
+ {n:"Acústico Imperfecto",d:"Un miembro de cada equipo tararea la misma canción. Su equipo tiene 45 segundos para adivinar. Primer equipo en acertar, gana.",rt:"rep_team",al:"HUMMEADOR",ad:"Tú tarareas la canción. Sin palabras.",bl:"ADIVINA",bd:"45 segundos para adivinar la canción."},
+ {n:"Funambulista Urbano",d:"Un representante por equipo recorre la distancia con un objeto en equilibrio sobre la cabeza.",rt:"rep_team",al:"FUNAMBULISTA",ad:"Tú caminas con el objeto en la cabeza.",bl:"ESPECTADOR",bd:"Animad a vuestro representante."},
+ {n:"El Último Ninja",d:"Todos adoptan pose ninja. Completamente inmóviles. El primero en moverse pierde.",rt:"all"},
+ {n:"Eco Salvaje",d:"Uno por equipo participa. El moderador da la primera palabra. Cada uno sigue con la última sílaba.",rt:"rep_team",al:"JUGADOR",ad:"Tú participas en el Eco Salvaje.",bl:"HINCHA",bd:"Anima a tu representante."},
+ {n:"Expedición Relámpago",d:"El moderador dice una letra. Todos buscan objetos que empiecen por esa letra en 60 segundos.",rt:"all"},
+ {n:"Pareja Indisoluble",d:"Un par por equipo se ata los tobillos. El moderador propone una tarea absurda.",rt:"pair_team"},
+ {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. Alguien le descubre?",rt:"assassin"},
+ {n:"Instante Inmortal",d:"3 minutos para hacer la foto más épica posible. Votación anónima.",rt:"all"},
+ {n:"Congelados",d:"Música → silencio → todos inmóviles. El que se mueva, eliminado.",rt:"all"},
+ {n:"Flash Talent",d:"Cada equipo tiene 60 segundos para preparar un número de talento. El público vota.",rt:"all"},
+ {n:"Limbo Universal",d:"Clásico limbo. Se baja la altura cada ronda. El que caiga, eliminado.",rt:"all"},
+ {n:"¿Quién del grupo?",d:"El moderador lee una pregunta. Todos señalan a alguien al mismo tiempo.",rt:"all"},
+ {n:"Gran Prix de Cuclillas",d:"Todos a cuclillas a la señal. El último en levantarse o caerse gana.",rt:"all"},
+ {n:"Coreografía Relámpago",d:"60 segundos para inventar una coreografía de 8 pasos. Se ejecuta a la vez.",rt:"all"},
+ {n:"El Gran Debate",d:"Dos equipos defienden SÍ y NO ante un tema absurdo. 2 minutos. El resto vota.",rt:"sides"},
+ {n:"Concurso de Caras",d:"5 segundos para hacer la cara más rara posible. El moderador vota la mejor.",rt:"all"},
+],
+versus:[
+ {n:"Duelo Ancestral",d:"Piedra, papel o tijera. Mejor de 3 rondas.",rt:"rep",al:"COMBATIENTE",ad:"Tú juegas el duelo contra el representante rival.",bl:"HINCHA",bd:"Anima a tu representante."},
+ {n:"Tres en Raya de la Muerte",d:"Un representante por equipo. El perdedor cumple penitencia.",rt:"rep",al:"JUGADOR",ad:"Tú juegas al Tres en Raya.",bl:"PÚBLICO",bd:"Decidid la penitencia si pierde vuestro representante."},
+ {n:"Cara o Cruz Extremo",d:"El equipo retador lanza la moneda. El rival elige cara o cruz. El perdedor recibe penitencia.",rt:"rep",al:"LANZADOR",ad:"Tú lanzas la moneda.",bl:"ELECTOR",bd:"Elegid cara o cruz cuando lance el rival."},
+ {n:"Cara de Piedra",d:"Un representante de cada equipo llena la boca de agua. Sus equipos intentan hacerles reír.",rt:"rep",al:"CARA DE PIEDRA",ad:"Llena la boca de agua. 60 segundos sin reírte.",bl:"COMEDIANTE",bd:"Haced reír al representante rival. Sin tocarlo."},
+ {n:"Duelo de Fuerza",d:"Un representante por equipo. El que más flexiones seguidas haga sin parar, gana.",rt:"rep",al:"ATLETA",ad:"Tú haces las flexiones.",bl:"ÁRBITRO",bd:"Contad las flexiones."},
+ {n:"Guardianes del Globo",d:"Dos representantes se pasan un globo. El grupo dicta cada 5 segundos qué parte del cuerpo usar.",rt:"rep",al:"GUARDIÁN",ad:"Pasas el globo con el representante rival.",bl:"DICTADOR",bd:"Cada 5 segundos gritad qué parte del cuerpo usar."},
+ {n:"El Gran Salto",d:"Salto de longitud desde parado. Un intento por representante. El más lejos, gana.",rt:"rep",al:"SALTADOR",ad:"Tú saltas. Un intento.",bl:"JUEZ",bd:"Medid quién ha llegado más lejos."},
+ {n:"Sirenas Terrestres",d:"Natación en tierra hasta la meta. El más rápido gana.",rt:"rep",al:"SIRENA",ad:"Nadas por el suelo hasta la meta.",bl:"ÁRBITRO",bd:"El más rápido con técnica correcta gana."},
+ {n:"Trivia Rápida",d:"3 preguntas de cultura general. Primer equipo en responder correctamente gana el punto.",rt:"all"},
+ {n:"Batalla de Baile",d:"Un representante baila 30 segundos. El público vota.",rt:"rep",al:"BAILARÍN",ad:"Tú bailas 30 segundos.",bl:"COREÓGRAFO",bd:"Luego el grupo vota."},
+ {n:"Torre vs Torre",d:"60 segundos para construir la torre más alta posible con objetos de la sala.",rt:"all"},
+ {n:"Mímica Cruzada",d:"Cada equipo prepara una mímica en secreto. El rival tiene 30 segundos para adivinar.",rt:"all"},
+ {n:"Tira y Afloja",d:"Con una cuerda o similar. Gana el equipo que cruce la línea central.",rt:"all"},
+ {n:"Humming Battle",d:"Un representante tararea una canción en secreto. El equipo rival intenta adivinarla.",rt:"rep",al:"HUMMER SECRETO",ad:"El moderador te dirá una canción al oído. Tararéala.",bl:"DETECTIVE",bd:"Intentad adivinar qué canción tararea el rival."},
+ {n:"Debate Absurdo",d:"Afirmación ridícula. Un equipo defiende SÍ, el otro NO. 2 minutos. El resto vota.",rt:"sides"},
+ {n:"Quién Ríe Primero",d:"Un representante de cada equipo se miran fijamente. Sus equipos intentan hacer reír al rival.",rt:"rep",al:"CARA SERIA",ad:"Mírate con el representante rival sin reírte 60 segundos.",bl:"BROMISTA",bd:"Haced reír al representante rival. Sin tocarlo."},
+]};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let topic='',players={},activeT=null,oppT=null,es=null,since=0;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  topic='oca-'+code;
+  since=Math.floor(Date.now()/1000);
+  document.getElementById('codeDisp').textContent=code;
+  document.getElementById('codeSmall').textContent=code;
+  subscribe();
+});
+
+function subscribe(){
+  if(es){es.close();}
+  es=new EventSource('https://ntfy.sh/'+topic+'/sse?since='+since);
+  es.addEventListener('message',onMsg);
+  es.onerror=()=>{
+    document.getElementById('connStatus').textContent='● reconectando...';
+    setTimeout(subscribe,3000);
+  };
+  es.onopen=()=>{
+    const el=document.getElementById('connStatus');
+    if(el)el.textContent='●  conectado';
+  };
+}
+
+function onMsg(e){
+  try{
+    const n=JSON.parse(e.data);
+    const d=JSON.parse(n.message);
+    if(d.type==='join'){
+      players[d.name]={name:d.name,team:d.team};
+      renderPlayers();
+    }
+  }catch(err){}
+}
+
+async function pub(data){
+  try{
+    await fetch('https://ntfy.sh/'+topic,{
+      method:'POST',body:JSON.stringify(data),
+      headers:{'Content-Type':'text/plain'}
+    });
+  }catch(e){console.error('pub error',e);}
+}
+
+// ── Player rendering ──────────────────────────────────────────────────────────
+function renderPlayers(){
+  const ps=Object.values(players);
+  document.getElementById('pCountL').textContent=ps.length;
+  document.getElementById('pCountG').textContent=ps.length;
+  const teams=[...new Set(ps.map(p=>p.team))].sort();
+  document.getElementById('teamCountL').textContent=teams.length;
+
+  document.getElementById('pListL').innerHTML=ps.map(p=>`
+    <div class="chip"><div class="dot" style="background:${tc(p.team)}"></div>
+    <strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
+
+  document.getElementById('teamListL').innerHTML=teams.map(t=>{
+    const n=ps.filter(p=>p.team===t).length;
+    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)">
+      <div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong>
+      <span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;
+  }).join('');
+
+  document.getElementById('pListG').innerHTML=ps.map(p=>`
+    <div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px">
+      <div class="dot" style="background:${tc(p.team)}"></div>${p.name}
+      <span style="color:#f0ddb044;font-size:11px">Eq.${p.team}</span></div>`).join('');
+
+  // Team pickers
+  const ap=document.getElementById('activePicker');
+  const op=document.getElementById('oppPicker');
+  ap.innerHTML=teams.map(t=>`<button class="tBtn ${activeT===t?'sel':''}" style="background:${tc(t)};color:#fff" onclick="selT('a','${t}')">Eq.${t}</button>`).join('');
+  op.innerHTML=teams.map(t=>`<button class="tBtn ${oppT===t?'sel':''}" style="background:${tc(t)};color:#fff;opacity:${t===activeT?.4:1}" onclick="selT('o','${t}')" ${t===activeT?'disabled':''}">Eq.${t}</button>`).join('');
+}
+
+function selT(w,t){
+  if(w==='a'){activeT=t;if(oppT===t)oppT=null;}
+  else oppT=t;
+  renderPlayers();
+}
+
+function goGame(){pub({type:'start'});show('sGame');}
+
+// ── Challenge selection ───────────────────────────────────────────────────────
+function pick(type){
+  if(type!=='evento'&&!activeT){alert('Selecciona el equipo activo primero.');return;}
+  if(type==='versus'&&!oppT){alert('Selecciona el equipo retado para Versus.');return;}
+  const pool=CH[type];
+  const ch=pool[Math.floor(Math.random()*pool.length)];
+  const ps=Object.values(players);
+  let active;
+  if(type==='minijuego') active=ps.filter(p=>p.team===activeT);
+  else if(type==='evento') active=ps;
+  else active=ps.filter(p=>p.team===activeT||p.team===oppT);
+  const roles=assignRoles(ch,active,ps,activeT,oppT);
+  const msg={type:'challenge',name:ch.n,desc:ch.d,ctype:type,roles};
+  pub(msg);
+  renderChallenge(ch,type);
+  renderRoles(roles,ps);
+}
+
+function clearCh(){
+  pub({type:'clear'});
+  document.getElementById('chDisplay').innerHTML='<p style="color:#f0ddb044;font-size:20px">Selecciona equipo activo y tipo de reto</p>';
+  document.getElementById('rolesCard').style.display='none';
+}
+
+function renderChallenge(ch,type){
+  const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
+  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
+  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
+  document.getElementById('chDisplay').innerHTML=`
+    <div style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
+      <div style="font-size:64px">${em}</div>
+      <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
+      <div style="color:#fff;font-size:34px;font-weight:900;margin-bottom:16px;line-height:1.1">${ch.n}</div>
+      <div style="color:rgba(255,255,255,.78);font-size:16px;line-height:1.7;max-width:600px;margin:0 auto">${ch.d}</div>
+    </div>`;
+}
+
+function renderRoles(roles,ps){
+  document.getElementById('rolesCard').style.display='block';
+  document.getElementById('roleList').innerHTML=ps.map(p=>{
+    const r=roles[p.name];if(!r)return'';
+    return`<div class="role-row">
+      <div class="dot" style="background:${tc(p.team)}"></div>
+      <strong style="flex:1">${p.name}</strong>
+      <span style="font-size:16px">${r.emoji}</span>
+      <span style="color:${r.isSecret?'#f472b6':'#e8b84b'};font-weight:700;font-size:12px">${r.label}</span>
+      ${r.isSecret?'<span style="color:#f472b6;font-size:11px">🔒</span>':''}
+    </div>`;
+  }).join('');
+}
+
+// ── Role assignment ───────────────────────────────────────────────────────────
+function assignRoles(ch,active,allPs,aT,oT){
+  const R={};
+  const teams=[...new Set(active.map(p=>p.team))];
+  const inactive=allPs.filter(p=>!active.find(a=>a.name===p.name));
+  inactive.forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'};});
+  const rnd=arr=>arr[Math.floor(Math.random()*arr.length)];
+  const shuf=arr=>[...arr].sort(()=>Math.random()-.5);
+
+  switch(ch.rt){
+    case'all':
+      active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      break;
+    case'actor':{
+      const tp=active.filter(p=>p.team===aT);
+      const actor=rnd(tp);
+      tp.forEach(p=>{R[p.name]=p.name===actor.name
+        ?{label:ch.al,emoji:'⭐',isSecret:false,roleDesc:ch.ad}
+        :{label:ch.bl,emoji:'👥',isSecret:false,roleDesc:ch.bd};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'chain':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      tp.forEach((p,i)=>{
+        const f=i===0,l=i===tp.length-1;
+        R[p.name]={label:f?'PRIMERO':l?'ÚLTIMO':'#'+(i+1),emoji:f?'1️⃣':l?'🔚':(i+1)+'️⃣',isSecret:false,
+          roleDesc:f?'Tú empiezas la cadena.':l?'Tú cierras la cadena.':'Eres el número '+(i+1)+' en la cadena.'};
+      });
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'artist_back':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      if(tp.length>=2){
+        R[tp[0].name]={label:'ARTISTA',emoji:'✍️',isSecret:false,roleDesc:'Dibuja con el dedo en la espalda de '+tp[1].name+'.'};
+        R[tp[1].name]={label:'RECEPTOR',emoji:'🔮',isSecret:false,roleDesc:'Te dibujan en la espalda. Adivina qué es.'};
+        tp.slice(2).forEach(p=>{R[p.name]={label:'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:'Tú también intentas adivinar.'};});
+      }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'mirror':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      if(tp.length>=2){
+        R[tp[0].name]={label:'LÍDER',emoji:'🎭',isSecret:false,roleDesc:'Haz movimientos lentos. '+tp[1].name+' te copiará.'};
+        R[tp[1].name]={label:'ESPEJO',emoji:'🪞',isSecret:false,roleDesc:'Copia cada movimiento de '+tp[0].name+'.'};
+        tp.slice(2).forEach(p=>{R[p.name]={label:'JURADO',emoji:'⭐',isSecret:false,roleDesc:'Evaluad la sincronía.'};});
+      }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'JURADO',emoji:'⭐',isSecret:false,roleDesc:'Evaluad.'};});
+      break;}
+    case'pair':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      if(tp.length>=2){
+        R[tp[0].name]={label:'PAREJA A',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[1].name+'.'};
+        R[tp[1].name]={label:'PAREJA B',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[0].name+'.'};
+        tp.slice(2).forEach(p=>{R[p.name]={label:'APOYO',emoji:'👥',isSecret:false,roleDesc:'Animad a la pareja.'};});
+      }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'assassin':{
+      const killer=rnd(active);
+      active.forEach(p=>{R[p.name]=p.name===killer.name
+        ?{label:'ERES EL ASESINO',emoji:'🗡️',isSecret:true,roleDesc:'Guiña el ojo a los demás uno a uno. Que no te pillen. Las víctimas esperan 5 segundos antes de caer.'}
+        :{label:'VÍCTIMA',emoji:'😇',isSecret:true,roleDesc:'Si alguien te guiña el ojo, espera 5 segundos y cae dramáticamente. Si sabes quién es el asesino, di ¡Acusación!'};});
+      break;}
+    case'rep':{
+      [aT,oT].filter(Boolean).forEach(t=>{
+        const tp=active.filter(p=>p.team===t);if(!tp.length)return;
+        const rep=rnd(tp);
+        tp.forEach(p=>{R[p.name]=p.name===rep.name
+          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú compites por tu equipo.'}
+          :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
+      });
+      break;}
+    case'rep_team':{
+      teams.forEach(t=>{
+        const tp=active.filter(p=>p.team===t);if(!tp.length)return;
+        const rep=rnd(tp);
+        tp.forEach(p=>{R[p.name]=p.name===rep.name
+          ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú participas por tu equipo.'}
+          :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
+      });
+      break;}
+    case'pair_team':{
+      teams.forEach(t=>{
+        const tp=shuf(active.filter(p=>p.team===t));if(!tp.length)return;
+        if(tp.length>=2){
+          R[tp[0].name]={label:'ATADO A',emoji:'🔗',isSecret:false,roleDesc:'Os atáis el tobillo con '+tp[1].name+'.'};
+          R[tp[1].name]={label:'ATADO B',emoji:'🔗',isSecret:false,roleDesc:'Os atáis el tobillo con '+tp[0].name+'.'};
+          tp.slice(2).forEach(p=>{R[p.name]={label:'LIBRE',emoji:'👟',isSecret:false,roleDesc:'La pareja de vuestro equipo os representa.'};});
+        }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      });
+      break;}
+    case'sides':{
+      if(teams.length>=2){
+        active.filter(p=>p.team===teams[0]).forEach(p=>{R[p.name]={label:'DEFIENDE EL SÍ',emoji:'✅',isSecret:false,roleDesc:'Vuestro equipo defiende el SÍ. Argumentad con convicción.'};});
+        active.filter(p=>p.team===teams[1]).forEach(p=>{R[p.name]={label:'DEFIENDE EL NO',emoji:'❌',isSecret:false,roleDesc:'Vuestro equipo defiende el NO. Argumentad con convicción.'};});
+        teams.slice(2).forEach(t=>{active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'JURADO',emoji:'⚖️',isSecret:false,roleDesc:'Votáis al equipo más convincente.'};});});
+      }else active.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      break;}
+    default:
+      active.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+  }
+  return R;
+}
+
+function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+</script>
+</body>
+</html>
