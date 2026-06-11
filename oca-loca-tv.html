@@ -6,18 +6,14 @@
 <title>🪿 La Oca Loca — TV</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--felt:#0d1b0f;--panel:#152318;--card:#1d2f1f;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
+:root{--felt:#0d1b0f;--panel:#152318;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
 body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color:var(--parch);font-family:system-ui,sans-serif;min-height:100vh}
 .screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
-.btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s,box-shadow .15s}
-.btn:hover{opacity:.9;transform:translateY(-1px)}
-.btn:active{transform:scale(.97)}
+.btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
+.btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:scale(.97)}
 .btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(232,184,75,.35)}
-.btn-mini{background:#0d5f6e;color:#fff;padding:14px;font-size:16px;width:100%}
-.btn-evento{background:#7c4500;color:#fff;padding:14px;font-size:16px;width:100%}
-.btn-versus{background:#6d1b3a;color:#fff;padding:14px;font-size:16px;width:100%}
-.btn-clear{background:#3d1010;color:#fca5a5;padding:10px;font-size:13px;width:100%}
+.btn-back{background:rgba(240,221,176,.08);color:rgba(240,221,176,.6);padding:10px 18px;font-size:13px;border:1px solid rgba(240,221,176,.12)}
 .code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.4)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
@@ -25,29 +21,33 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
 @keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 .role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(240,221,176,.05);border-radius:9px;margin-bottom:4px;font-size:13px;animation:slideIn .35s ease both}
 @keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
-.tBtn{padding:9px 16px;border-radius:10px;border:3px solid transparent;font-weight:800;cursor:pointer;font-size:13px;font-family:inherit;transition:transform .12s}
-.tBtn:active{transform:scale(.95)}
-.tBtn.sel{border-color:var(--gold);transform:scale(1.06)}
-.status{font-size:11px;color:#f0ddb055;text-align:right;margin-top:4px}
+.status{font-size:11px;color:#f0ddb055;text-align:center;margin-top:4px}
 .grid2{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-@media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:300px 1fr}}
+@media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:280px 1fr}}
 
-/* ── Slot machine reveal ── */
-@keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}
+/* ── Wizard ── */
+.wizard-q{font-size:24px;font-weight:900;color:#fff;text-align:center;margin-bottom:24px;animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.cat-card{border:none;border-radius:20px;padding:36px 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both}
+.cat-card:hover{transform:translateY(-4px) scale(1.02)}
+.cat-card:active{transform:scale(.97)}
+.cat-emoji{font-size:56px;display:block;margin-bottom:10px}
+.cat-name{font-size:22px;font-weight:900;letter-spacing:.02em}
+.cat-sub{font-size:12px;opacity:.65;margin-top:6px;line-height:1.5}
+.team-big{border:3px solid transparent;border-radius:18px;padding:28px 14px;cursor:pointer;font-family:inherit;color:#fff;font-size:26px;font-weight:900;transition:transform .12s;min-width:110px;animation:fadeUp .3s ease both}
+.team-big:hover{transform:scale(1.06)}.team-big:active{transform:scale(.95)}
+.team-big small{display:block;font-size:11px;font-weight:700;opacity:.7;margin-top:4px}
+
+/* ── Slot + roulette + confetti (unchanged visuals) ── */
 .slot-window{height:54px;overflow:hidden;position:relative}
-.slot-reel{display:flex;flex-direction:column}
-.slot-item{height:54px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#fff;flex-shrink:0}
+.slot-item{height:54px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#fff}
 @keyframes chPop{0%{transform:scale(.7) rotate(-2deg);opacity:0}60%{transform:scale(1.04) rotate(.5deg)}100%{transform:scale(1) rotate(0)}}
 .ch-reveal{animation:chPop .55s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(232,184,75,.25)}50%{box-shadow:0 0 48px rgba(232,184,75,.55)}}
-
-/* ── Roulette on TV ── */
 .roul-name{padding:12px 22px;border-radius:14px;font-size:22px;font-weight:900;background:rgba(240,221,176,.06);border:2px solid transparent;transition:all .08s;color:rgba(240,221,176,.5)}
 .roul-name.lit{background:var(--gold);color:#1a1200;transform:scale(1.12);box-shadow:0 0 36px rgba(232,184,75,.7);border-color:#fff}
 .roul-name.winner{background:var(--gold);color:#1a1200;transform:scale(1.25);box-shadow:0 0 60px rgba(232,184,75,.95);border-color:#fff;animation:winnerBounce .5s ease 3}
 @keyframes winnerBounce{0%,100%{transform:scale(1.25)}50%{transform:scale(1.35)}}
-
-/* confetti */
 .confetti{position:fixed;width:10px;height:10px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
 @keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
@@ -60,7 +60,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
       <div class="card" style="text-align:center;padding:24px 16px;animation:glowPulse 3s ease-in-out infinite">
         <div class="label">CÓDIGO DE SALA</div>
         <div class="code" id="codeDisp">------</div>
-        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Escanea para unirte directamente</p>
+        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Escanea para unirte</p>
         <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
       </div>
       <div class="card" style="margin-top:12px">
@@ -80,22 +80,14 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
   <div class="grid2 gridGame">
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="card" style="text-align:center;padding:12px">
-        <div class="label">SALA</div>
-        <div style="font-size:2.4rem;font-weight:900;color:var(--gold);letter-spacing:.15em" id="codeSmall"></div>
-        <div id="qrSmall" style="margin-top:8px;display:flex;justify-content:center"></div>
-        <div class="status" id="connStatus">●  conectado</div>
-      </div>
-      <div class="card">
-        <div class="label">EQUIPO ACTIVO (quién tiró el dado)</div>
-        <div id="activePicker" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
-        <div class="label">EQUIPO RETADO (solo Versus)</div>
-        <div id="oppPicker" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px"></div>
-        <div style="display:flex;flex-direction:column;gap:7px">
-          <button class="btn btn-mini" onclick="pick('minijuego')">🎮 Minijuego</button>
-          <button class="btn btn-evento" onclick="pick('evento')">⚡ Evento</button>
-          <button class="btn btn-versus" onclick="pick('versus')">⚔️ Versus</button>
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px">
+          <div>
+            <div class="label">SALA</div>
+            <div style="font-size:1.8rem;font-weight:900;color:var(--gold);letter-spacing:.1em" id="codeSmall"></div>
+          </div>
+          <div id="qrSmall"></div>
         </div>
-        <button class="btn btn-clear" style="margin-top:8px" onclick="clearCh()">✕ Limpiar reto</button>
+        <div class="status" id="connStatus">●  conectado</div>
       </div>
       <div class="card" style="flex:1;overflow-y:auto">
         <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
@@ -103,11 +95,9 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div id="chDisplay" class="card" style="min-height:300px;display:flex;align-items:center;justify-content:center">
-        <p style="color:#f0ddb044;font-size:20px">Selecciona equipo activo y tipo de reto</p>
-      </div>
+      <div id="mainPanel" class="card" style="min-height:380px;display:flex;flex-direction:column;justify-content:center"></div>
       <div id="rolesCard" class="card" style="display:none">
-        <div class="label">ROLES ASIGNADOS (visibles en los móviles)</div>
+        <div class="label">ROLES (visibles en los móviles)</div>
         <div id="roleList" style="margin-top:8px"></div>
       </div>
     </div>
@@ -186,7 +176,10 @@ versus:[
  {n:"Quién Ríe Primero",d:"Un representante de cada equipo se miran fijamente. Sus equipos intentan hacer reír al rival.",rt:"rep",al:"CARA SERIA",ad:"Mírate con el representante rival sin reírte 60 segundos.",bl:"BROMISTA",bd:"Haced reír al representante rival. Sin tocarlo."},
 ]};
 
-let topic='',players={},activeT=null,oppT=null,es=null,since=0,busy=false;
+
+let topic='',players={},es=null,since=0,busy=false;
+// Wizard state
+let wState='cat', wType=null, wActive=null, wOpp=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -197,9 +190,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('codeSmall').textContent=code;
   const mUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
   const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
-  const q2='https://api.qrserver.com/v1/create-qr-code/?size=100x100&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
+  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
   document.getElementById('qrBox').innerHTML='<img src="'+q1+'" style="border-radius:10px;width:180px;height:180px">';
-  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:100px;height:100px">';
+  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:72px;height:72px">';
   subscribe();
 });
 
@@ -213,74 +206,119 @@ function subscribe(){
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
-    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};renderPlayers();}
+    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};renderPlayers();if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
 }
-async function pub(data){
-  try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}
-  catch(e){console.error(e);}
-}
+async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}catch(e){}}
+
+function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort();}
 
 function renderPlayers(){
   const ps=Object.values(players);
   document.getElementById('pCountL').textContent=ps.length;
   document.getElementById('pCountG').textContent=ps.length;
-  const teams=[...new Set(ps.map(p=>p.team))].sort();
-  document.getElementById('teamCountL').textContent=teams.length;
+  const ts=teams();
+  document.getElementById('teamCountL').textContent=ts.length;
   document.getElementById('pListL').innerHTML=ps.map(p=>`<div class="chip"><div class="dot" style="background:${tc(p.team)}"></div><strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
-  document.getElementById('teamListL').innerHTML=teams.map(t=>{const n=ps.filter(p=>p.team===t).length;
+  document.getElementById('teamListL').innerHTML=ts.map(t=>{const n=ps.filter(p=>p.team===t).length;
     return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)"><div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong><span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;}).join('');
   document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div>${p.name}<span style="color:#f0ddb044;font-size:11px">Eq.${p.team}</span></div>`).join('');
-  const ap=document.getElementById('activePicker'),op=document.getElementById('oppPicker');
-  ap.innerHTML=teams.map(t=>`<button class="tBtn ${activeT===t?'sel':''}" style="background:${tc(t)};color:#fff" onclick="selT('a','${t}')">Eq.${t}</button>`).join('');
-  op.innerHTML=teams.map(t=>`<button class="tBtn ${oppT===t?'sel':''}" style="background:${tc(t)};color:#fff;opacity:${t===activeT?.4:1}" onclick="selT('o','${t}')" ${t===activeT?'disabled':''}>Eq.${t}</button>`).join('');
 }
-function selT(w,t){if(w==='a'){activeT=t;if(oppT===t)oppT=null;}else oppT=t;renderPlayers();}
-function goGame(){pub({type:'start'});show('sGame');}
 
-// ── Pick + roulette ───────────────────────────────────────────────────────────
-function pick(type){
-  if(busy)return;
-  if(type!=='evento'&&!activeT){alert('Selecciona el equipo activo primero.');return;}
-  if(type==='versus'&&!oppT){alert('Selecciona el equipo retado para Versus.');return;}
-  const pool=CH[type];
-  const ch=pool[Math.floor(Math.random()*pool.length)];
-  const ps=Object.values(players);
-  let active;
-  if(type==='minijuego')active=ps.filter(p=>p.team===activeT);
-  else if(type==='evento')active=ps;
-  else active=ps.filter(p=>p.team===activeT||p.team===oppT);
-  const {roles,roulette}=assignRoles(ch,active,ps,activeT,oppT);
-  busy=true;
-  const msg={type:'challenge',name:ch.n,desc:ch.d,ctype:type,roles,roulette};
-  pub(msg);
-  if(roulette){
-    playTVRoulette(roulette,()=>{revealChallenge(ch,type,roles,ps);busy=false;});
-  }else{
-    slotReveal(ch,type,()=>{renderRoles(roles,ps);busy=false;});
+function goGame(){pub({type:'start'});show('sGame');wizardReset();}
+
+// ════ WIZARD ════
+function wizardReset(){wState='cat';wType=null;wActive=null;wOpp=null;document.getElementById('rolesCard').style.display='none';renderWizard();}
+
+function renderWizard(){
+  const mp=document.getElementById('mainPanel');
+  if(wState==='cat'){
+    mp.innerHTML=`
+      <div class="wizard-q">¿En qué casilla ha caído?</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <button class="cat-card" style="background:#0d5f6e;animation-delay:0ms" onclick="wPickCat('minijuego')">
+          <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span>
+          <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
+        </button>
+        <button class="cat-card" style="background:#7c4500;animation-delay:60ms" onclick="wPickCat('evento')">
+          <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span>
+          <div class="cat-sub">Juegan todos<br>los equipos</div>
+        </button>
+        <button class="cat-card" style="background:#6d1b3a;animation-delay:120ms" onclick="wPickCat('versus')">
+          <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
+          <div class="cat-sub">Un equipo<br>reta a otro</div>
+        </button>
+      </div>`;
+  }
+  else if(wState==='active'){
+    const q=wType==='versus'?'¿Qué equipo reta?':'¿Qué equipo tiró el dado?';
+    mp.innerHTML=`
+      <div class="wizard-q">${q}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        ${teams().map((t,i)=>`<button class="team-big" style="background:${tc(t)};animation-delay:${i*50}ms" onclick="wPickActive('${t}')">${t}<small>${Object.values(players).filter(p=>p.team===t).length} jug.</small></button>`).join('')}
+      </div>
+      <div style="text-align:center;margin-top:24px"><button class="btn btn-back" onclick="wBack()">← Atrás</button></div>`;
+  }
+  else if(wState==='opp'){
+    mp.innerHTML=`
+      <div class="wizard-q">¿A qué equipo retan?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        ${teams().filter(t=>t!==wActive).map((t,i)=>`<button class="team-big" style="background:${tc(t)};animation-delay:${i*50}ms" onclick="wPickOpp('${t}')">${t}<small>${Object.values(players).filter(p=>p.team===t).length} jug.</small></button>`).join('')}
+      </div>
+      <div style="text-align:center;margin-top:24px"><button class="btn btn-back" onclick="wBack()">← Atrás</button></div>`;
   }
 }
 
-function clearCh(){
-  pub({type:'clear'});
-  document.getElementById('chDisplay').innerHTML='<p style="color:#f0ddb044;font-size:20px">Selecciona equipo activo y tipo de reto</p>';
-  document.getElementById('rolesCard').style.display='none';
+function wPickCat(t){
+  wType=t;
+  if(t==='evento'){launch();}
+  else{wState='active';renderWizard();}
+}
+function wPickActive(t){
+  wActive=t;
+  if(wType==='versus'){wState='opp';renderWizard();}
+  else launch();
+}
+function wPickOpp(t){wOpp=t;launch();}
+function wBack(){
+  if(wState==='opp'){wState='active';}
+  else if(wState==='active'){wState='cat';wType=null;}
+  renderWizard();
 }
 
-// Slot machine name reveal for challenges without roulette
+// ════ Launch challenge ════
+function launch(){
+  if(busy)return;busy=true;
+  const pool=CH[wType];
+  const ch=pool[Math.floor(Math.random()*pool.length)];
+  const ps=Object.values(players);
+  let active;
+  if(wType==='minijuego')active=ps.filter(p=>p.team===wActive);
+  else if(wType==='evento')active=ps;
+  else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
+  const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
+  pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
+  if(roulette){
+    playTVRoulette(roulette,()=>{finalChallenge(ch,wType);renderRoles(roles,ps);busy=false;});
+  }else{
+    slotReveal(ch,wType,()=>{renderRoles(roles,ps);busy=false;});
+  }
+}
+
+function nextRound(){pub({type:'clear'});wizardReset();}
+
 function slotReveal(ch,type,done){
   const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
-  const lb={minijuego:'MINIJUEGO',evento:'⚡ EVENTO',versus:'VERSUS'}[type];
+  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   const names=CH[type].map(c=>c.n);
   const seq=[];
   for(let i=0;i<14;i++)seq.push(names[Math.floor(Math.random()*names.length)]);
   seq.push(ch.n);
-  const disp=document.getElementById('chDisplay');
-  disp.innerHTML=`<div style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
+  document.getElementById('mainPanel').innerHTML=`<div style="background:${bg};border-radius:16px;padding:40px;text-align:center">
     <div style="font-size:64px">${em}</div>
     <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
-    <div class="slot-window"><div id="slotTxt" class="slot-item" style="opacity:.7">···</div></div>
+    <div class="slot-window"><div id="slotTxt" class="slot-item" style="opacity:.8">···</div></div>
   </div>`;
   let i=0,delay=70;
   (function step(){
@@ -295,47 +333,41 @@ function finalChallenge(ch,type){
   const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
-  document.getElementById('chDisplay').innerHTML=`
-    <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:40px;text-align:center;width:100%">
-      <div style="font-size:64px">${em}</div>
+  let teamLine='';
+  if(type==='minijuego')teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega el <strong style="color:#fff">Equipo ${wActive}</strong></div>`;
+  if(type==='versus')teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">Equipo ${wActive}</strong> reta a <strong style="color:#fff">Equipo ${wOpp}</strong></div>`;
+  document.getElementById('mainPanel').innerHTML=`
+    <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:36px;text-align:center">
+      <div style="font-size:60px">${em}</div>
       <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
-      <div style="color:#fff;font-size:34px;font-weight:900;margin-bottom:16px;line-height:1.1">${ch.n}</div>
+      <div style="color:#fff;font-size:32px;font-weight:900;margin-bottom:14px;line-height:1.1">${ch.n}</div>
       <div style="color:rgba(255,255,255,.78);font-size:16px;line-height:1.7;max-width:600px;margin:0 auto">${ch.d}</div>
-    </div>`;
+      ${teamLine}
+    </div>
+    <button class="btn btn-gold" style="margin-top:14px;width:100%;font-size:17px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>`;
 }
 
-// TV roulette: names light in sequence
 function playTVRoulette(r,done){
-  const disp=document.getElementById('chDisplay');
-  disp.innerHTML=`<div style="text-align:center;width:100%">
+  document.getElementById('rolesCard').style.display='none';
+  document.getElementById('mainPanel').innerHTML=`<div style="text-align:center">
     <div style="font-size:48px;margin-bottom:8px">🎰</div>
     <div style="color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.14em;margin-bottom:24px">SORTEANDO...</div>
     <div id="roulNames" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center"></div>
   </div>`;
-  document.getElementById('rolesCard').style.display='none';
-  const cont=document.getElementById('roulNames');
-  cont.innerHTML=r.order.map((n,i)=>`<div class="roul-name" id="rn${i}">${n}</div>`).join('');
-  let idx=0,step=0;
-  const totalSteps=r.steps.length;
+  document.getElementById('roulNames').innerHTML=r.order.map((n,i)=>`<div class="roul-name" id="rn${i}">${n}</div>`).join('');
+  let step=0;
   (function tick(){
     document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
-    const cur=step%r.order.length;
-    document.getElementById('rn'+cur).classList.add('lit');
+    document.getElementById('rn'+(step%r.order.length)).classList.add('lit');
     step++;
-    if(step<totalSteps){setTimeout(tick,r.steps[step]);}
+    if(step<r.steps.length){setTimeout(tick,r.steps[step]);}
     else{
-      const w=document.getElementById('rn'+r.winnerIdx);
       document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
-      w.classList.add('winner');
+      document.getElementById('rn'+r.winnerIdx).classList.add('winner');
       confetti();
       setTimeout(done,2200);
     }
   })();
-}
-
-function revealChallenge(ch,type,roles,ps){
-  finalChallenge(ch,type);
-  renderRoles(roles,ps);
 }
 
 function renderRoles(roles,ps){
@@ -345,9 +377,8 @@ function renderRoles(roles,ps){
     return`<div class="role-row" style="animation-delay:${i*60}ms">
       <div class="dot" style="background:${tc(p.team)}"></div>
       <strong style="flex:1">${p.name}</strong>
-      <span style="font-size:16px">${r.emoji}</span>
+      <span style="font-size:16px">${r.isSecret?'🔒':r.emoji}</span>
       <span style="color:${r.isSecret?'#f472b6':'var(--gold)'};font-weight:700;font-size:12px">${r.isSecret?'SECRETO':r.label}</span>
-      ${r.isSecret?'<span style="color:#f472b6;font-size:11px">🔒</span>':''}
     </div>`;
   }).join('');
 }
@@ -367,7 +398,6 @@ function confetti(){
   }
 }
 
-// Build decelerating roulette schedule
 function buildRoulette(candidates,winnerName){
   const order=[...candidates].sort(()=>Math.random()-.5);
   const winnerIdx=order.indexOf(winnerName);
@@ -382,7 +412,6 @@ function buildRoulette(candidates,winnerName){
   }
   return{order,steps,winnerIdx};
 }
-
 function assignRoles(ch,active,allPs,aT,oT){
   const R={};let roulette=null;
   const teams=[...new Set(active.map(p=>p.team))];
