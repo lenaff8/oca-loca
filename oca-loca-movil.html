@@ -88,10 +88,14 @@ input::placeholder{color:#f0ddb044}
       <div style="font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:.2em" id="waitCode">------</div>
     </div>
     <p style="color:#f0ddb033;font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
+    <button onclick="leaveSession()" style="margin-top:28px;background:rgba(240,221,176,.08);border:1px solid rgba(240,221,176,.15);color:rgba(240,221,176,.55);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Cambiar nombre / salir de la sala</button>
   </div>
 </div>
 
 <div id="sPlay" class="screen" style="gap:12px">
+  <div style="display:flex;justify-content:flex-end">
+    <button onclick="leaveSession()" style="background:none;border:none;color:rgba(240,221,176,.35);font-size:12px;cursor:pointer;font-family:inherit;padding:2px 4px">✕ salir</button>
+  </div>
   <div id="chBar" class="ch-bar minijuego">
     <div style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.6" id="chType">MINIJUEGO</div>
     <div style="font-size:20px;font-weight:900;color:#fff;margin-top:4px;line-height:1.2" id="chName">-</div>
@@ -131,8 +135,28 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
   const params=new URLSearchParams(window.location.search);
   const code=params.get('code');
-  if(code){document.getElementById('codeIn').value=code.toUpperCase();document.getElementById('nameIn').focus();}
+  if(code){document.getElementById('codeIn').value=code.toUpperCase();}
+  const saved=localStorage.getItem('ocaSession');
+  if(saved){
+    try{
+      const s=JSON.parse(saved);
+      myName=s.name;myTeam=s.team;myTopic='oca-'+s.code;mySince=Math.floor(Date.now()/1000);
+      document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
+      document.getElementById('waitCode').textContent=s.code;
+      show('sWait');announce();subscribe();
+      return;
+    }catch(e){localStorage.removeItem('ocaSession');}
+  }
+  if(code)document.getElementById('nameIn').focus();
 });
+
+function leaveSession(){
+  localStorage.removeItem('ocaSession');
+  if(es)es.close();
+  myName='';myTopic='';
+  const saved=document.getElementById('codeIn').value;
+  show('sJoin');
+}
 
 function renderTeamBtns(){
   document.getElementById('teamBtns').innerHTML=TEAMS.map((t,i)=>
@@ -150,6 +174,7 @@ function joinRoom(){
   if(!myTeam){err.textContent='Selecciona tu equipo.';err.style.display='block';return;}
   err.style.display='none';
   myName=name;myTopic='oca-'+code;mySince=Math.floor(Date.now()/1000);
+  localStorage.setItem('ocaSession',JSON.stringify({code,name,team:myTeam}));
   document.getElementById('waitInfo').textContent=name+' · Equipo '+myTeam;
   document.getElementById('waitCode').textContent=code;
   show('sWait');announce();subscribe();
