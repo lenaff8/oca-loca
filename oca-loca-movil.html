@@ -3,42 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>🪿 La Oca Loca — Móvil</title>
+<title>🪿 La Oca Loca</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#0d1b0f;color:#f0ddb0;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
-.screen{display:none;flex-direction:column;flex:1;padding:20px}.screen.active{display:flex}
-.card{background:#152318;border:1px solid #3d2b1a;border-radius:16px;padding:18px}
-.btn{border:none;border-radius:14px;font-weight:900;cursor:pointer;font-family:inherit;font-size:17px;padding:16px;width:100%}.btn:active{opacity:.75}
-.btn-gold{background:#e8b84b;color:#1a1200}
+:root{--felt:#0d1b0f;--panel:#152318;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
+body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color:var(--parch);font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+.screen{display:none;flex-direction:column;flex:1;padding:20px;animation:fadeIn .3s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
+.btn{border:none;border-radius:14px;font-weight:900;cursor:pointer;font-family:inherit;font-size:17px;padding:16px;width:100%;transition:transform .1s}
+.btn:active{transform:scale(.96)}
+.btn-gold{background:var(--gold);color:#1a1200;box-shadow:0 4px 18px rgba(232,184,75,.3)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
-input{background:rgba(240,221,176,.07);border:1px solid #3d2b1a;border-radius:12px;padding:14px 16px;color:#f0ddb0;font-size:17px;outline:none;width:100%;font-family:inherit}
+input{background:rgba(240,221,176,.07);border:1px solid var(--wood);border-radius:12px;padding:14px 16px;color:var(--parch);font-size:17px;outline:none;width:100%;font-family:inherit;transition:border-color .15s}
+input:focus{border-color:var(--gold)}
 input::placeholder{color:#f0ddb044}
-.tBtn{padding:11px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:15px;font-family:inherit;flex:1}
-.tBtn.sel{border-color:#fff}
-.role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px}
+.tBtn{padding:11px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:15px;font-family:inherit;flex:1;transition:transform .12s}
+.tBtn:active{transform:scale(.92)}
+.tBtn.sel{border-color:#fff;transform:scale(1.08)}
+.role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;animation:rolePop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes rolePop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 .role-card.secret{background:linear-gradient(160deg,#3d0a2e,#1a0514)}
 .role-card.normal{background:linear-gradient(160deg,#0d2b1a,#0a1f13)}
-.ch-bar{border-radius:14px;padding:14px 16px;text-align:center}
+.role-card.chosen{background:linear-gradient(160deg,#5c4308,#2a1f04);box-shadow:0 0 50px rgba(232,184,75,.45)}
+.ch-bar{border-radius:14px;padding:14px 16px;text-align:center;animation:slideDown .4s ease both}
+@keyframes slideDown{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
 .ch-bar.minijuego{background:#0d5f6e}.ch-bar.evento{background:#7c4500}.ch-bar.versus{background:#6d1b3a}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 .pulse{animation:pulse 2s ease-in-out infinite}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
+.overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
 .overlay.hidden{display:none}
+#secretOverlay{background:rgba(0,0,0,.96)}
+
+/* ── Roulette full-screen ── */
+#roulOverlay{background:#000;transition:background .07s}
+#roulOverlay.lit{background:#fff}
+#roulOverlay.winner{background:var(--gold);animation:winFlash .35s ease 5}
+@keyframes winFlash{0%,100%{background:var(--gold)}50%{background:#fff}}
+#roulOverlay .roul-msg{font-size:20px;font-weight:900;letter-spacing:.1em;color:#666;transition:color .07s}
+#roulOverlay.lit .roul-msg{color:#000}
+#roulOverlay.winner .roul-msg{color:#1a1200}
+.winner-text{font-size:38px;font-weight:900;color:#1a1200;line-height:1.1;animation:winPop .4s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes winPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.confetti{position:fixed;width:9px;height:9px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
 </head>
 <body>
 
-<!-- JOIN -->
 <div id="sJoin" class="screen active">
   <div style="text-align:center;margin:36px 0 28px">
     <div style="font-size:56px">🪿</div>
     <h1 style="font-size:1.9rem;font-weight:900;margin-top:8px">La Oca Loca</h1>
-    <p style="color:#f0ddb077;font-size:14px;margin-top:4px">App Móvil</p>
   </div>
   <div style="display:flex;flex-direction:column;gap:14px;flex:1">
     <div>
-      <div class="label">CÓDIGO DE SALA (6 letras de la TV)</div>
+      <div class="label">CÓDIGO DE SALA</div>
       <input id="codeIn" type="text" maxlength="6" placeholder="ABCDEF"
         style="text-transform:uppercase;font-size:2rem;font-weight:900;text-align:center;letter-spacing:.2em"
         oninput="this.value=this.value.toUpperCase()">
@@ -57,21 +78,19 @@ input::placeholder{color:#f0ddb044}
   </div>
 </div>
 
-<!-- WAITING -->
 <div id="sWait" class="screen" style="align-items:center;justify-content:center">
   <div style="text-align:center">
     <div style="font-size:72px" class="pulse">🪿</div>
     <h2 style="font-size:1.4rem;font-weight:900;margin-top:16px">Esperando reto...</h2>
     <p style="color:#f0ddb055;font-size:14px;margin-top:8px" id="waitInfo"></p>
-    <div style="margin-top:20px;background:#152318;border-radius:14px;padding:12px 20px;display:inline-block">
+    <div style="margin-top:20px;background:var(--panel);border-radius:14px;padding:12px 20px;display:inline-block">
       <div class="label">SALA</div>
-      <div style="font-size:2rem;font-weight:900;color:#e8b84b;letter-spacing:.2em" id="waitCode">------</div>
+      <div style="font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:.2em" id="waitCode">------</div>
     </div>
     <p style="color:#f0ddb033;font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
   </div>
 </div>
 
-<!-- PLAYING -->
 <div id="sPlay" class="screen" style="gap:12px">
   <div id="chBar" class="ch-bar minijuego">
     <div style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.6" id="chType">MINIJUEGO</div>
@@ -80,13 +99,13 @@ input::placeholder{color:#f0ddb044}
   <div class="card" style="font-size:14px;line-height:1.7;color:#f0ddb0cc" id="chDesc"></div>
   <div id="roleCard" class="role-card normal" style="flex:1">
     <div style="font-size:70px;line-height:1" id="roleEmoji">👥</div>
-    <div style="font-size:12px;font-weight:900;letter-spacing:.14em" id="roleLabel" style="color:#e8b84b">TU ROL</div>
+    <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--gold)" id="roleLabel">TU ROL</div>
     <div style="font-size:28px;font-weight:900;color:#fff;line-height:1.2" id="roleName">-</div>
     <div style="font-size:15px;line-height:1.65;color:rgba(255,255,255,.75);max-width:300px" id="roleDesc"></div>
   </div>
 </div>
 
-<!-- SECRET OVERLAY -->
+<!-- Secret overlay -->
 <div id="secretOverlay" class="overlay hidden">
   <div style="font-size:72px;margin-bottom:16px">🔒</div>
   <h2 style="font-size:1.4rem;font-weight:900;color:#f472b6;margin-bottom:10px">ROL SECRETO</h2>
@@ -94,25 +113,30 @@ input::placeholder{color:#f0ddb044}
   <button class="btn" style="background:#f472b6;color:#1a0514;max-width:280px" onclick="revealSecret()">Ver mi rol →</button>
 </div>
 
+<!-- Roulette full-screen overlay -->
+<div id="roulOverlay" class="overlay hidden">
+  <div class="roul-msg" id="roulMsg">🎰 SORTEANDO...</div>
+  <div id="roulWinnerBox" style="display:none">
+    <div style="font-size:64px;margin-bottom:12px">⭐</div>
+    <div class="winner-text" id="roulWinnerTxt"></div>
+  </div>
+</div>
+
 <script>
 const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
 const TEAMS=['A','B','C','D','E','F','G','H'];
-let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null;
+let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
   const params=new URLSearchParams(window.location.search);
   const code=params.get('code');
-  if(code){
-    document.getElementById('codeIn').value=code.toUpperCase();
-    document.getElementById('nameIn').focus();
-  }
+  if(code){document.getElementById('codeIn').value=code.toUpperCase();document.getElementById('nameIn').focus();}
 });
 
 function renderTeamBtns(){
   document.getElementById('teamBtns').innerHTML=TEAMS.map((t,i)=>
-    `<button class="tBtn ${myTeam===t?'sel':''}" style="background:${TC[i]};color:#fff"
-      onclick="pickTeam('${t}')">${t}</button>`).join('');
+    `<button class="tBtn ${myTeam===t?'sel':''}" style="background:${TC[i]};color:#fff" onclick="pickTeam('${t}')">${t}</button>`).join('');
 }
 function pickTeam(t){myTeam=t;renderTeamBtns();}
 
@@ -124,49 +148,77 @@ function joinRoom(){
   if(!name){err.textContent='Escribe tu nombre.';err.style.display='block';return;}
   if(!myTeam){err.textContent='Selecciona tu equipo.';err.style.display='block';return;}
   err.style.display='none';
-  myName=name;
-  myTopic='oca-'+code;
-  mySince=Math.floor(Date.now()/1000);
+  myName=name;myTopic='oca-'+code;mySince=Math.floor(Date.now()/1000);
   document.getElementById('waitInfo').textContent=name+' · Equipo '+myTeam;
   document.getElementById('waitCode').textContent=code;
-  show('sWait');
-  announce();
-  subscribe();
+  show('sWait');announce();subscribe();
 }
 
 async function announce(){
-  try{
-    await fetch('https://ntfy.sh/'+myTopic,{
-      method:'POST',
-      body:JSON.stringify({type:'join',name:myName,team:myTeam}),
-      headers:{'Content-Type':'text/plain'}
-    });
-  }catch(e){
-    document.getElementById('connInfo').textContent='Sin conexión. Comprueba el WiFi.';
-  }
+  try{await fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'join',name:myName,team:myTeam})});}
+  catch(e){document.getElementById('connInfo').textContent='Sin conexión. Comprueba el WiFi.';}
 }
 
 function subscribe(){
-  if(es){es.close();}
+  if(es)es.close();
   es=new EventSource('https://ntfy.sh/'+myTopic+'/sse?since='+mySince);
   es.onopen=()=>{document.getElementById('connInfo').textContent='✓ Conectado';};
-  es.onerror=()=>{
-    document.getElementById('connInfo').textContent='Reconectando...';
-    setTimeout(subscribe,3000);
-  };
+  es.onerror=()=>{document.getElementById('connInfo').textContent='Reconectando...';setTimeout(subscribe,3000);};
   es.addEventListener('message',onMsg);
 }
 
 function onMsg(e){
   try{
-    const n=JSON.parse(e.data);
-    const d=JSON.parse(n.message);
+    const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='challenge'){
-      showChallenge(d);
-    } else if(d.type==='clear'){
-      show('sWait');
-    }
+      if(d.roulette){playRoulette(d);}
+      else{showChallenge(d);}
+    }else if(d.type==='clear'){show('sWait');}
   }catch(err){}
+}
+
+// ── Roulette: full-screen flash like a physical wheel ──
+function playRoulette(d){
+  const r=d.roulette;
+  const ov=document.getElementById('roulOverlay');
+  const msg=document.getElementById('roulMsg');
+  const winBox=document.getElementById('roulWinnerBox');
+  ov.classList.remove('hidden','winner','lit');
+  msg.style.display='block';winBox.style.display='none';
+  msg.textContent='🎰 SORTEANDO...';
+  const myIdx=r.order.indexOf(myName);
+  const amCandidate=myIdx>=0;
+  let step=0;
+  const total=r.steps.length;
+  (function tick(){
+    const cur=step%r.order.length;
+    const meLit=amCandidate&&cur===myIdx;
+    ov.classList.toggle('lit',meLit);
+    if(meLit&&navigator.vibrate)navigator.vibrate(30);
+    step++;
+    if(step<total){setTimeout(tick,r.steps[step]);}
+    else{
+      ov.classList.remove('lit');
+      const winnerName=r.order[r.winnerIdx];
+      if(winnerName===myName){
+        ov.classList.add('winner');
+        msg.style.display='none';
+        winBox.style.display='block';
+        document.getElementById('roulWinnerTxt').textContent='¡ERES EL ELEGIDO!';
+        if(navigator.vibrate)navigator.vibrate([100,60,100,60,250]);
+        confetti();
+      }else{
+        msg.textContent='⭐ '+winnerName.toUpperCase();
+        msg.style.color='var(--gold)';
+      }
+      setTimeout(()=>{
+        ov.classList.add('hidden');
+        ov.classList.remove('winner');
+        msg.style.color='';
+        showChallenge(d);
+      },2200);
+    }
+  })();
 }
 
 function showChallenge(d){
@@ -174,38 +226,45 @@ function showChallenge(d){
   document.getElementById('chType').textContent=labels[d.ctype]||d.ctype.toUpperCase();
   document.getElementById('chName').textContent=d.name;
   document.getElementById('chDesc').textContent=d.desc;
-  const bar=document.getElementById('chBar');
-  bar.className='ch-bar '+(d.ctype||'minijuego');
+  document.getElementById('chBar').className='ch-bar '+(d.ctype||'minijuego');
   show('sPlay');
-
   const role=d.roles&&d.roles[myName];
   if(role){
-    if(role.isSecret){
-      pendingRole=role;
-      document.getElementById('secretOverlay').classList.remove('hidden');
-    } else {
-      applyRole(role,false);
-    }
-  } else {
-    applyRole({label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'},false);
-  }
+    if(role.isSecret){pendingRole=role;document.getElementById('secretOverlay').classList.remove('hidden');}
+    else applyRole(role,false);
+  }else applyRole({label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'},false);
 }
 
 function revealSecret(){
   document.getElementById('secretOverlay').classList.add('hidden');
-  applyRole(pendingRole,true);
-  pendingRole=null;
+  applyRole(pendingRole,true);pendingRole=null;
 }
 
 function applyRole(role,secret){
   const card=document.getElementById('roleCard');
-  card.className='role-card '+(secret?'secret':'normal');
+  card.style.animation='none';void card.offsetWidth;card.style.animation='';
+  card.className='role-card '+(secret?'secret':role.chosen?'chosen':'normal');
   document.getElementById('roleEmoji').textContent=role.emoji||'👥';
   const lbl=document.getElementById('roleLabel');
   lbl.textContent=secret?'⚠️ ROL SECRETO':'TU ROL';
-  lbl.style.color=secret?'#f472b6':'#e8b84b';
+  lbl.style.color=secret?'#f472b6':'var(--gold)';
   document.getElementById('roleName').textContent=role.label||'-';
   document.getElementById('roleDesc').textContent=role.roleDesc||'';
+}
+
+function confetti(){
+  const colors=['#e8b84b','#fff','#f39c12'];
+  for(let i=0;i<45;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(1.8+Math.random()*1.8)+'s';
+    c.style.animationDelay=Math.random()*0.6+'s';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4500);
+  }
 }
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
