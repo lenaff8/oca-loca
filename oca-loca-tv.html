@@ -190,7 +190,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     try{
       const s=JSON.parse(saved);
       code=s.code;players=s.players||{};
-      if(s.inGame){setTimeout(()=>{show('sGame');wizardReset();renderPlayers();},0);}
+      if(s.inGame){
+        tvInGame=true;lastCh=s.lastCh||null;
+        setTimeout(()=>{
+          show('sGame');renderPlayers();
+          if(lastCh){finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));}
+          else wizardReset();
+        },0);
+      }
     }catch(e){localStorage.removeItem('ocaTV');}
   }
   if(!code){
@@ -239,14 +246,15 @@ function renderPlayers(){
   document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div><span style="flex:1">${p.name}<span style="color:#f0ddb044;font-size:11px"> Eq.${p.team}</span></span><button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:13px;padding:0 4px">✕</button></div>`).join('');
 }
 
+let tvInGame=false,lastCh=null;
 function saveTV(){
   const code=topic.replace('oca-','');
-  const inGame=document.getElementById('sGame').classList.contains('active');
-  localStorage.setItem('ocaTV',JSON.stringify({code,players,inGame}));
+  localStorage.setItem('ocaTV',JSON.stringify({code,players,inGame:tvInGame,lastCh}));
 }
-function goGame(){pub({type:'start'});show('sGame');wizardReset();saveTV();}
+function goGame(){pub({type:'start'});tvInGame=true;show('sGame');wizardReset();saveTV();}
 function newRoom(){
   if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores.'))return;
+  pub({type:'clear'});
   localStorage.removeItem('ocaTV');
   location.reload();
 }
@@ -326,6 +334,7 @@ function launch(){
   else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
   const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
+  lastCh={ch,type:wType,roles};saveTV();
   if(roulette){
     playTVRoulette(roulette,()=>{finalChallenge(ch,wType);renderRoles(roles,ps);busy=false;});
   }else{
@@ -333,7 +342,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
   const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
@@ -362,8 +371,8 @@ function finalChallenge(ch,type){
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   let teamLine='';
-  if(type==='minijuego')teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega el <strong style="color:#fff">Equipo ${wActive}</strong></div>`;
-  if(type==='versus')teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">Equipo ${wActive}</strong> reta a <strong style="color:#fff">Equipo ${wOpp}</strong></div>`;
+  if(type==='minijuego'&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega el <strong style="color:#fff">Equipo ${wActive}</strong></div>`;
+  if(type==='versus'&&wActive&&wOpp)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">Equipo ${wActive}</strong> reta a <strong style="color:#fff">Equipo ${wOpp}</strong></div>`;
   document.getElementById('mainPanel').innerHTML=`
     <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:36px;text-align:center">
       <div style="font-size:60px">${em}</div>
