@@ -6,14 +6,13 @@
 <title>🪿 La Oca Loca — TV</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--felt:#0e0e13;--parch:#ece8e0}
 body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh}
 .screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
 .btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:scale(.97)}
 .btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(212,175,106,.35)}
-.btn-back{background:rgba(240,221,176,.08);color:rgba(240,221,176,.6);padding:10px 18px;font-size:13px;border:1px solid rgba(240,221,176,.12)}
+.btn-back{background:var(--btn-ghost-bg);color:var(--btn-ghost-color);padding:10px 18px;font-size:13px;border:1px solid var(--btn-ghost-border)}
 .code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(212,175,106,.4)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
@@ -26,7 +25,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 @media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:280px 1fr}}
 
 /* ── Wizard ── */
-.wizard-q{font-size:24px;font-weight:900;color:#fff;text-align:center;margin-bottom:24px;animation:fadeUp .35s ease both}
+.wizard-q{font-size:24px;font-weight:900;color:var(--text);text-align:center;margin-bottom:24px;animation:fadeUp .35s ease both}
 @keyframes fadeUp{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
 .cat-card{border:none;border-radius:20px;padding:36px 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both}
 .cat-card:hover{transform:translateY(-4px) scale(1.02)}
@@ -45,7 +44,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 @keyframes chPop{0%{transform:scale(.7) rotate(-2deg);opacity:0}60%{transform:scale(1.04) rotate(.5deg)}100%{transform:scale(1) rotate(0)}}
 .ch-reveal{animation:chPop .55s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(212,175,106,.25)}50%{box-shadow:0 0 48px rgba(212,175,106,.55)}}
-.roul-name{padding:12px 22px;border-radius:14px;font-size:22px;font-weight:900;background:rgba(240,221,176,.06);border:2px solid transparent;transition:all .08s;color:rgba(240,221,176,.5)}
+.roul-name{padding:12px 22px;border-radius:14px;font-size:22px;font-weight:900;background:var(--chip-bg);border:2px solid transparent;transition:all .08s;color:var(--dim)}
 .roul-name.lit{background:var(--gold);color:#1a1200;transform:scale(1.12);box-shadow:0 0 36px rgba(212,175,106,.7);border-color:#fff}
 .roul-name.winner{background:var(--gold);color:#1a1200;transform:scale(1.25);box-shadow:0 0 60px rgba(212,175,106,.95);border-color:#fff;animation:winnerBounce .5s ease 3}
 @keyframes winnerBounce{0%,100%{transform:scale(1.25)}50%{transform:scale(1.35)}}
@@ -60,7 +59,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --wood:#32323e;--dim:rgba(236,232,224,.5);--dimmest:rgba(236,232,224,.1);
   --input-bg:rgba(236,232,224,.06);--chip-bg:rgba(236,232,224,.07);
   --row-bg:rgba(236,232,224,.045);--btn-ghost-bg:rgba(236,232,224,.08);
-  --btn-ghost-color:#ece8e0;--btn-ghost-border:rgba(236,232,224,.2);
+  --btn-ghost-color:var(--text);--btn-ghost-border:rgba(236,232,224,.2);
   --status-color:rgba(236,232,224,.35);
   --kick-bg:#3d1024;--kick-color:#fca5c5;
   --cat-mini:#34558c;--cat-evento:#9c5c20;--cat-versus:#963060;
@@ -364,7 +363,7 @@ function deleteTeam(id){
 function renderTeamDefs(){
   const el=document.getElementById('teamDefList');if(!el)return;
   el.innerHTML=teamDefs.map((t,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(240,221,176,.06)">
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--dimmest)">
       <div class="dot" style="background:${t.color};width:14px;height:14px;flex-shrink:0"></div>
       <span style="flex:1;font-weight:700;font-size:14px">${t.name}</span>
       <span style="color:var(--text)44;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
