@@ -6,8 +6,8 @@
 <title>🪿 La Oca Loca</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
-.screen{display:none;flex-direction:column;flex:1;padding:20px;animation:fadeIn .3s ease}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
+.screen{display:none;flex-direction:column;flex:1;padding:14px 18px;animation:fadeIn .3s ease}
 .screen.active{display:flex}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
@@ -19,7 +19,7 @@ input{background:var(--chip-bg);border:1px solid var(--wood);border-radius:12px;
 input:focus{border-color:var(--gold)}
 input::placeholder{color:var(--status-color)}
 #codeIn::placeholder{color:var(--dimmest);font-weight:400}
-.tBtn{padding:16px 0;border-radius:12px;border:none;font-weight:900;cursor:pointer;font-size:18px;font-family:inherit;transition:opacity .25s ease,transform .12s}
+.tBtn{padding:13px 0;border-radius:12px;border:none;font-weight:900;cursor:pointer;font-size:18px;font-family:inherit;transition:opacity .25s ease,transform .12s}
 .tBtn:active{transform:scale(.95)}
 .tBtn.dimmed{opacity:.3}
 .role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;animation:rolePop .5s cubic-bezier(.2,1.4,.4,1) both}
@@ -102,15 +102,15 @@ input::placeholder{color:var(--status-color)}
 <button id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
 
 <div id="sJoin" class="screen active">
-  <div style="text-align:center;margin:36px 0 28px">
-    <div style="font-size:56px">🪿</div>
-    <h1 style="font-size:1.9rem;font-weight:900;margin-top:8px">La Oca Loca</h1>
+  <div style="text-align:center;margin:10px 0 14px">
+    <div style="font-size:40px">🪿</div>
+    <h1 style="font-size:1.5rem;font-weight:900;margin-top:4px">La Oca Loca</h1>
   </div>
-  <div style="display:flex;flex-direction:column;gap:14px;flex:1">
+  <div style="display:flex;flex-direction:column;gap:10px;flex:1">
     <div>
       <div class="label">CÓDIGO DE SALA</div>
       <input id="codeIn" type="text" maxlength="6" placeholder="ABCDEF"
-        style="text-transform:uppercase;font-size:2rem;font-weight:900;text-align:center;letter-spacing:.2em"
+        style="text-transform:uppercase;font-size:1.6rem;font-weight:900;text-align:center;letter-spacing:.18em"
         oninput="this.value=this.value.toUpperCase();onCodeInput(this.value)">
     </div>
     <div>
@@ -208,6 +208,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 function leaveSession(){
   sessionStorage.removeItem('ocaSession');
   sessionStorage.removeItem('ocaChallenge');
+  myTeam='';renderTeamBtns();
   if(es)es.close();
   myName='';myTopic='';
   const saved=document.getElementById('codeIn').value;
