@@ -50,61 +50,153 @@ input::placeholder{color:var(--text)44}
 @keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 
 
+.slot-window{min-height:66px;overflow:visible;position:relative}
+.slot-item{min-height:66px;padding:4px 12px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3.5vw,26px);font-weight:900;color:#fff;text-align:center;line-height:1.3}
 /* ── Theme variables ── */
 :root,[data-theme="dark"]{
   --bg:radial-gradient(ellipse at 40% 0%,#162e18,#080f08 75%);
-  --panel:#132015;
-  --card:#1a2d1c;
-  --text:#f5e6b8;
-  --gold:#e8c44a;
-  --gold-dim:rgba(232,196,74,.35);
-  --wood:#3c2a18;
-  --dim:rgba(245,230,184,.5);
-  --dimmest:rgba(245,230,184,.12);
-  --input-bg:rgba(245,230,184,.07);
-  --chip-bg:rgba(245,230,184,.08);
-  --row-bg:rgba(245,230,184,.05);
-  --btn-ghost-bg:rgba(245,230,184,.1);
-  --btn-ghost-color:#f5e6b8;
-  --btn-ghost-border:rgba(245,230,184,.22);
+  --panel:#132015;--card:#1a2d1c;--text:#f5e6b8;--gold:#e8c44a;
+  --wood:#3c2a18;--dim:rgba(245,230,184,.5);--dimmest:rgba(245,230,184,.12);
+  --input-bg:rgba(245,230,184,.07);--chip-bg:rgba(245,230,184,.08);
+  --row-bg:rgba(245,230,184,.05);--btn-ghost-bg:rgba(245,230,184,.1);
+  --btn-ghost-color:#f5e6b8;--btn-ghost-border:rgba(245,230,184,.22);
   --status-color:rgba(245,230,184,.35);
-  --kick-bg:#3d1010;--kick-color:var(--err);
-  --err:#f87171;
-  --secret:#f472b6;
 }
 [data-theme="light"]{
   --bg:linear-gradient(160deg,#faf3e0,#f0e4c0 80%);
-  --panel:#fffef8;
-  --card:#fffbee;
-  --text:#1a0d00;
-  --gold:#b86800;
-  --gold-dim:rgba(184,104,0,.2);
-  --wood:#c89a50;
-  --dim:rgba(26,13,0,.52);
-  --dimmest:rgba(26,13,0,.09);
-  --input-bg:rgba(26,13,0,.05);
-  --chip-bg:rgba(26,13,0,.06);
-  --row-bg:rgba(26,13,0,.04);
-  --btn-ghost-bg:rgba(26,13,0,.07);
-  --btn-ghost-color:#1a0d00;
-  --btn-ghost-border:rgba(26,13,0,.18);
+  --panel:#fffef8;--card:#fffbee;--text:#1a0d00;--gold:#b86800;
+  --wood:#c89a50;--dim:rgba(26,13,0,.52);--dimmest:rgba(26,13,0,.09);
+  --input-bg:rgba(26,13,0,.05);--chip-bg:rgba(26,13,0,.06);
+  --row-bg:rgba(26,13,0,.04);--btn-ghost-bg:rgba(26,13,0,.07);
+  --btn-ghost-color:#1a0d00;--btn-ghost-border:rgba(26,13,0,.18);
   --status-color:rgba(26,13,0,.42);
-  --kick-bg:#fde8e8;--kick-color:#c0392b;
-  --err:#c0392b;
-  --secret:#9b27af;
 }
-/* ── Theme toggle: bottom-left FAB ── */
 #themeToggle{
   position:fixed;bottom:14px;left:14px;z-index:200;
   background:var(--panel);border:1px solid var(--wood);
-  border-radius:50%;width:40px;height:40px;
-  cursor:pointer;font-size:17px;font-family:inherit;
+  border-radius:50%;width:40px;height:40px;cursor:pointer;
+  font-size:17px;font-family:inherit;color:var(--text);
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 10px rgba(0,0,0,.25);
-  transition:transform .15s;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .15s;
 }
 #themeToggle:hover{transform:scale(1.1)}
+</style>
+</head>
+<body>
+<button id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
 
+<div id="sJoin" class="screen active">
+  <div style="text-align:center;margin:36px 0 28px">
+    <div style="font-size:56px">🪿</div>
+    <h1 style="font-size:1.9rem;font-weight:900;margin-top:8px">La Oca Loca</h1>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;flex:1">
+    <div>
+      <div class="label">CÓDIGO DE SALA</div>
+      <input id="codeIn" type="text" maxlength="6" placeholder="ABCDEF"
+        style="text-transform:uppercase;font-size:2rem;font-weight:900;text-align:center;letter-spacing:.2em"
+        oninput="this.value=this.value.toUpperCase();onCodeInput(this.value)">
+    </div>
+    <div>
+      <div class="label">TU NOMBRE</div>
+      <input id="nameIn" type="text" placeholder="Nombre...">
+    </div>
+    <div>
+      <div class="label">EQUIPO</div>
+      <div id="teamBtns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"><p style="color:var(--text)55;font-size:12px;grid-column:1/-1">Introduce el código para ver los equipos disponibles</p></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn btn-gold" onclick="joinRoom()">Unirse →</button>
+    <p id="joinErr" style="color:#f87171;font-size:13px;text-align:center;display:none"></p>
+  </div>
+</div>
+
+<div id="sWait" class="screen" style="align-items:center;justify-content:center">
+  <div style="text-align:center">
+    <div style="font-size:72px" class="pulse">🪿</div>
+    <h2 style="font-size:1.4rem;font-weight:900;margin-top:16px">Esperando reto...</h2>
+    <p style="color:var(--text)55;font-size:14px;margin-top:8px" id="waitInfo"></p>
+    <div style="margin-top:20px;background:var(--panel);border-radius:14px;padding:12px 20px;display:inline-block">
+      <div class="label">SALA</div>
+      <div style="font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:.2em" id="waitCode">------</div>
+    </div>
+    <p style="color:var(--text)33;font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
+    <button onclick="leaveSession()" style="margin-top:28px;background:rgba(240,221,176,.08);border:1px solid rgba(240,221,176,.15);color:rgba(240,221,176,.55);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Cambiar nombre / salir de la sala</button>
+  </div>
+</div>
+
+<div id="sPlay" class="screen" style="gap:12px">
+  <div style="display:flex;justify-content:flex-end">
+    <button onclick="leaveSession()" style="background:none;border:none;color:rgba(240,221,176,.35);font-size:12px;cursor:pointer;font-family:inherit;padding:2px 4px">Salir de la sala</button>
+  </div>
+  <div id="chBar" class="ch-bar minijuego">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.6" id="chType">MINIJUEGO</div>
+    <div style="font-size:20px;font-weight:900;color:#fff;margin-top:4px;line-height:1.3;overflow:visible;padding-bottom:2px" id="chName">-</div>
+  </div>
+  <div class="card" style="font-size:14px;line-height:1.7;color:var(--text)cc" id="chDesc"></div>
+  <div id="roleCard" class="role-card normal" style="flex:1">
+    <div style="font-size:70px;line-height:1" id="roleEmoji">👥</div>
+    <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--gold)" id="roleLabel">TU ROL</div>
+    <div style="font-size:28px;font-weight:900;color:#fff;line-height:1.2" id="roleName">-</div>
+    <div style="font-size:15px;line-height:1.65;color:rgba(255,255,255,.75);max-width:300px" id="roleDesc"></div>
+  </div>
+</div>
+
+<!-- Secret overlay -->
+<div id="secretOverlay" class="overlay hidden">
+  <div style="font-size:72px;margin-bottom:16px">🔒</div>
+  <h2 style="font-size:1.4rem;font-weight:900;color:#f472b6;margin-bottom:10px">ROL SECRETO</h2>
+  <p style="color:var(--text)77;font-size:14px;margin-bottom:32px;line-height:1.6">Solo tú verás esto.<br>No lo enseñes a nadie.</p>
+  <button class="btn" style="background:#f472b6;color:#1a0514;max-width:280px" onclick="revealSecret()">Ver mi rol →</button>
+</div>
+
+<!-- Roulette full-screen overlay -->
+<div id="roulOverlay" class="overlay hidden">
+  <div class="roul-msg" id="roulMsg">🎰 SORTEANDO...</div>
+  <div id="roulWinnerBox" style="display:none">
+    <div style="font-size:64px;margin-bottom:12px">⭐</div>
+    <div class="winner-text" id="roulWinnerTxt"></div>
+  </div>
+</div>
+
+<script>
+const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
+const TEAMS=['A','B','C','D','E','F','G','H'];
+let teamDefs=[]; // populated from TV via ntfy
+let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
+
+window.addEventListener('DOMContentLoaded',()=>{
+  renderTeamBtns();
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  if(code){document.getElementById('codeIn').value=code.toUpperCase();onCodeInput(code);}
+  const saved=localStorage.getItem('ocaSession');
+  if(saved){
+    try{
+      const s=JSON.parse(saved);
+      myName=s.name;myTeam=s.team;myTopic='oca-'+s.code;mySince=Math.floor(Date.now()/1000);
+      document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
+      document.getElementById('waitCode').textContent=s.code;
+      const savedCh=localStorage.getItem('ocaChallenge');
+      if(savedCh){
+        try{showChallenge(JSON.parse(savedCh));}
+        catch(e){show('sWait');}
+      }else{show('sWait');}
+      announce();subscribe();
+      return;
+    }catch(e){localStorage.removeItem('ocaSession');}
+  }
+  if(code)document.getElementById('nameIn').focus();
+});
+
+function leaveSession(){
+  localStorage.removeItem('ocaSession');
+  localStorage.removeItem('ocaChallenge');
+  if(es)es.close();
+  myName='';myTopic='';
+  const saved=document.getElementById('codeIn').value;
+  show('sJoin');
+}
 
 let codeEs=null,teamsTimeout=null;
 function onCodeInput(val){
@@ -268,24 +360,22 @@ function confetti(){
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
-
 <script>
-// ── Theme ──
 (function(){
-  const saved=localStorage.getItem('ocaTheme')||'dark';
+  var saved=localStorage.getItem('ocaTheme')||'dark';
   document.documentElement.setAttribute('data-theme',saved);
   window.toggleTheme=function(){
-    const next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+    var next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
     document.documentElement.setAttribute('data-theme',next);
     localStorage.setItem('ocaTheme',next);
-    document.getElementById('themeToggle').textContent=next==='light'?'🌙':'☀️';
+    var btn=document.getElementById('themeToggle');
+    if(btn)btn.textContent=next==='light'?'🌙':'☀️';
   };
   document.addEventListener('DOMContentLoaded',function(){
-    const btn=document.getElementById('themeToggle');
+    var btn=document.getElementById('themeToggle');
     if(btn)btn.textContent=saved==='light'?'🌙':'☀️';
   });
 })();
 </script>
-
 </body>
 </html>
