@@ -271,10 +271,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('codeSmall').textContent=code;
   const mUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
   window.__qrBig='https://api.qrserver.com/v1/create-qr-code/?size=600x600&bgcolor=ffffff&color=000000&data='+encodeURIComponent(mUrl);
-  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=2b2d31&color=5865f2&data='+encodeURIComponent(mUrl);
-  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=2b2d31&color=5865f2&data='+encodeURIComponent(mUrl);
-  document.getElementById('qrBox').innerHTML='<img src="'+q1+'" onclick="showQR()" style="border-radius:10px;width:180px;height:180px;cursor:pointer" title="Pulsa para ampliar">';
-  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" onclick="showQR()" style="border-radius:8px;width:72px;height:72px;cursor:pointer" title="Pulsa para ampliar">';
+  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=ffffff&color=000000&data='+encodeURIComponent(mUrl);
+  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=ffffff&color=000000&data='+encodeURIComponent(mUrl);
+  document.getElementById('qrBox').innerHTML='<img src="'+q1+'" onclick="showQR()" style="border-radius:10px;width:180px;height:180px;cursor:pointer;background:#fff;padding:8px" title="Pulsa para ampliar">';
+  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" onclick="showQR()" style="border-radius:8px;width:72px;height:72px;cursor:pointer;background:#fff;padding:4px" title="Pulsa para ampliar">';
   subscribe();
   setTimeout(initTeams,0);
 });
