@@ -20,7 +20,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 @keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 .role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--row-bg);border-radius:9px;margin-bottom:4px;font-size:13px;animation:slideIn .35s ease both}
 @keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
-.status{font-size:11px;color:var(--text)55;text-align:center;margin-top:4px}
+.status{font-size:11px;color:var(--status-color);text-align:center;margin-top:4px}
 .grid2{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 @media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:280px 1fr}}
 
@@ -110,7 +110,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
       <div class="card" style="text-align:center;padding:24px 16px;animation:glowPulse 3s ease-in-out infinite">
         <div class="label">CÓDIGO DE SALA</div>
         <div class="code" id="codeDisp">------</div>
-        <p style="color:var(--text)55;font-size:12px;margin-top:8px">Escanea para unirte</p>
+        <p style="color:var(--status-color);font-size:12px;margin-top:8px">Escanea para unirte</p>
         <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
       </div>
       <div class="card" style="margin-top:12px">
@@ -299,7 +299,7 @@ async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST'
 function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort();}
 
 function buildGroupedList(ps,showKick){
-  if(!ps.length)return '<p style="color:var(--text)33;font-size:13px">Sin jugadores aún</p>';
+  if(!ps.length)return '<p style="color:var(--status-color);font-size:13px">Sin jugadores aún</p>';
   let h='';
   teamDefs.forEach(function(t){
     const tp=ps.filter(function(p){return p.team===t.id;});
@@ -308,7 +308,7 @@ function buildGroupedList(ps,showKick){
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">';
     h+='<div class="dot" style="background:'+t.color+';width:14px;height:14px"></div>';
     h+='<span style="font-size:13px;font-weight:900;color:'+t.color+'">'+t.name+'</span>';
-    h+='<span style="font-size:11px;color:var(--text)33">'+tp.length+' jug.</span>';
+    h+='<span style="font-size:11px;color:var(--status-color)">'+tp.length+' jug.</span>';
     h+='</div>';
     tp.forEach(function(p){
       const safe=p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -368,8 +368,8 @@ function renderTeamDefs(){
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--dimmest)">
       <div class="dot" style="background:${t.color};width:14px;height:14px;flex-shrink:0"></div>
       <span style="flex:1;font-weight:700;font-size:14px">${t.name}</span>
-      <span style="color:var(--text)44;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
-      <button onclick="renameTeam(${i})" style="background:none;border:none;color:var(--text)66;cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
+      <span style="color:var(--status-color);font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
+      <button onclick="renameTeam(${i})" style="background:none;border:none;color:var(--status-color);cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
       <button onclick="deleteTeam('${t.id}')" style="background:none;border:none;color:#f8717166;cursor:pointer;font-size:14px;padding:2px 5px" title="Eliminar">✕</button>
     </div>`).join('');
 }
