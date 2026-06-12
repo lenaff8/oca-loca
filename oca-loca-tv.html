@@ -247,33 +247,40 @@ async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST'
 
 function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort();}
 
+function buildGroupedList(ps,showKick){
+  if(!ps.length)return '<p style="color:#f0ddb033;font-size:13px">Sin jugadores aún</p>';
+  let h='';
+  teamDefs.forEach(function(t){
+    const tp=ps.filter(function(p){return p.team===t.id;});
+    if(!tp.length)return;
+    h+='<div style="margin-bottom:10px">';
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">';
+    h+='<div class="dot" style="background:'+t.color+';width:14px;height:14px"></div>';
+    h+='<span style="font-size:13px;font-weight:900;color:'+t.color+'">'+t.name+'</span>';
+    h+='<span style="font-size:11px;color:#f0ddb033">'+tp.length+' jug.</span>';
+    h+='</div>';
+    tp.forEach(function(p){
+      const safe=p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      h+='<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 20px;font-size:13px">';
+      h+='<span style="flex:1">'+p.name+'</span>';
+      if(showKick){
+        h+='<button onclick="kickPlayer(\''+safe+'\');" style="background:#3d1010;border:none;color:#f87171;cursor:pointer;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;font-family:inherit">✕</button>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  return h;
+}
 function renderPlayers(){
   const ps=Object.values(players);
   document.getElementById('pCountL').textContent=ps.length;
   document.getElementById('pCountG').textContent=ps.length;
   const ts=teams();
   document.getElementById('teamCountL').textContent=ts.length;
-  // Lobby list: group by team
-  const groupedHTML=(container,showKick)=>{
-    let h='';
-    teamDefs.forEach(t=>{
-      const tp=ps.filter(p=>p.team===t.id);if(!tp.length)return;
-      h+=`<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-        <div class="dot" style="background:${t.color};width:14px;height:14px"></div>
-        <span style="font-size:13px;font-weight:900;color:${t.color}">${t.name}</span>
-        <span style="font-size:11px;color:#f0ddb033">${tp.length} jug.</span></div>
-        ${tp.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 20px;font-size:13px">
-          <span style="flex:1">${p.name}</span>
-          ${showKick?`<button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}') style="background:#3d1010;border:none;color:#f87171;cursor:pointer;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;font-family:inherit">✕</button>`:''}
-        </div>`).join('')}</div>`;
-    });
-    return h||'<p style="color:#f0ddb033;font-size:13px">Sin jugadores aún</p>';
-  };
-  document.getElementById('pListL').innerHTML=groupedHTML('pListL',false);
+  document.getElementById('pListL').innerHTML=buildGroupedList(ps,false);
   document.getElementById('teamListL').innerHTML='';
-  document.getElementById('pListG').innerHTML=groupedHTML('pListG',true).replace(/style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">/g,'style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">');
-  // Fix kick buttons (inline onclick already handles it)
-  document.getElementById('pListG').querySelectorAll('button').forEach(b=>{});
+  document.getElementById('pListG').innerHTML=buildGroupedList(ps,true);
 }
 
 let tvInGame=false,lastCh=null;
