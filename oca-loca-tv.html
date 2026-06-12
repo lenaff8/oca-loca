@@ -12,9 +12,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
 .btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:scale(.97)}
-.btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(232,184,75,.35)}
+.btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px var(--gold-dim)}
 .btn-back{background:rgba(240,221,176,.08);color:rgba(240,221,176,.6);padding:10px 18px;font-size:13px;border:1px solid rgba(240,221,176,.12)}
-.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.4)}
+.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px var(--gold-dim)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
 .chip{display:inline-flex;align-items:center;gap:7px;background:var(--chip-bg);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px;animation:popIn .3s ease both}
@@ -52,217 +52,62 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 .confetti{position:fixed;width:10px;height:10px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
 @keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 
+
 /* ── Theme variables ── */
 :root,[data-theme="dark"]{
-  --bg:radial-gradient(ellipse at 50% 0%,#142517,#0d1b0f 70%);
-  --panel:#152318;--card:#1d2f1f;--text:#f0ddb0;--gold:#e8b84b;
-  --wood:#3d2b1a;--dim:rgba(240,221,176,.45);--dimmest:rgba(240,221,176,.12);
-  --input-bg:rgba(240,221,176,.07);--chip-bg:rgba(240,221,176,.07);
-  --row-bg:rgba(240,221,176,.05);--btn-ghost-bg:rgba(240,221,176,.1);
-  --btn-ghost-color:#f0ddb0;--btn-ghost-border:rgba(240,221,176,.2);
-  --status-color:rgba(240,221,176,.33);
+  --bg:radial-gradient(ellipse at 40% 0%,#162e18,#080f08 75%);
+  --panel:#132015;
+  --card:#1a2d1c;
+  --text:#f5e6b8;
+  --gold:#e8c44a;
+  --gold-dim:rgba(232,196,74,.35);
+  --wood:#3c2a18;
+  --dim:rgba(245,230,184,.5);
+  --dimmest:rgba(245,230,184,.12);
+  --input-bg:rgba(245,230,184,.07);
+  --chip-bg:rgba(245,230,184,.08);
+  --row-bg:rgba(245,230,184,.05);
+  --btn-ghost-bg:rgba(245,230,184,.1);
+  --btn-ghost-color:#f5e6b8;
+  --btn-ghost-border:rgba(245,230,184,.22);
+  --status-color:rgba(245,230,184,.35);
+  --kick-bg:#3d1010;--kick-color:var(--err);
+  --err:#f87171;
+  --secret:#f472b6;
 }
 [data-theme="light"]{
-  --bg:radial-gradient(ellipse at 50% 0%,#f5e8cc,#ede0b8 70%);
-  --panel:#fffcf0;--card:#fdf6e0;--text:#2a1800;--gold:#9a6200;
-  --wood:#cca860;--dim:rgba(42,24,0,.5);--dimmest:rgba(42,24,0,.1);
-  --input-bg:rgba(0,0,0,.06);--chip-bg:rgba(0,0,0,.06);
-  --row-bg:rgba(0,0,0,.04);--btn-ghost-bg:rgba(42,24,0,.08);
-  --btn-ghost-color:#2a1800;--btn-ghost-border:rgba(42,24,0,.2);
-  --status-color:rgba(42,24,0,.4);
+  --bg:linear-gradient(160deg,#faf3e0,#f0e4c0 80%);
+  --panel:#fffef8;
+  --card:#fffbee;
+  --text:#1a0d00;
+  --gold:#b86800;
+  --gold-dim:rgba(184,104,0,.2);
+  --wood:#c89a50;
+  --dim:rgba(26,13,0,.52);
+  --dimmest:rgba(26,13,0,.09);
+  --input-bg:rgba(26,13,0,.05);
+  --chip-bg:rgba(26,13,0,.06);
+  --row-bg:rgba(26,13,0,.04);
+  --btn-ghost-bg:rgba(26,13,0,.07);
+  --btn-ghost-color:#1a0d00;
+  --btn-ghost-border:rgba(26,13,0,.18);
+  --status-color:rgba(26,13,0,.42);
+  --kick-bg:#fde8e8;--kick-color:#c0392b;
+  --err:#c0392b;
+  --secret:#9b27af;
 }
-/* ── Theme toggle button ── */
-#themeToggle{position:fixed;top:10px;right:12px;z-index:200;background:var(--panel);
-  border:1px solid var(--wood);border-radius:20px;padding:6px 12px;cursor:pointer;
-  font-size:16px;font-family:inherit;color:var(--text);transition:transform .12s}
-#themeToggle:hover{transform:scale(1.08)}
-
-</style>
-</head>
-<body>
-<button id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
-
-<div id="sLobby" class="screen active">
-  <div class="grid2 gridLobby">
-    <div>
-      <div class="card" style="text-align:center;padding:24px 16px;animation:glowPulse 3s ease-in-out infinite">
-        <div class="label">CÓDIGO DE SALA</div>
-        <div class="code" id="codeDisp">------</div>
-        <p style="color:var(--text)55;font-size:12px;margin-top:8px">Escanea para unirte</p>
-        <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
-      </div>
-      <div class="card" style="margin-top:12px">
-        <div class="label" style="margin-bottom:10px">EQUIPOS (<span id="teamCountL">0</span>)</div>
-        <div id="teamDefList"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <input id="newTeamName" type="text" placeholder="Nombre del equipo..."
-            style="flex:1;background:var(--chip-bg);border:1px solid var(--wood);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit"
-            onkeydown="if(event.key==='Enter')addTeam()">
-          <button class="btn btn-gold" style="padding:9px 14px;font-size:14px;white-space:nowrap" onclick="addTeam()">+ Añadir</button>
-        </div>
-        <div id="teamListL" style="display:none"></div>
-      </div>
-      <button class="btn btn-gold" style="width:100%;margin-top:12px;font-size:18px;padding:16px" onclick="goGame()">▶ Empezar partida</button>
-      <button class="btn btn-back" style="width:100%;margin-top:8px" onclick="newRoom()">↻ Nueva sala</button>
-    </div>
-    <div class="card">
-      <div class="label">JUGADORES CONECTADOS (<span id="pCountL">0</span>)</div>
-      <div id="pListL" style="margin-top:10px"></div>
-    </div>
-  </div>
-</div>
-
-<div id="sGame" class="screen">
-  <div class="grid2 gridGame">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card" style="text-align:center;padding:12px">
-        <div style="display:flex;align-items:center;justify-content:center;gap:14px">
-          <div>
-            <div class="label">SALA</div>
-            <div style="font-size:1.8rem;font-weight:900;color:var(--gold);letter-spacing:.1em" id="codeSmall"></div>
-          </div>
-          <div id="qrSmall"></div>
-        </div>
-        <div class="status" id="connStatus">●  conectado</div>
-        <button class="btn btn-back" style="width:100%;margin-top:8px;font-size:11px;padding:7px" onclick="newRoom()">↻ Nueva sala</button>
-      </div>
-      <div class="card" style="flex:1;overflow-y:auto">
-        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
-        <div id="pListG" style="margin-top:6px"></div>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div id="mainPanel" class="card" style="min-height:380px;display:flex;flex-direction:column;justify-content:center"></div>
-      <div id="rolesCard" class="card" style="display:none">
-        <div class="label">ROLES (visibles en los móviles)</div>
-        <div id="roleList" style="margin-top:8px"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
-const CH={
-minijuego:[
- {n:"Tiro de Honor",d:"Haz una canasta improvisada desde donde estéis. El grupo decide el aro y la pelota. Encested antes de 3 intentos.",rt:"actor",al:"LANZADOR",ad:"Tú eres quien tiene que encestar.",bl:"ÁRBITRO",bd:"Pon el aro y decide si ha encestado."},
- {n:"Cadena Rota",d:"El primero susurra una frase al oído. Viaja por todo el equipo. El último la dice en voz alta. ¿Queda algo de la original?",rt:"chain"},
- {n:"El Artista Invisible",d:"Dibuja una palabra en la espalda de otro con el dedo. Ese jugador debe adivinar qué es sin mirar.",rt:"artist_back"},
- {n:"Sin Palabras",d:"Actúa sin hablar ni sonidos. Nada de señalar directamente. Los demás tienen 45 segundos para adivinar.",rt:"actor",al:"ACTOR",ad:"Actúas sin palabras ni sonidos.",bl:"ADIVINA",bd:"Intenta adivinar qué representa."},
- {n:"El Reloj Humano",d:"Levantad la mano cuando creáis que han pasado exactamente 30 segundos. Sin mirar el reloj ni contar en voz alta.",rt:"all"},
- {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
- {n:"Buceador Lingüístico",d:"Aguanta el aliento y di una frase. Los demás adivinan qué has dicho.",rt:"actor",al:"BUCEADOR",ad:"Tú hablas aguantando el aliento.",bl:"OYENTE",bd:"Intentad adivinar qué dice."},
- {n:"El Globo Traicionero",d:"Sostén un globo entre tú y otro sin usar las manos. Moved hasta la meta sin que caiga.",rt:"pair"},
- {n:"Caza al Tesoro",d:"En 60 segundos traed el objeto más raro o absurdo que encontréis. El grupo vota.",rt:"all"},
- {n:"Sin Vista",d:"Con los ojos vendados, coloca un papel en el punto exacto que te indica el equipo con instrucciones verbales.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Sigue las instrucciones de tu equipo.",bl:"GUÍA",bd:"Guiad al ciego solo con palabras."},
- {n:"Mente Colmena",d:"Dos jugadores dicen una palabra al mismo tiempo. Buscan una que conecte ambas. Siguen hasta coincidir.",rt:"pair"},
- {n:"Es un 10 pero...",d:"Di 'es un 10 pero...' con el defecto más absurdo. Los demás puntúan del 1 al 10 si quedarían.",rt:"actor",al:"DESCRICTOR",ad:"Tú propones el '10 pero...'. Hazlo absurdo.",bl:"JURADO",bd:"Puntúa del 1 al 10 si quedarías."},
- {n:"Dado del Destino",d:"Tira el dado. El número marca cuántas sentadillas, flexiones o segundos bailando debe hacer todo el equipo.",rt:"all"},
- {n:"El Equilibrista",d:"Cruza la sala con un vaso de agua en equilibrio sobre la cabeza. Si lo derramas, vuelves al inicio. 90 segundos.",rt:"actor",al:"EQUILIBRISTA",ad:"Cruzas la sala con el vaso en la cabeza.",bl:"ÁRBITRO",bd:"Controlad el tiempo y el vaso."},
- {n:"Striptease con Globo",d:"Coloca un globo entre tu cuerpo y tu camiseta. Quítatela sin que caiga. Sin usar las manos.",rt:"actor",al:"INTÉRPRETE",ad:"Tú te quitas la camiseta sin que caiga el globo.",bl:"JURADO",bd:"Decidid si el globo ha tocado el suelo."},
- {n:"Cifrado Secreto",d:"Pensad en una película o serie. Los demás piden letras de una en una. Máximo 10 letras.",rt:"all"},
- {n:"Safari Urbano",d:"En 2 minutos haced la foto más absurda o creativa posible. El resto vota.",rt:"all"},
- {n:"La Cadena",d:"Pasad una carta de naipes de boca en boca. Sin usar las manos. Si cae, vuelta a empezar. 90 segundos.",rt:"chain"},
- {n:"Trazo Maestro",d:"Dibuja en el aire con el dedo índice. Los demás tienen 30 segundos para adivinar. Prohibido hablar.",rt:"actor",al:"DIBUJANTE",ad:"Dibuja en el aire con el dedo.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
- {n:"El Jurado",d:"Haz el salto más espectacular posible desde parado. Los demás puntúan del 1 al 10.",rt:"actor",al:"SALTADOR",ad:"Haz el salto más épico desde parado.",bl:"JURADO",bd:"Puntúa del 1 al 10."},
- {n:"Torre de Naipes",d:"Construid la torre más alta posible con cartas en 90 segundos.",rt:"all"},
- {n:"Sopladores Profesionales",d:"Moved un objeto ligero solo soplando desde la salida hasta la meta.",rt:"all"},
- {n:"El Precio Justo",d:"El moderador describe un objeto. El equipo tiene 30 segundos para adivinar su precio.",rt:"all"},
- {n:"Nudo Humano",d:"Agarraos de las manos formando un nudo. Deshacedlo sin soltaros. 3 minutos.",rt:"all"},
- {n:"Memoria Fotográfica",d:"El moderador muestra 10 objetos 30 segundos. Se tapan. 7 o más aciertos = superado.",rt:"all"},
- {n:"El Espejo",d:"Uno lidera movimientos lentos, el otro los replica como espejo. 30 segundos.",rt:"mirror"},
- {n:"Trabalenguas en Cadena",d:"Un trabalenguas viaja por el equipo. Dos fallos = reto fallado.",rt:"chain"},
- {n:"Blindtest de Objetos",d:"Con los ojos vendados, toca 5 objetos e identifícalos. Solo pueden decir frío o caliente.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Identifica los objetos.",bl:"GUÍA",bd:"Pasad objetos. Solo podéis decir frío o caliente."},
- {n:"Arquitectos de Papel",d:"Con 5 folios sin cinta, construid el puente más largo posible. 2 minutos.",rt:"all"},
- {n:"El Cubo Imposible",d:"Lanzad un objeto blando a una papelera desde la distancia marcada. Mayoría encesta = superado.",rt:"all"},
-],
-evento:[
- {n:"Acústico Imperfecto",d:"Un miembro de cada equipo tararea la misma canción. Su equipo tiene 45 segundos para adivinar. Primer equipo en acertar, gana.",rt:"rep_team",al:"HUMMEADOR",ad:"Tú tarareas la canción. Sin palabras.",bl:"ADIVINA",bd:"45 segundos para adivinar la canción."},
- {n:"Funambulista Urbano",d:"Un representante por equipo recorre la distancia con un objeto en equilibrio sobre la cabeza.",rt:"rep_team",al:"FUNAMBULISTA",ad:"Tú caminas con el objeto en la cabeza.",bl:"ESPECTADOR",bd:"Animad a vuestro representante."},
- {n:"El Último Ninja",d:"Todos adoptan pose ninja. Completamente inmóviles. El primero en moverse pierde.",rt:"all"},
- {n:"Eco Salvaje",d:"Uno por equipo participa. El moderador da la primera palabra. Cada uno sigue con la última sílaba.",rt:"rep_team",al:"JUGADOR",ad:"Tú participas en el Eco Salvaje.",bl:"HINCHA",bd:"Anima a tu representante."},
- {n:"Expedición Relámpago",d:"El moderador dice una letra. Todos buscan objetos que empiecen por esa letra en 60 segundos.",rt:"all"},
- {n:"Pareja Indisoluble",d:"Un par por equipo se ata los tobillos. El moderador propone una tarea absurda.",rt:"pair_team"},
- {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. ¿Alguien le descubre?",rt:"assassin"},
- {n:"Instante Inmortal",d:"3 minutos para hacer la foto más épica posible. Votación anónima.",rt:"all"},
- {n:"Congelados",d:"Música → silencio → todos inmóviles. El que se mueva, eliminado.",rt:"all"},
- {n:"Flash Talent",d:"Cada equipo tiene 60 segundos para preparar un número de talento. El público vota.",rt:"all"},
- {n:"Limbo Universal",d:"Clásico limbo. Se baja la altura cada ronda. El que caiga, eliminado.",rt:"all"},
- {n:"¿Quién del grupo?",d:"El moderador lee una pregunta. Todos señalan a alguien al mismo tiempo.",rt:"all"},
- {n:"Gran Prix de Cuclillas",d:"Todos a cuclillas a la señal. El último en levantarse o caerse gana.",rt:"all"},
- {n:"Coreografía Relámpago",d:"60 segundos para inventar una coreografía de 8 pasos. Se ejecuta a la vez.",rt:"all"},
- {n:"El Gran Debate",d:"Dos equipos defienden SÍ y NO ante un tema absurdo. 2 minutos. El resto vota.",rt:"sides"},
- {n:"Concurso de Caras",d:"5 segundos para hacer la cara más rara posible. El moderador vota la mejor.",rt:"all"},
-],
-versus:[
- {n:"Duelo Ancestral",d:"Piedra, papel o tijera. Mejor de 3 rondas.",rt:"rep",al:"COMBATIENTE",ad:"Tú juegas el duelo contra el representante rival.",bl:"HINCHA",bd:"Anima a tu representante."},
- {n:"Tres en Raya de la Muerte",d:"Un representante por equipo. El perdedor cumple penitencia.",rt:"rep",al:"JUGADOR",ad:"Tú juegas al Tres en Raya.",bl:"PÚBLICO",bd:"Decidid la penitencia si pierde vuestro representante."},
- {n:"Cara o Cruz Extremo",d:"El equipo retador lanza la moneda. El rival elige cara o cruz. El perdedor recibe penitencia.",rt:"rep",al:"LANZADOR",ad:"Tú lanzas la moneda.",bl:"ELECTOR",bd:"Elegid cara o cruz cuando lance el rival."},
- {n:"Cara de Piedra",d:"Un representante de cada equipo llena la boca de agua. Sus equipos intentan hacerles reír.",rt:"rep",al:"CARA DE PIEDRA",ad:"Llena la boca de agua. 60 segundos sin reírte.",bl:"COMEDIANTE",bd:"Haced reír al representante rival. Sin tocarlo."},
- {n:"Duelo de Fuerza",d:"Un representante por equipo. El que más flexiones seguidas haga sin parar, gana.",rt:"rep",al:"ATLETA",ad:"Tú haces las flexiones.",bl:"ÁRBITRO",bd:"Contad las flexiones."},
- {n:"Guardianes del Globo",d:"Dos representantes se pasan un globo. El grupo dicta cada 5 segundos qué parte del cuerpo usar.",rt:"rep",al:"GUARDIÁN",ad:"Pasas el globo con el representante rival.",bl:"DICTADOR",bd:"Cada 5 segundos gritad qué parte del cuerpo usar."},
- {n:"El Gran Salto",d:"Salto de longitud desde parado. Un intento por representante. El más lejos, gana.",rt:"rep",al:"SALTADOR",ad:"Tú saltas. Un intento.",bl:"JUEZ",bd:"Medid quién ha llegado más lejos."},
- {n:"Sirenas Terrestres",d:"Natación en tierra hasta la meta. El más rápido gana.",rt:"rep",al:"SIRENA",ad:"Nadas por el suelo hasta la meta.",bl:"ÁRBITRO",bd:"El más rápido con técnica correcta gana."},
- {n:"Trivia Rápida",d:"3 preguntas de cultura general. Primer equipo en responder correctamente gana el punto.",rt:"all"},
- {n:"Batalla de Baile",d:"Un representante baila 30 segundos. El público vota.",rt:"rep",al:"BAILARÍN",ad:"Tú bailas 30 segundos.",bl:"COREÓGRAFO",bd:"Luego el grupo vota."},
- {n:"Torre vs Torre",d:"60 segundos para construir la torre más alta posible con objetos de la sala.",rt:"all"},
- {n:"Mímica Cruzada",d:"Cada equipo prepara una mímica en secreto. El rival tiene 30 segundos para adivinar.",rt:"all"},
- {n:"Tira y Afloja",d:"Con una cuerda o similar. Gana el equipo que cruce la línea central.",rt:"all"},
- {n:"Humming Battle",d:"Un representante tararea una canción en secreto. El equipo rival intenta adivinarla.",rt:"rep",al:"HUMMER SECRETO",ad:"El moderador te dirá una canción al oído. Tararéala.",bl:"DETECTIVE",bd:"Intentad adivinar qué canción tararea el rival."},
- {n:"Debate Absurdo",d:"Afirmación ridícula. Un equipo defiende SÍ, el otro NO. 2 minutos. El resto vota.",rt:"sides"},
- {n:"Quién Ríe Primero",d:"Un representante de cada equipo se miran fijamente. Sus equipos intentan hacer reír al rival.",rt:"rep",al:"CARA SERIA",ad:"Mírate con el representante rival sin reírte 60 segundos.",bl:"BROMISTA",bd:"Haced reír al representante rival. Sin tocarlo."},
-]};
-
-
-let topic='',players={},es=null,since=0,busy=false;
-let teamDefs=[];
-// Wizard state
-let wState='cat', wType=null, wActive=null, wOpp=null;
-
-window.addEventListener('DOMContentLoaded',()=>{
-  let code;
-  const saved=localStorage.getItem('ocaTV');
-  if(saved){
-    try{
-      const s=JSON.parse(saved);
-      code=s.code;players=s.players||{};
-      if(s.inGame){
-        tvInGame=true;lastCh=s.lastCh||null;
-        setTimeout(()=>{
-          show('sGame');renderPlayers();
-          if(lastCh){finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));}
-          else wizardReset();
-        },0);
-      }
-    }catch(e){localStorage.removeItem('ocaTV');}
-  }
-  teamDefs=JSON.parse(localStorage.getItem('ocaTeams')||'[]');
-  if(!teamDefs.length)teamDefs=[{id:'A',name:'Equipo A',color:TC[0]}];
-  if(!code){
-    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-  }
-  topic='oca-'+code;
-  saveTV();
-  since=Math.floor(Date.now()/1000);
-  document.getElementById('codeDisp').textContent=code;
-  document.getElementById('codeSmall').textContent=code;
-  const mUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
-  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
-  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
-  document.getElementById('qrBox').innerHTML='<img src="'+q1+'" style="border-radius:10px;width:180px;height:180px">';
-  document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:72px;height:72px">';
-  subscribe();
-  setTimeout(initTeams,0);
-});
-
-function subscribe(){
-  if(es)es.close();
-  es=new EventSource('https://ntfy.sh/'+topic+'/sse?since='+since);
-  es.addEventListener('message',onMsg);
-  es.onerror=()=>{document.getElementById('connStatus').textContent='● reconectando...';setTimeout(subscribe,3000);};
-  es.onopen=()=>{const el=document.getElementById('connStatus');if(el)el.textContent='●  conectado';};
+/* ── Theme toggle: bottom-left FAB ── */
+#themeToggle{
+  position:fixed;bottom:14px;left:14px;z-index:200;
+  background:var(--panel);border:1px solid var(--wood);
+  border-radius:50%;width:40px;height:40px;
+  cursor:pointer;font-size:17px;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+  transition:transform .15s;
 }
+#themeToggle:hover{transform:scale(1.1)}
+
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
@@ -292,7 +137,7 @@ function buildGroupedList(ps,showKick){
       h+='<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 20px;font-size:13px">';
       h+='<span style="flex:1">'+p.name+'</span>';
       if(showKick){
-        h+='<button onclick="kickPlayer(\''+safe+'\');" style="background:#3d1010;border:none;color:#f87171;cursor:pointer;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;font-family:inherit">✕</button>';
+        h+='<button onclick="kickPlayer(\''+safe+'\');" style="background:#3d1010;border:none;color:var(--err);cursor:pointer;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;font-family:inherit">✕</button>';
       }
       h+='</div>';
     });
@@ -347,7 +192,7 @@ function renderTeamDefs(){
       <span style="flex:1;font-weight:700;font-size:14px">${t.name}</span>
       <span style="color:var(--text)44;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
       <button onclick="renameTeam(${i})" style="background:none;border:none;color:var(--text)66;cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
-      <button onclick="deleteTeam('${t.id}')" style="background:none;border:none;color:#f8717166;cursor:pointer;font-size:14px;padding:2px 5px" title="Eliminar">✕</button>
+      <button onclick="deleteTeam('${t.id}')" style="background:none;border:none;color:var(--err)66;cursor:pointer;font-size:14px;padding:2px 5px" title="Eliminar">✕</button>
     </div>`).join('');
 }
 function saveTV(){
