@@ -62,6 +62,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --row-bg:rgba(236,232,224,.045);--btn-ghost-bg:rgba(236,232,224,.08);
   --btn-ghost-color:#ece8e0;--btn-ghost-border:rgba(236,232,224,.2);
   --status-color:rgba(236,232,224,.35);
+  --cat-mini:#34558c;--cat-evento:#9c5c20;--cat-versus:#963060;
+  --role-normal:linear-gradient(160deg,#262630,#15151c);
+  --role-chosen:linear-gradient(160deg,#4a3a14,#221a08);
+  --role-secret:linear-gradient(160deg,#3d0a2e,#1a0514);
+  --role-title:#f5f2ea;--role-desc:rgba(236,232,224,.7);
+  --role-label:#d4af6a;--role-secret-label:#f472b6;
 }
 [data-theme="light"]{
   --bg:linear-gradient(160deg,#fff3d6,#ffdfe8 85%);
@@ -71,6 +77,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --row-bg:#fff1d9;--btn-ghost-bg:rgba(61,34,0,.06);
   --btn-ghost-color:#3d2200;--btn-ghost-border:rgba(61,34,0,.16);
   --status-color:rgba(61,34,0,.45);
+  --cat-mini:#1da7f0;--cat-evento:#ff9e2c;--cat-versus:#ff5fa2;
+  --role-normal:linear-gradient(160deg,#ffe9a8,#ffc6d9);
+  --role-chosen:linear-gradient(160deg,#ffd166,#ff9e2c);
+  --role-secret:linear-gradient(160deg,#f3d1ff,#e0a3f5);
+  --role-title:#3d2200;--role-desc:rgba(61,34,0,.72);
+  --role-label:#b45309;--role-secret-label:#9b27af;
 }
 #themeToggle{
   position:fixed;bottom:14px;left:14px;z-index:200;
@@ -380,15 +392,15 @@ function renderWizard(){
     mp.innerHTML=`
       <div class="wizard-q">¿En qué casilla ha caído?</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
-        <button class="cat-card" style="background:#2563eb;animation-delay:0ms" onclick="wPickCat('minijuego')">
+        <button class="cat-card" style="background:var(--cat-mini);animation-delay:0ms" onclick="wPickCat('minijuego')">
           <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
-        <button class="cat-card" style="background:#ea580c;animation-delay:60ms" onclick="wPickCat('evento')">
+        <button class="cat-card" style="background:var(--cat-evento);animation-delay:60ms" onclick="wPickCat('evento')">
           <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span>
           <div class="cat-sub">Juegan todos<br>los equipos</div>
         </button>
-        <button class="cat-card" style="background:#db2777;animation-delay:120ms" onclick="wPickCat('versus')">
+        <button class="cat-card" style="background:var(--cat-versus);animation-delay:120ms" onclick="wPickCat('versus')">
           <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
         </button>
@@ -453,7 +465,7 @@ function launch(){
 function nextRound(){pub({type:'clear'});lastCh=null;saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
-  const bg={minijuego:'#2563eb',evento:'#ea580c',versus:'#db2777'}[type];
+  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   const names=CH[type].map(c=>c.n);
@@ -475,7 +487,7 @@ function slotReveal(ch,type,done){
 }
 
 function finalChallenge(ch,type){
-  const bg={minijuego:'#2563eb',evento:'#ea580c',versus:'#db2777'}[type];
+  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   let teamLine='';
