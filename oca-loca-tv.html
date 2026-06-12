@@ -64,8 +64,15 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
         <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
       </div>
       <div class="card" style="margin-top:12px">
-        <div class="label">EQUIPOS (<span id="teamCountL">0</span>)</div>
-        <div id="teamListL" style="margin-top:6px"></div>
+        <div class="label" style="margin-bottom:10px">EQUIPOS (<span id="teamCountL">0</span>)</div>
+        <div id="teamDefList"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input id="newTeamName" type="text" placeholder="Nombre del equipo..."
+            style="flex:1;background:rgba(240,221,176,.07);border:1px solid var(--wood);border-radius:10px;padding:9px 12px;color:var(--parch);font-size:14px;outline:none;font-family:inherit"
+            onkeydown="if(event.key==='Enter')addTeam()">
+          <button class="btn btn-gold" style="padding:9px 14px;font-size:14px;white-space:nowrap" onclick="addTeam()">+ Añadir</button>
+        </div>
+        <div id="teamListL" style="display:none"></div>
       </div>
       <button class="btn btn-gold" style="width:100%;margin-top:12px;font-size:18px;padding:16px" onclick="goGame()">▶ Empezar partida</button>
       <button class="btn btn-back" style="width:100%;margin-top:8px" onclick="newRoom()">↻ Nueva sala</button>
@@ -180,6 +187,7 @@ versus:[
 
 
 let topic='',players={},es=null,since=0,busy=false;
+let teamDefs=[];
 // Wizard state
 let wState='cat', wType=null, wActive=null, wOpp=null;
 
@@ -200,6 +208,8 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
     }catch(e){localStorage.removeItem('ocaTV');}
   }
+  teamDefs=JSON.parse(localStorage.getItem('ocaTeams')||'[]');
+  if(!teamDefs.length)teamDefs=[{id:'A',name:'Equipo A',color:TC[0]}];
   if(!code){
     const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
@@ -215,6 +225,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('qrBox').innerHTML='<img src="'+q1+'" style="border-radius:10px;width:180px;height:180px">';
   document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:72px;height:72px">';
   subscribe();
+  setTimeout(initTeams,0);
 });
 
 function subscribe(){
@@ -227,7 +238,9 @@ function subscribe(){
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
-    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
+    if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});return;}
+    if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
+      pub({type:'teams',teams:teamDefs});if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
 }
 async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}catch(e){}}
@@ -240,18 +253,74 @@ function renderPlayers(){
   document.getElementById('pCountG').textContent=ps.length;
   const ts=teams();
   document.getElementById('teamCountL').textContent=ts.length;
-  document.getElementById('pListL').innerHTML=ps.map(p=>`<div class="chip"><div class="dot" style="background:${tc(p.team)}"></div><strong>${p.name}</strong><span style="color:#f0ddb055">Eq.${p.team}</span></div>`).join('');
-  document.getElementById('teamListL').innerHTML=ts.map(t=>{const n=ps.filter(p=>p.team===t).length;
-    return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(240,221,176,.06)"><div class="dot" style="background:${tc(t)}"></div><strong>Equipo ${t}</strong><span style="color:#f0ddb055;font-size:12px">${n} jug.</span></div>`;}).join('');
-  document.getElementById('pListG').innerHTML=ps.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px"><div class="dot" style="background:${tc(p.team)}"></div><span style="flex:1">${p.name}<span style="color:#f0ddb044;font-size:11px"> Eq.${p.team}</span></span><button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:13px;padding:0 4px">✕</button></div>`).join('');
+  // Lobby list: group by team
+  const groupedHTML=(container,showKick)=>{
+    let h='';
+    teamDefs.forEach(t=>{
+      const tp=ps.filter(p=>p.team===t.id);if(!tp.length)return;
+      h+=`<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+        <div class="dot" style="background:${t.color};width:14px;height:14px"></div>
+        <span style="font-size:13px;font-weight:900;color:${t.color}">${t.name}</span>
+        <span style="font-size:11px;color:#f0ddb033">${tp.length} jug.</span></div>
+        ${tp.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 20px;font-size:13px">
+          <span style="flex:1">${p.name}</span>
+          ${showKick?`<button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}') style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">✕</button>`:''}
+        </div>`).join('')}</div>`;
+    });
+    return h||'<p style="color:#f0ddb033;font-size:13px">Sin jugadores aún</p>';
+  };
+  document.getElementById('pListL').innerHTML=groupedHTML('pListL',false);
+  document.getElementById('teamListL').innerHTML='';
+  document.getElementById('pListG').innerHTML=groupedHTML('pListG',true).replace(/style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">/g,'style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">');
+  // Fix kick buttons (inline onclick already handles it)
+  document.getElementById('pListG').querySelectorAll('button').forEach(b=>{});
 }
 
 let tvInGame=false,lastCh=null;
+function saveTeams(){
+  localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
+  pub({type:'teams',teams:teamDefs});
+  renderTeamDefs();
+  renderPlayers();
+  renderWizard();
+}
+function addTeam(){
+  if(teamDefs.length>=8)return;
+  const inp=document.getElementById('newTeamName');
+  const name=inp.value.trim();if(!name)return;
+  const id='ABCDEFGH'[teamDefs.length];
+  teamDefs.push({id,name,color:TC[teamDefs.length%TC.length]});
+  inp.value='';saveTeams();
+}
+function renameTeam(idx){
+  const name=prompt('Nuevo nombre:',teamDefs[idx].name);
+  if(name&&name.trim()){teamDefs[idx].name=name.trim();saveTeams();}
+}
+function deleteTeam(id){
+  if(Object.values(players).some(p=>p.team===id)){alert('Hay jugadores en este equipo.');return;}
+  if(!confirm('¿Eliminar este equipo?'))return;
+  teamDefs=teamDefs.filter(t=>t.id!==id);
+  // Re-assign IDs to keep them sequential
+  teamDefs=teamDefs.map((t,i)=>({...t,id:'ABCDEFGH'[i],color:TC[i]}));
+  saveTeams();
+}
+function renderTeamDefs(){
+  const el=document.getElementById('teamDefList');if(!el)return;
+  el.innerHTML=teamDefs.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(240,221,176,.06)">
+      <div class="dot" style="background:${t.color};width:14px;height:14px;flex-shrink:0"></div>
+      <span style="flex:1;font-weight:700;font-size:14px">${t.name}</span>
+      <span style="color:#f0ddb044;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
+      <button onclick="renameTeam(${i})" style="background:none;border:none;color:#f0ddb066;cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
+      <button onclick="deleteTeam('${t.id}')" style="background:none;border:none;color:#f8717166;cursor:pointer;font-size:14px;padding:2px 5px" title="Eliminar">✕</button>
+    </div>`).join('');
+}
 function saveTV(){
   const code=topic.replace('oca-','');
   localStorage.setItem('ocaTV',JSON.stringify({code,players,inGame:tvInGame,lastCh}));
 }
 function goGame(){pub({type:'start'});tvInGame=true;show('sGame');wizardReset();saveTV();}
+function initTeams(){renderTeamDefs();renderPlayers();}
 function newRoom(){
   if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores.'))return;
   pub({type:'clear'});
@@ -291,7 +360,7 @@ function renderWizard(){
     mp.innerHTML=`
       <div class="wizard-q">${q}</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
-        ${teams().map((t,i)=>`<button class="team-big" style="background:${tc(t)};animation-delay:${i*50}ms" onclick="wPickActive('${t}')">${t}<small>${Object.values(players).filter(p=>p.team===t).length} jug.</small></button>`).join('')}
+        ${teamDefs.map((t,i)=>`<button class="team-big" style="background:${t.color};animation-delay:${i*50}ms" onclick="wPickActive('${t.id}')">${t.name}<small>${Object.values(players).filter(p=>p.team===t.id).length} jug.</small></button>`).join('')}
       </div>
       <div style="text-align:center;margin-top:24px"><button class="btn btn-back" onclick="wBack()">← Atrás</button></div>`;
   }
@@ -299,7 +368,7 @@ function renderWizard(){
     mp.innerHTML=`
       <div class="wizard-q">¿A qué equipo retan?</div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
-        ${teams().filter(t=>t!==wActive).map((t,i)=>`<button class="team-big" style="background:${tc(t)};animation-delay:${i*50}ms" onclick="wPickOpp('${t}')">${t}<small>${Object.values(players).filter(p=>p.team===t).length} jug.</small></button>`).join('')}
+        ${teamDefs.filter(t=>t.id!==wActive).map((t,i)=>`<button class="team-big" style="background:${t.color};animation-delay:${i*50}ms" onclick="wPickOpp('${t.id}')">${t.name}<small>${Object.values(players).filter(p=>p.team===t.id).length} jug.</small></button>`).join('')}
       </div>
       <div style="text-align:center;margin-top:24px"><button class="btn btn-back" onclick="wBack()">← Atrás</button></div>`;
   }
@@ -371,8 +440,10 @@ function finalChallenge(ch,type){
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   let teamLine='';
-  if(type==='minijuego'&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega el <strong style="color:#fff">Equipo ${wActive}</strong></div>`;
-  if(type==='versus'&&wActive&&wOpp)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">Equipo ${wActive}</strong> reta a <strong style="color:#fff">Equipo ${wOpp}</strong></div>`;
+  const tNameA=teamDefs.find(t=>t.id===wActive)?.name||('Equipo '+wActive);
+  const tNameO=teamDefs.find(t=>t.id===wOpp)?.name||('Equipo '+wOpp);
+  if(type==='minijuego'&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega <strong style="color:#fff">${tNameA}</strong></div>`;
+  if(type==='versus'&&wActive&&wOpp)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">${tNameA}</strong> reta a <strong style="color:#fff">${tNameO}</strong></div>`;
   document.getElementById('mainPanel').innerHTML=`
     <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:36px;text-align:center">
       <div style="font-size:60px">${em}</div>
