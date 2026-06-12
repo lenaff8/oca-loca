@@ -6,7 +6,7 @@
 <title>🪿 La Oca Loca</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--felt:#0d1b0f;--panel:#152318;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
+:root{--felt:#0a0618;--parch:#ece4ff}
 body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
 .screen{display:none;flex-direction:column;flex:1;padding:20px;animation:fadeIn .3s ease}
 .screen.active{display:flex}
@@ -14,7 +14,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:14px;font-weight:900;cursor:pointer;font-family:inherit;font-size:17px;padding:16px;width:100%;transition:transform .1s}
 .btn:active{transform:scale(.96)}
-.btn-gold{background:var(--gold);color:#1a1200;box-shadow:0 4px 18px rgba(232,184,75,.3)}
+.btn-gold{background:var(--gold);color:#1a1200;box-shadow:0 4px 18px rgba(255,174,61,.3)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 input{background:var(--chip-bg);border:1px solid var(--wood);border-radius:12px;padding:14px 16px;color:var(--text);font-size:17px;outline:none;width:100%;font-family:inherit;transition:border-color .15s}
 input:focus{border-color:var(--gold)}
@@ -25,11 +25,11 @@ input::placeholder{color:var(--text)44}
 .role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;animation:rolePop .5s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes rolePop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 .role-card.secret{background:linear-gradient(160deg,#3d0a2e,#1a0514)}
-.role-card.normal{background:linear-gradient(160deg,#0d2b1a,#0a1f13)}
-.role-card.chosen{background:linear-gradient(160deg,#5c4308,#2a1f04);box-shadow:0 0 50px rgba(232,184,75,.45)}
+.role-card.normal{background:linear-gradient(160deg,#2a1d4d,#160f2d)}
+.role-card.chosen{background:linear-gradient(160deg,#5c3a08,#2a1a04);box-shadow:0 0 50px rgba(255,174,61,.45)}
 .ch-bar{border-radius:14px;padding:14px 16px 18px;text-align:center;animation:slideDown .4s ease both;overflow:visible}
 @keyframes slideDown{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
-.ch-bar.minijuego{background:#0d5f6e}.ch-bar.evento{background:#7c4500}.ch-bar.versus{background:#6d1b3a}
+.ch-bar.minijuego{background:#2563eb}.ch-bar.evento{background:#ea580c}.ch-bar.versus{background:#db2777}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 .pulse{animation:pulse 2s ease-in-out infinite}
 .overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
@@ -54,22 +54,22 @@ input::placeholder{color:var(--text)44}
 .slot-item{min-height:66px;padding:4px 12px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3.5vw,26px);font-weight:900;color:#fff;text-align:center;line-height:1.3}
 /* ── Theme variables ── */
 :root,[data-theme="dark"]{
-  --bg:radial-gradient(ellipse at 40% 0%,#162e18,#080f08 75%);
-  --panel:#132015;--card:#1a2d1c;--text:#f5e6b8;--gold:#e8c44a;
-  --wood:#3c2a18;--dim:rgba(245,230,184,.5);--dimmest:rgba(245,230,184,.12);
-  --input-bg:rgba(245,230,184,.07);--chip-bg:rgba(245,230,184,.08);
-  --row-bg:rgba(245,230,184,.05);--btn-ghost-bg:rgba(245,230,184,.1);
-  --btn-ghost-color:#f5e6b8;--btn-ghost-border:rgba(245,230,184,.22);
-  --status-color:rgba(245,230,184,.35);
+  --bg:radial-gradient(ellipse at 40% 0%,#241646,#0a0618 75%);
+  --panel:#171028;--card:#1f1635;--text:#ece4ff;--gold:#ffae3d;
+  --wood:#3a2d5c;--dim:rgba(236,228,255,.52);--dimmest:rgba(236,228,255,.12);
+  --input-bg:rgba(236,228,255,.07);--chip-bg:rgba(236,228,255,.08);
+  --row-bg:rgba(236,228,255,.05);--btn-ghost-bg:rgba(236,228,255,.1);
+  --btn-ghost-color:#ece4ff;--btn-ghost-border:rgba(236,228,255,.22);
+  --status-color:rgba(236,228,255,.35);
 }
 [data-theme="light"]{
-  --bg:linear-gradient(160deg,#faf3e0,#f0e4c0 80%);
-  --panel:#fffef8;--card:#fffbee;--text:#1a0d00;--gold:#b86800;
-  --wood:#c89a50;--dim:rgba(26,13,0,.52);--dimmest:rgba(26,13,0,.09);
-  --input-bg:rgba(26,13,0,.05);--chip-bg:rgba(26,13,0,.06);
-  --row-bg:rgba(26,13,0,.04);--btn-ghost-bg:rgba(26,13,0,.07);
-  --btn-ghost-color:#1a0d00;--btn-ghost-border:rgba(26,13,0,.18);
-  --status-color:rgba(26,13,0,.42);
+  --bg:linear-gradient(160deg,#f8f4ff,#e9e0fa 80%);
+  --panel:#ffffff;--card:#fdfbff;--text:#241733;--gold:#b45309;
+  --wood:#cabdea;--dim:rgba(36,23,51,.55);--dimmest:rgba(36,23,51,.09);
+  --input-bg:rgba(36,23,51,.05);--chip-bg:rgba(36,23,51,.06);
+  --row-bg:rgba(36,23,51,.04);--btn-ghost-bg:rgba(36,23,51,.07);
+  --btn-ghost-color:#241733;--btn-ghost-border:rgba(36,23,51,.18);
+  --status-color:rgba(36,23,51,.45);
 }
 #themeToggle{
   position:fixed;bottom:14px;left:14px;z-index:200;
@@ -344,7 +344,7 @@ function applyRole(role,secret){
 }
 
 function confetti(){
-  const colors=['#e8b84b','#fff','#f39c12'];
+  const colors=['#ffae3d','#fff','#f39c12'];
   for(let i=0;i<45;i++){
     const c=document.createElement('div');
     c.className='confetti';
