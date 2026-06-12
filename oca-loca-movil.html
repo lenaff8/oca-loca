@@ -24,12 +24,12 @@ input::placeholder{color:var(--text)44}
 .tBtn.sel{border-color:#fff;transform:scale(1.08)}
 .role-card{border-radius:24px;padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:260px;animation:rolePop .5s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes rolePop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.role-card.secret{background:linear-gradient(160deg,#3d0a2e,#1a0514)}
-.role-card.normal{background:linear-gradient(160deg,#2a2a36,#191920)}
-.role-card.chosen{background:linear-gradient(160deg,#52400f,#241c06);box-shadow:0 0 50px rgba(212,175,106,.45)}
+.role-card.secret{background:var(--role-secret)}
+.role-card.normal{background:var(--role-normal)}
+.role-card.chosen{background:var(--role-chosen);box-shadow:0 0 50px rgba(212,175,106,.45)}
 .ch-bar{border-radius:14px;padding:14px 16px 18px;text-align:center;animation:slideDown .4s ease both;overflow:visible}
 @keyframes slideDown{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
-.ch-bar.minijuego{background:#2563eb}.ch-bar.evento{background:#ea580c}.ch-bar.versus{background:#db2777}
+.ch-bar.minijuego{background:var(--cat-mini)}.ch-bar.evento{background:var(--cat-evento)}.ch-bar.versus{background:var(--cat-versus)}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 .pulse{animation:pulse 2s ease-in-out infinite}
 .overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
@@ -61,6 +61,12 @@ input::placeholder{color:var(--text)44}
   --row-bg:rgba(236,232,224,.045);--btn-ghost-bg:rgba(236,232,224,.08);
   --btn-ghost-color:#ece8e0;--btn-ghost-border:rgba(236,232,224,.2);
   --status-color:rgba(236,232,224,.35);
+  --cat-mini:#34558c;--cat-evento:#9c5c20;--cat-versus:#963060;
+  --role-normal:linear-gradient(160deg,#262630,#15151c);
+  --role-chosen:linear-gradient(160deg,#4a3a14,#221a08);
+  --role-secret:linear-gradient(160deg,#3d0a2e,#1a0514);
+  --role-title:#f5f2ea;--role-desc:rgba(236,232,224,.7);
+  --role-label:#d4af6a;--role-secret-label:#f472b6;
 }
 [data-theme="light"]{
   --bg:linear-gradient(160deg,#fff3d6,#ffdfe8 85%);
@@ -70,6 +76,12 @@ input::placeholder{color:var(--text)44}
   --row-bg:#fff1d9;--btn-ghost-bg:rgba(61,34,0,.06);
   --btn-ghost-color:#3d2200;--btn-ghost-border:rgba(61,34,0,.16);
   --status-color:rgba(61,34,0,.45);
+  --cat-mini:#1da7f0;--cat-evento:#ff9e2c;--cat-versus:#ff5fa2;
+  --role-normal:linear-gradient(160deg,#ffe9a8,#ffc6d9);
+  --role-chosen:linear-gradient(160deg,#ffd166,#ff9e2c);
+  --role-secret:linear-gradient(160deg,#f3d1ff,#e0a3f5);
+  --role-title:#3d2200;--role-desc:rgba(61,34,0,.72);
+  --role-label:#b45309;--role-secret-label:#9b27af;
 }
 #themeToggle{
   position:fixed;bottom:14px;left:14px;z-index:200;
@@ -136,9 +148,9 @@ input::placeholder{color:var(--text)44}
   <div class="card" style="font-size:14px;line-height:1.7;color:var(--text)cc" id="chDesc"></div>
   <div id="roleCard" class="role-card normal" style="flex:1">
     <div style="font-size:70px;line-height:1" id="roleEmoji">👥</div>
-    <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--gold)" id="roleLabel">TU ROL</div>
-    <div style="font-size:28px;font-weight:900;color:#fff;line-height:1.2" id="roleName">-</div>
-    <div style="font-size:15px;line-height:1.65;color:rgba(255,255,255,.75);max-width:300px" id="roleDesc"></div>
+    <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--role-label)" id="roleLabel">TU ROL</div>
+    <div style="font-size:28px;font-weight:900;color:var(--role-title);line-height:1.2" id="roleName">-</div>
+    <div style="font-size:15px;line-height:1.65;color:var(--role-desc);max-width:300px" id="roleDesc"></div>
   </div>
 </div>
 
@@ -338,7 +350,7 @@ function applyRole(role,secret){
   document.getElementById('roleEmoji').textContent=role.emoji||'👥';
   const lbl=document.getElementById('roleLabel');
   lbl.textContent=secret?'⚠️ ROL SECRETO':'TU ROL';
-  lbl.style.color=secret?'#f472b6':'var(--gold)';
+  lbl.style.color=secret?'var(--role-secret-label)':'var(--role-label)';
   document.getElementById('roleName').textContent=role.label||'-';
   document.getElementById('roleDesc').textContent=role.roleDesc||'';
 }
