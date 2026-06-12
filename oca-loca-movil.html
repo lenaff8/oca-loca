@@ -17,7 +17,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 input{background:var(--chip-bg);border:1px solid var(--wood);border-radius:12px;padding:14px 16px;color:var(--text);font-size:17px;outline:none;width:100%;font-family:inherit;transition:border-color .15s}
 input:focus{border-color:var(--gold)}
-input::placeholder{color:var(--text)44}
+input::placeholder{color:var(--status-color)}
+#codeIn::placeholder{color:var(--dimmest);font-weight:400}
 .tBtn{padding:16px 0;border-radius:12px;border:3px solid transparent;font-weight:900;cursor:pointer;font-size:18px;font-family:inherit;transition:transform .12s}
 .tBtn:active{transform:scale(.92)}
 .tBtn.sel{border-color:#fff;transform:scale(1.08)}
@@ -36,12 +37,12 @@ input::placeholder{color:var(--text)44}
 #secretOverlay{background:var(--bg)}
 
 /* ── Roulette full-screen ── */
-#roulOverlay{background:#000;transition:background .07s}
-#roulOverlay.lit{background:#fff}
-#roulOverlay.winner{background:var(--gold);animation:winFlash .35s ease 5}
-@keyframes winFlash{0%,100%{background:var(--gold)}50%{background:#fff}}
-#roulOverlay .roul-msg{font-size:20px;font-weight:900;letter-spacing:.1em;color:#666;transition:color .07s}
-#roulOverlay.lit .roul-msg{color:#000}
+#roulOverlay{background:#23242a;transition:background .18s ease}
+#roulOverlay.lit{background:#8a93f5}
+#roulOverlay.winner{background:var(--gold);animation:winFlash 1.2s ease 2}
+@keyframes winFlash{0%,100%{background:var(--gold)}50%{background:#9ba3f7}}
+#roulOverlay .roul-msg{font-size:20px;font-weight:900;letter-spacing:.1em;color:#7a7d88;transition:color .18s ease}
+#roulOverlay.lit .roul-msg{color:#1a1d3a}
 #roulOverlay.winner .roul-msg{color:var(--gold-text)}
 .winner-text{font-size:38px;font-weight:900;color:var(--gold-text);line-height:1.1;animation:winPop .4s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes winPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
@@ -118,7 +119,7 @@ input::placeholder{color:var(--text)44}
     </div>
     <div>
       <div class="label">EQUIPO</div>
-      <div id="teamBtns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"><p style="color:var(--text)55;font-size:12px;grid-column:1/-1">Introduce el código para ver los equipos disponibles</p></div>
+      <div id="teamBtns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"><p style="color:var(--status-color);font-size:12px;grid-column:1/-1">Introduce el código para ver los equipos disponibles</p></div>
     </div>
     <div style="flex:1"></div>
     <button class="btn btn-gold" onclick="joinRoom()">Unirse →</button>
@@ -130,12 +131,12 @@ input::placeholder{color:var(--text)44}
   <div style="text-align:center">
     <div style="font-size:72px" class="pulse">🪿</div>
     <h2 style="font-size:1.4rem;font-weight:900;margin-top:16px">Esperando reto...</h2>
-    <p style="color:var(--text)55;font-size:14px;margin-top:8px" id="waitInfo"></p>
+    <p style="color:var(--status-color);font-size:14px;margin-top:8px" id="waitInfo"></p>
     <div style="margin-top:20px;background:var(--panel);border-radius:14px;padding:12px 20px;display:inline-block">
       <div class="label">SALA</div>
       <div style="font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:.2em" id="waitCode">------</div>
     </div>
-    <p style="color:var(--text)33;font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
+    <p style="color:var(--status-color);font-size:12px;margin-top:16px" id="connInfo">Conectando...</p>
     <button onclick="leaveSession()" style="margin-top:28px;background:var(--btn-ghost-bg);border:1px solid var(--btn-ghost-border);color:var(--dim);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Cambiar nombre / salir de la sala</button>
   </div>
 </div>
@@ -148,7 +149,7 @@ input::placeholder{color:var(--text)44}
     <div style="font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.6" id="chType">MINIJUEGO</div>
     <div style="font-size:20px;font-weight:900;color:#fff;margin-top:4px;line-height:1.3;overflow:visible;padding-bottom:2px" id="chName">-</div>
   </div>
-  <div class="card" style="font-size:14px;line-height:1.7;color:var(--text)cc" id="chDesc"></div>
+  <div class="card" style="font-size:14px;line-height:1.7;color:var(--status-color)" id="chDesc"></div>
   <div id="roleCard" class="role-card normal" style="flex:1">
     <div style="font-size:70px;line-height:1" id="roleEmoji">👥</div>
     <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--role-label)" id="roleLabel">TU ROL</div>
@@ -161,7 +162,7 @@ input::placeholder{color:var(--text)44}
 <div id="secretOverlay" class="overlay hidden">
   <div style="font-size:72px;margin-bottom:16px">🔒</div>
   <h2 style="font-size:1.4rem;font-weight:900;color:#f472b6;margin-bottom:10px">ROL SECRETO</h2>
-  <p style="color:var(--text)77;font-size:14px;margin-bottom:32px;line-height:1.6">Solo tú verás esto.<br>No lo enseñes a nadie.</p>
+  <p style="color:var(--status-color);font-size:14px;margin-bottom:32px;line-height:1.6">Solo tú verás esto.<br>No lo enseñes a nadie.</p>
   <button class="btn" style="background:#f472b6;color:#1a0514;max-width:280px" onclick="revealSecret()">Ver mi rol →</button>
 </div>
 
