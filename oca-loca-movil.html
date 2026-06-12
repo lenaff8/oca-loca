@@ -357,6 +357,7 @@ function confetti(){
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
 
+<script>
 // ── Theme ──
 (function(){
   const saved=localStorage.getItem('ocaTheme')||'dark';
@@ -372,6 +373,7 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
     if(btn)btn.textContent=saved==='light'?'🌙':'☀️';
   });
 })();
+</script>
 
 </body>
 </html>
