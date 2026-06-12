@@ -6,15 +6,15 @@
 <title>🪿 La Oca Loca — TV</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--felt:#0d1b0f;--panel:#152318;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
+:root{--felt:#0a0618;--parch:#ece4ff}
 body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh}
 .screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
 .btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:scale(.97)}
-.btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(232,184,75,.35)}
+.btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(255,174,61,.35)}
 .btn-back{background:rgba(240,221,176,.08);color:rgba(240,221,176,.6);padding:10px 18px;font-size:13px;border:1px solid rgba(240,221,176,.12)}
-.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.4)}
+.code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(255,174,61,.4)}
 .label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
 .chip{display:inline-flex;align-items:center;gap:7px;background:var(--chip-bg);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px;animation:popIn .3s ease both}
@@ -44,10 +44,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 .slot-item{min-height:66px;padding:4px 12px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3.5vw,26px);font-weight:900;color:#fff;text-align:center;line-height:1.3}
 @keyframes chPop{0%{transform:scale(.7) rotate(-2deg);opacity:0}60%{transform:scale(1.04) rotate(.5deg)}100%{transform:scale(1) rotate(0)}}
 .ch-reveal{animation:chPop .55s cubic-bezier(.2,1.4,.4,1) both}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(232,184,75,.25)}50%{box-shadow:0 0 48px rgba(232,184,75,.55)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(255,174,61,.25)}50%{box-shadow:0 0 48px rgba(255,174,61,.55)}}
 .roul-name{padding:12px 22px;border-radius:14px;font-size:22px;font-weight:900;background:rgba(240,221,176,.06);border:2px solid transparent;transition:all .08s;color:rgba(240,221,176,.5)}
-.roul-name.lit{background:var(--gold);color:#1a1200;transform:scale(1.12);box-shadow:0 0 36px rgba(232,184,75,.7);border-color:#fff}
-.roul-name.winner{background:var(--gold);color:#1a1200;transform:scale(1.25);box-shadow:0 0 60px rgba(232,184,75,.95);border-color:#fff;animation:winnerBounce .5s ease 3}
+.roul-name.lit{background:var(--gold);color:#1a1200;transform:scale(1.12);box-shadow:0 0 36px rgba(255,174,61,.7);border-color:#fff}
+.roul-name.winner{background:var(--gold);color:#1a1200;transform:scale(1.25);box-shadow:0 0 60px rgba(255,174,61,.95);border-color:#fff;animation:winnerBounce .5s ease 3}
 @keyframes winnerBounce{0%,100%{transform:scale(1.25)}50%{transform:scale(1.35)}}
 .confetti{position:fixed;width:10px;height:10px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
 @keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
@@ -55,22 +55,22 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 
 /* ── Theme variables ── */
 :root,[data-theme="dark"]{
-  --bg:radial-gradient(ellipse at 40% 0%,#162e18,#080f08 75%);
-  --panel:#132015;--card:#1a2d1c;--text:#f5e6b8;--gold:#e8c44a;
-  --wood:#3c2a18;--dim:rgba(245,230,184,.5);--dimmest:rgba(245,230,184,.12);
-  --input-bg:rgba(245,230,184,.07);--chip-bg:rgba(245,230,184,.08);
-  --row-bg:rgba(245,230,184,.05);--btn-ghost-bg:rgba(245,230,184,.1);
-  --btn-ghost-color:#f5e6b8;--btn-ghost-border:rgba(245,230,184,.22);
-  --status-color:rgba(245,230,184,.35);
+  --bg:radial-gradient(ellipse at 40% 0%,#241646,#0a0618 75%);
+  --panel:#171028;--card:#1f1635;--text:#ece4ff;--gold:#ffae3d;
+  --wood:#3a2d5c;--dim:rgba(236,228,255,.52);--dimmest:rgba(236,228,255,.12);
+  --input-bg:rgba(236,228,255,.07);--chip-bg:rgba(236,228,255,.08);
+  --row-bg:rgba(236,228,255,.05);--btn-ghost-bg:rgba(236,228,255,.1);
+  --btn-ghost-color:#ece4ff;--btn-ghost-border:rgba(236,228,255,.22);
+  --status-color:rgba(236,228,255,.35);
 }
 [data-theme="light"]{
-  --bg:linear-gradient(160deg,#faf3e0,#f0e4c0 80%);
-  --panel:#fffef8;--card:#fffbee;--text:#1a0d00;--gold:#b86800;
-  --wood:#c89a50;--dim:rgba(26,13,0,.52);--dimmest:rgba(26,13,0,.09);
-  --input-bg:rgba(26,13,0,.05);--chip-bg:rgba(26,13,0,.06);
-  --row-bg:rgba(26,13,0,.04);--btn-ghost-bg:rgba(26,13,0,.07);
-  --btn-ghost-color:#1a0d00;--btn-ghost-border:rgba(26,13,0,.18);
-  --status-color:rgba(26,13,0,.42);
+  --bg:linear-gradient(160deg,#f8f4ff,#e9e0fa 80%);
+  --panel:#ffffff;--card:#fdfbff;--text:#241733;--gold:#b45309;
+  --wood:#cabdea;--dim:rgba(36,23,51,.55);--dimmest:rgba(36,23,51,.09);
+  --input-bg:rgba(36,23,51,.05);--chip-bg:rgba(36,23,51,.06);
+  --row-bg:rgba(36,23,51,.04);--btn-ghost-bg:rgba(36,23,51,.07);
+  --btn-ghost-color:#241733;--btn-ghost-border:rgba(36,23,51,.18);
+  --status-color:rgba(36,23,51,.45);
 }
 #themeToggle{
   position:fixed;bottom:14px;left:14px;z-index:200;
@@ -252,8 +252,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
   const mUrl='https://lenaff8.github.io/oca-loca/oca-loca-movil.html?code='+code;
-  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
-  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=152318&color=e8b84b&data='+encodeURIComponent(mUrl);
+  const q1='https://api.qrserver.com/v1/create-qr-code/?size=180x180&bgcolor=171028&color=ffae3d&data='+encodeURIComponent(mUrl);
+  const q2='https://api.qrserver.com/v1/create-qr-code/?size=72x72&bgcolor=171028&color=ffae3d&data='+encodeURIComponent(mUrl);
   document.getElementById('qrBox').innerHTML='<img src="'+q1+'" style="border-radius:10px;width:180px;height:180px">';
   document.getElementById('qrSmall').innerHTML='<img src="'+q2+'" style="border-radius:8px;width:72px;height:72px">';
   subscribe();
@@ -380,15 +380,15 @@ function renderWizard(){
     mp.innerHTML=`
       <div class="wizard-q">¿En qué casilla ha caído?</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
-        <button class="cat-card" style="background:#0d5f6e;animation-delay:0ms" onclick="wPickCat('minijuego')">
+        <button class="cat-card" style="background:#2563eb;animation-delay:0ms" onclick="wPickCat('minijuego')">
           <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
-        <button class="cat-card" style="background:#7c4500;animation-delay:60ms" onclick="wPickCat('evento')">
+        <button class="cat-card" style="background:#ea580c;animation-delay:60ms" onclick="wPickCat('evento')">
           <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span>
           <div class="cat-sub">Juegan todos<br>los equipos</div>
         </button>
-        <button class="cat-card" style="background:#6d1b3a;animation-delay:120ms" onclick="wPickCat('versus')">
+        <button class="cat-card" style="background:#db2777;animation-delay:120ms" onclick="wPickCat('versus')">
           <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
         </button>
@@ -453,7 +453,7 @@ function launch(){
 function nextRound(){pub({type:'clear'});lastCh=null;saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
-  const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
+  const bg={minijuego:'#2563eb',evento:'#ea580c',versus:'#db2777'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   const names=CH[type].map(c=>c.n);
@@ -475,7 +475,7 @@ function slotReveal(ch,type,done){
 }
 
 function finalChallenge(ch,type){
-  const bg={minijuego:'#0d5f6e',evento:'#7c4500',versus:'#6d1b3a'}[type];
+  const bg={minijuego:'#2563eb',evento:'#ea580c',versus:'#db2777'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
   let teamLine='';
@@ -531,7 +531,7 @@ function renderRoles(roles,ps){
 }
 
 function confetti(){
-  const colors=['#e8b84b','#e74c3c','#3498db','#2ecc71','#f39c12','#e91e8c'];
+  const colors=['#ffae3d','#e74c3c','#3498db','#2ecc71','#f39c12','#e91e8c'];
   for(let i=0;i<60;i++){
     const c=document.createElement('div');
     c.className='confetti';
