@@ -148,16 +148,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
         <div class="status" id="connStatus">●  conectado</div>
         <button class="btn btn-back" style="width:100%;margin-top:8px;font-size:11px;padding:7px" onclick="newRoom()">↻ Nueva sala</button>
       </div>
-      <div class="card" style="flex:1;overflow-y:auto">
-        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
-        <div id="pListG" style="margin-top:6px"></div>
-      </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div id="mainPanel" class="card" style="min-height:380px;display:flex;flex-direction:column;justify-content:center"></div>
       <div id="rolesCard" class="card" style="display:none">
         <div class="label">ROLES (visibles en los móviles)</div>
         <div id="roleList" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
+        <div id="pListG" style="margin-top:6px"></div>
       </div>
     </div>
   </div>
