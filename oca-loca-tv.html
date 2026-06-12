@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--felt:#0d1b0f;--panel:#152318;--parch:#f0ddb0;--gold:#e8b84b;--wood:#3d2b1a}
-body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color:var(--parch);font-family:system-ui,sans-serif;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh}
 .screen{display:none;padding:20px;max-width:1400px;margin:0 auto}.screen.active{display:block}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
@@ -15,13 +15,13 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
 .btn-gold{background:var(--gold);color:#1a1200;padding:14px 28px;font-size:16px;box-shadow:0 4px 18px rgba(232,184,75,.35)}
 .btn-back{background:rgba(240,221,176,.08);color:rgba(240,221,176,.6);padding:10px 18px;font-size:13px;border:1px solid rgba(240,221,176,.12)}
 .code{font-size:clamp(2.5rem,12vw,5rem);font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,184,75,.4)}
-.label{font-size:11px;font-weight:800;letter-spacing:.1em;color:rgba(240,221,176,.45);margin-bottom:6px}
+.label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;display:inline-block}
-.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(240,221,176,.07);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px;animation:popIn .3s ease both}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--chip-bg);border-radius:9px;padding:6px 12px;margin:3px;font-size:13px;animation:popIn .3s ease both}
 @keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
-.role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(240,221,176,.05);border-radius:9px;margin-bottom:4px;font-size:13px;animation:slideIn .35s ease both}
+.role-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--row-bg);border-radius:9px;margin-bottom:4px;font-size:13px;animation:slideIn .35s ease both}
 @keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
-.status{font-size:11px;color:#f0ddb055;text-align:center;margin-top:4px}
+.status{font-size:11px;color:var(--text)55;text-align:center;margin-top:4px}
 .grid2{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 @media(min-width:900px){.gridLobby{grid-template-columns:300px 1fr}.gridGame{grid-template-columns:280px 1fr}}
 
@@ -39,8 +39,9 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
 .team-big small{display:block;font-size:11px;font-weight:700;opacity:.7;margin-top:4px}
 
 /* ── Slot + roulette + confetti (unchanged visuals) ── */
-.slot-window{height:54px;overflow:hidden;position:relative}
-.slot-item{height:54px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#fff}
+
+.slot-window{min-height:66px;overflow:visible;position:relative}
+.slot-item{min-height:66px;padding:4px 12px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3.5vw,26px);font-weight:900;color:#fff;text-align:center;line-height:1.3}
 @keyframes chPop{0%{transform:scale(.7) rotate(-2deg);opacity:0}60%{transform:scale(1.04) rotate(.5deg)}100%{transform:scale(1) rotate(0)}}
 .ch-reveal{animation:chPop .55s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 24px rgba(232,184,75,.25)}50%{box-shadow:0 0 48px rgba(232,184,75,.55)}}
@@ -50,9 +51,36 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
 @keyframes winnerBounce{0%,100%{transform:scale(1.25)}50%{transform:scale(1.35)}}
 .confetti{position:fixed;width:10px;height:10px;top:-12px;z-index:999;pointer-events:none;animation:confFall linear forwards}
 @keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* ── Theme variables ── */
+:root,[data-theme="dark"]{
+  --bg:radial-gradient(ellipse at 50% 0%,#142517,#0d1b0f 70%);
+  --panel:#152318;--card:#1d2f1f;--text:#f0ddb0;--gold:#e8b84b;
+  --wood:#3d2b1a;--dim:rgba(240,221,176,.45);--dimmest:rgba(240,221,176,.12);
+  --input-bg:rgba(240,221,176,.07);--chip-bg:rgba(240,221,176,.07);
+  --row-bg:rgba(240,221,176,.05);--btn-ghost-bg:rgba(240,221,176,.1);
+  --btn-ghost-color:#f0ddb0;--btn-ghost-border:rgba(240,221,176,.2);
+  --status-color:rgba(240,221,176,.33);
+}
+[data-theme="light"]{
+  --bg:radial-gradient(ellipse at 50% 0%,#f5e8cc,#ede0b8 70%);
+  --panel:#fffcf0;--card:#fdf6e0;--text:#2a1800;--gold:#9a6200;
+  --wood:#cca860;--dim:rgba(42,24,0,.5);--dimmest:rgba(42,24,0,.1);
+  --input-bg:rgba(0,0,0,.06);--chip-bg:rgba(0,0,0,.06);
+  --row-bg:rgba(0,0,0,.04);--btn-ghost-bg:rgba(42,24,0,.08);
+  --btn-ghost-color:#2a1800;--btn-ghost-border:rgba(42,24,0,.2);
+  --status-color:rgba(42,24,0,.4);
+}
+/* ── Theme toggle button ── */
+#themeToggle{position:fixed;top:10px;right:12px;z-index:200;background:var(--panel);
+  border:1px solid var(--wood);border-radius:20px;padding:6px 12px;cursor:pointer;
+  font-size:16px;font-family:inherit;color:var(--text);transition:transform .12s}
+#themeToggle:hover{transform:scale(1.08)}
+
 </style>
 </head>
 <body>
+<button id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
 
 <div id="sLobby" class="screen active">
   <div class="grid2 gridLobby">
@@ -60,7 +88,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
       <div class="card" style="text-align:center;padding:24px 16px;animation:glowPulse 3s ease-in-out infinite">
         <div class="label">CÓDIGO DE SALA</div>
         <div class="code" id="codeDisp">------</div>
-        <p style="color:#f0ddb055;font-size:12px;margin-top:8px">Escanea para unirte</p>
+        <p style="color:var(--text)55;font-size:12px;margin-top:8px">Escanea para unirte</p>
         <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
       </div>
       <div class="card" style="margin-top:12px">
@@ -68,7 +96,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#142517,var(--felt) 70%);color
         <div id="teamDefList"></div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <input id="newTeamName" type="text" placeholder="Nombre del equipo..."
-            style="flex:1;background:rgba(240,221,176,.07);border:1px solid var(--wood);border-radius:10px;padding:9px 12px;color:var(--parch);font-size:14px;outline:none;font-family:inherit"
+            style="flex:1;background:var(--chip-bg);border:1px solid var(--wood);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit"
             onkeydown="if(event.key==='Enter')addTeam()">
           <button class="btn btn-gold" style="padding:9px 14px;font-size:14px;white-space:nowrap" onclick="addTeam()">+ Añadir</button>
         </div>
@@ -248,7 +276,7 @@ async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST'
 function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort();}
 
 function buildGroupedList(ps,showKick){
-  if(!ps.length)return '<p style="color:#f0ddb033;font-size:13px">Sin jugadores aún</p>';
+  if(!ps.length)return '<p style="color:var(--text)33;font-size:13px">Sin jugadores aún</p>';
   let h='';
   teamDefs.forEach(function(t){
     const tp=ps.filter(function(p){return p.team===t.id;});
@@ -257,7 +285,7 @@ function buildGroupedList(ps,showKick){
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">';
     h+='<div class="dot" style="background:'+t.color+';width:14px;height:14px"></div>';
     h+='<span style="font-size:13px;font-weight:900;color:'+t.color+'">'+t.name+'</span>';
-    h+='<span style="font-size:11px;color:#f0ddb033">'+tp.length+' jug.</span>';
+    h+='<span style="font-size:11px;color:var(--text)33">'+tp.length+' jug.</span>';
     h+='</div>';
     tp.forEach(function(p){
       const safe=p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -317,8 +345,8 @@ function renderTeamDefs(){
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(240,221,176,.06)">
       <div class="dot" style="background:${t.color};width:14px;height:14px;flex-shrink:0"></div>
       <span style="flex:1;font-weight:700;font-size:14px">${t.name}</span>
-      <span style="color:#f0ddb044;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
-      <button onclick="renameTeam(${i})" style="background:none;border:none;color:#f0ddb066;cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
+      <span style="color:var(--text)44;font-size:11px">${Object.values(players).filter(p=>p.team===t.id).length} jug.</span>
+      <button onclick="renameTeam(${i})" style="background:none;border:none;color:var(--text)66;cursor:pointer;font-size:14px;padding:2px 5px" title="Renombrar">✏️</button>
       <button onclick="deleteTeam('${t.id}')" style="background:none;border:none;color:#f8717166;cursor:pointer;font-size:14px;padding:2px 5px" title="Eliminar">✕</button>
     </div>`).join('');
 }
@@ -639,5 +667,22 @@ function assignRoles(ch,active,allPs,aT,oT){
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
+
+// ── Theme ──
+(function(){
+  const saved=localStorage.getItem('ocaTheme')||'dark';
+  document.documentElement.setAttribute('data-theme',saved);
+  window.toggleTheme=function(){
+    const next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',next);
+    localStorage.setItem('ocaTheme',next);
+    document.getElementById('themeToggle').textContent=next==='light'?'🌙':'☀️';
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    const btn=document.getElementById('themeToggle');
+    if(btn)btn.textContent=saved==='light'?'🌙':'☀️';
+  });
+})();
+
 </body>
 </html>
