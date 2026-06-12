@@ -264,7 +264,7 @@ function renderPlayers(){
         <span style="font-size:11px;color:#f0ddb033">${tp.length} jug.</span></div>
         ${tp.map(p=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0 3px 20px;font-size:13px">
           <span style="flex:1">${p.name}</span>
-          ${showKick?`<button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}') style="background:none;border:none;color:#f8717155;cursor:pointer;font-size:12px">✕</button>`:''}
+          ${showKick?`<button onclick="kickPlayer('${p.name.replace(/'/g,"\\'")}') style="background:#3d1010;border:none;color:#f87171;cursor:pointer;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;font-family:inherit">✕</button>`:''}
         </div>`).join('')}</div>`;
     });
     return h||'<p style="color:#f0ddb033;font-size:13px">Sin jugadores aún</p>';
