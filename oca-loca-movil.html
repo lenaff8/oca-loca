@@ -33,7 +33,7 @@ input::placeholder{color:var(--text)44}
 .pulse{animation:pulse 2s ease-in-out infinite}
 .overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:28px;text-align:center}
 .overlay.hidden{display:none}
-#secretOverlay{background:rgba(0,0,0,.96)}
+#secretOverlay{background:var(--bg)}
 
 /* ── Roulette full-screen ── */
 #roulOverlay{background:#000;transition:background .07s}
@@ -185,28 +185,28 @@ window.addEventListener('DOMContentLoaded',()=>{
   const params=new URLSearchParams(window.location.search);
   const code=params.get('code');
   if(code){document.getElementById('codeIn').value=code.toUpperCase();onCodeInput(code);}
-  const saved=localStorage.getItem('ocaSession');
+  const saved=sessionStorage.getItem('ocaSession');
   if(saved){
     try{
       const s=JSON.parse(saved);
       myName=s.name;myTeam=s.team;myTopic='oca-'+s.code;mySince=Math.floor(Date.now()/1000);
       document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
       document.getElementById('waitCode').textContent=s.code;
-      const savedCh=localStorage.getItem('ocaChallenge');
+      const savedCh=sessionStorage.getItem('ocaChallenge');
       if(savedCh){
         try{showChallenge(JSON.parse(savedCh));}
         catch(e){show('sWait');}
       }else{show('sWait');}
       announce();subscribe();
       return;
-    }catch(e){localStorage.removeItem('ocaSession');}
+    }catch(e){sessionStorage.removeItem('ocaSession');}
   }
   if(code)document.getElementById('nameIn').focus();
 });
 
 function leaveSession(){
-  localStorage.removeItem('ocaSession');
-  localStorage.removeItem('ocaChallenge');
+  sessionStorage.removeItem('ocaSession');
+  sessionStorage.removeItem('ocaChallenge');
   if(es)es.close();
   myName='';myTopic='';
   const saved=document.getElementById('codeIn').value;
@@ -248,7 +248,7 @@ function joinRoom(){
   if(!myTeam){err.textContent='Selecciona tu equipo.';err.style.display='block';return;}
   err.style.display='none';
   myName=name;myTopic='oca-'+code;mySince=Math.floor(Date.now()/1000);
-  localStorage.setItem('ocaSession',JSON.stringify({code,name,team:myTeam}));
+  sessionStorage.setItem('ocaSession',JSON.stringify({code,name,team:myTeam}));
   const tDef=teamDefs.find(t=>t.id===myTeam);
   const tName=tDef?tDef.name:'Equipo '+myTeam;
   document.getElementById('waitInfo').textContent=name+' · '+tName;
@@ -273,11 +273,11 @@ function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='challenge'){
-      localStorage.setItem('ocaChallenge',JSON.stringify(d));
+      sessionStorage.setItem('ocaChallenge',JSON.stringify(d));
       if(d.roulette){playRoulette(d);}
       else{showChallenge(d);}
     }else if(d.type==='teams'){teamDefs=d.teams;renderTeamBtns();}else if(d.type==='clear'){
-      localStorage.removeItem('ocaChallenge');
+      sessionStorage.removeItem('ocaChallenge');
       show('sWait');
     }
   }catch(err){}
@@ -336,7 +336,11 @@ function showChallenge(d){
   show('sPlay');
   const role=d.roles&&d.roles[myName];
   if(role){
-    if(role.isSecret){pendingRole=role;document.getElementById('secretOverlay').classList.remove('hidden');}
+    if(role.isSecret){
+      pendingRole=role;
+      applyRole({label:'···',emoji:'🔒',isSecret:false,roleDesc:''},false);
+      document.getElementById('secretOverlay').classList.remove('hidden');
+    }
     else applyRole(role,false);
   }else applyRole({label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'},false);
 }
