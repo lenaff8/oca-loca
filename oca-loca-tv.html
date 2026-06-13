@@ -303,6 +303,8 @@ function onMsg(e){
     if(d.type==='buzzResult'){handleBuzzResult(d.success);return;}
     if(d.type==='hummStart'){hummStart(d.team);return;}
     if(d.type==='hummStop'){hummStop(d.team,d.time);return;}
+    if(d.type==='wildcard'){handleWildcard(d.name);return;}
+    if(d.type==='steal'){handleSteal(d.name);return;}
     if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
       pub({type:'teams',teams:teamDefs});if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
@@ -1100,6 +1102,58 @@ function showTimeUp(){
   ov.innerHTML='<div style="font-size:96px">⏰</div><div style="font-size:48px;font-weight:900;margin-top:10px">¡TIEMPO!</div>';
   ov.onclick=()=>ov.remove();
   document.body.appendChild(ov);
+  confetti();
+}
+function getChosenInfo(){
+  // Returns {name, candidates[], roleKey} for the currently chosen player in lastCh
+  if(!lastCh||!lastCh.roles)return null;
+  let chosenName=null;
+  for(const n in lastCh.roles){if(lastCh.roles[n].chosen){chosenName=n;break;}}
+  if(!chosenName)return null;
+  // Candidates = all players who currently share the chosen player's team & could be picked
+  const chosenTeam=(players[chosenName]||{}).team;
+  const cands=Object.values(players).filter(p=>p.team===chosenTeam).map(p=>p.name);
+  return {chosenName,cands,chosenTeam};
+}
+function reassignChosen(newName){
+  // Move the 'chosen' role + its special data to newName, swap the old chosen to a normal role
+  const info=getChosenInfo();if(!info)return;
+  const old=info.chosenName;
+  if(newName===old)return;
+  const chosenRole=lastCh.roles[old];
+  const otherRole=lastCh.roles[newName];
+  // swap
+  lastCh.roles[newName]=chosenRole;
+  lastCh.roles[old]=otherRole&&!otherRole.chosen?otherRole:{label:chosenRole.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:'Ahora participas con el resto del equipo.'};
+  // re-broadcast challenge with updated roles
+  pub({type:'challenge',name:lastCh.ch.n,desc:lastCh.ch.d,ctype:lastCh.type,roles:lastCh.roles,roulette:null});
+  saveTV();
+  renderRoles(lastCh.roles,Object.values(players));
+}
+function handleWildcard(name){
+  const info=getChosenInfo();if(!info)return;
+  if(name!==info.chosenName)return; // only the chosen can use wildcard
+  const pool=info.cands.filter(n=>n!==name);
+  if(!pool.length)return;
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  showStealAnim('🃏','COMODÍN','Nuevo elegido',pick);
+  reassignChosen(pick);
+}
+function handleSteal(name){
+  const info=getChosenInfo();if(!info)return;
+  if(name===info.chosenName)return;
+  // stealer must be a candidate (same team)
+  if(!info.cands.includes(name))return;
+  showStealAnim('🦹','¡ROBO!',name+' roba la posición a',info.chosenName);
+  reassignChosen(name);
+}
+function showStealAnim(emoji,title,subtitle,who){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:450;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;cursor:pointer;animation:fadeIn .2s';
+  ov.innerHTML='<div style="font-size:96px;animation:chPop .5s cubic-bezier(.2,1.4,.4,1)">'+emoji+'</div><div style="font-size:40px;font-weight:900;color:var(--gold);margin-top:6px">'+title+'</div><div style="font-size:18px;color:rgba(255,255,255,.7);margin-top:14px">'+subtitle+'</div><div style="font-size:32px;font-weight:900;margin-top:6px">'+who+'</div>';
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+  setTimeout(()=>{if(ov.parentNode)ov.remove();},3500);
   confetti();
 }
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
