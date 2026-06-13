@@ -479,6 +479,7 @@ function launch(){
   else if(wType==='evento')active=ps;
   else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
   const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
+  if(ch.secs){for(const n in roles){roles[n].waitStart=true;}}
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
   lastCh={ch,type:wType,roles,aT:wActive,oT:wOpp};saveTV();
   if(ch.secs){chTimerTotal=ch.secs;chTimerSecs=ch.secs;chTimerRunning=false;if(chTimer){clearInterval(chTimer);chTimer=null;}}
