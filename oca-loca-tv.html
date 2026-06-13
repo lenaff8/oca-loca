@@ -188,12 +188,12 @@ minijuego:[
  {n:"Trazo Maestro",d:"Un jugador recibe una palabra y la dibuja en el aire con el dedo. Su equipo tiene 30 segundos para adivinarla. Prohibido hablar o hacer sonidos.",rt:"draw_word",al:"DIBUJANTE",ad:"Dibuja esta palabra en el aire con el dedo. Sin hablar.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
  {n:"El Jurado",d:"Haz el salto más espectacular posible desde parado. Los demás puntúan del 1 al 10.",rt:"actor",al:"SALTADOR",ad:"Haz el salto más épico desde parado.",bl:"JURADO",bd:"Puntúa del 1 al 10."},
  {n:"Torre de Naipes",d:"Construid una torre de cartas en 90 segundos. Mínimo 3 pisos. Por cada piso de menos retrocedéis 1 casilla; por cada piso de más avanzáis 1.",rt:"all"},
- {n:"Trabalenguas en Cadena",d:"Se asigna un trabalenguas secreto al primer jugador. Cada miembro del equipo debe decirlo correctamente en cadena. Dos fallos del equipo = reto fallado.",rt:"twister"},
+ {n:"Trabalenguas en Cadena",d:"Todos los miembros del equipo deben decir el mismo trabalenguas, uno por uno. Se permite 1 fallo; por cada fallo adicional, retrocedéis 1 casilla.",rt:"twister"},
  {n:"Blindtest de Objetos",d:"Con los ojos vendados, un jugador toca UN objeto que le pasa su equipo y debe identificarlo. El equipo solo puede decir si va frío o caliente.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Toca el objeto e identifícalo.",bl:"GUÍA",bd:"Pasad un objeto. Solo podéis decir frío o caliente."},
  {n:"Arquitectos de Papel",d:"Con 5 folios sin cinta, construid el puente más largo posible. 2 minutos.",rt:"all"},
 ],
 evento:[
- {n:"Acústico Imperfecto",d:"Un miembro de cada equipo tararea la misma canción. Su equipo tiene 45 segundos para adivinar. Primer equipo en acertar, gana.",rt:"rep_team",al:"HUMMEADOR",ad:"Tú tarareas la canción. Sin palabras.",bl:"ADIVINA",bd:"45 segundos para adivinar la canción."},
+ {n:"Acústico Imperfecto",d:"El moderador pone 1 segundo de una canción. El primer equipo que la adivine se lleva las casillas. Se puede repetir el segundo si nadie acierta.",rt:"all"},
  {n:"Funambulista Urbano",d:"Un representante por equipo recorre la distancia con un objeto en equilibrio sobre la cabeza.",rt:"rep_team",al:"FUNAMBULISTA",ad:"Tú caminas con el objeto en la cabeza.",bl:"ESPECTADOR",bd:"Animad a vuestro representante."},
  {n:"El Último Ninja",d:"Todos adoptan pose ninja. Completamente inmóviles. El primero en moverse pierde.",rt:"all"},
  {n:"Eco Salvaje",d:"Uno por equipo participa. El moderador da la primera palabra. Cada uno sigue con la última sílaba.",rt:"rep_team",al:"JUGADOR",ad:"Tú participas en el Eco Salvaje.",bl:"HINCHA",bd:"Anima a tu representante."},
@@ -694,15 +694,10 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'twister':{
-      const tp=shuf(active.filter(p=>p.team===aT));
+      const tp=active.filter(p=>p.team===aT);
       const tw=rndOf(TWISTERS);
-      tp.forEach((p,idx2)=>{
-        const f=idx2===0;
-        R[p.name]={label:f?'PRIMERO':'#'+(idx2+1),emoji:f?'1️⃣':(idx2+1)+'️⃣',isSecret:false,
-          roleDesc:f?'Lee el trabalenguas y empieza la cadena. Cada uno debe decirlo correctamente.':'Cuando te toque, di el trabalenguas correctamente.',
-          phrase:f?tw:null};
-        if(!f)delete R[p.name].phrase;
-      });
+      tp.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👅',isSecret:false,
+        roleDesc:'Todos debéis decir este trabalenguas. Se permite 1 fallo; cada fallo extra resta 1 casilla.',phrase:tw};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Escucha si lo dicen bien.'};});
       break;}
     case'all':
