@@ -182,7 +182,7 @@ minijuego:[
  {n:"Dado del Destino",d:"Tira el dado. El número marca cuántas sentadillas, flexiones o segundos bailando debe hacer todo el equipo.",rt:"all"},
  {n:"El Equilibrista",d:"Cruza la sala con un vaso de agua en equilibrio sobre la cabeza. Si lo derramas, vuelves al inicio. 90 segundos.",rt:"actor",al:"EQUILIBRISTA",ad:"Cruzas la sala con el vaso en la cabeza.",bl:"ÁRBITRO",bd:"Controlad el tiempo y el vaso."},
  {n:"Striptease con Globo",d:"Coloca un globo entre tu cuerpo y tu camiseta. Quítatela sin que caiga. Sin usar las manos.",rt:"actor",al:"INTÉRPRETE",ad:"Tú te quitas la camiseta sin que caiga el globo.",bl:"JURADO",bd:"Decidid si el globo ha tocado el suelo."},
- {n:"Cifrado Secreto",d:"Pensad en una película o serie. Los demás piden letras de una en una. Máximo 10 letras.",rt:"all"},
+ {n:"Cifrado Secreto",d:"Se elige una película secreta. En los móviles se ve la primera letra y un guion por cada letra restante. Un representante puede pedir hasta 3 letras (cada una cuesta retroceder 1 casilla) y resolver cuando el equipo crea saberla.",rt:"cipher"},
  {n:"Safari Urbano",d:"En 2 minutos haced la foto más absurda o creativa posible. El resto vota.",rt:"all"},
  {n:"La Cadena",d:"Pasad una carta de naipes de boca en boca. Sin usar las manos. Si cae, vuelta a empezar. 90 segundos.",rt:"chain"},
  {n:"Trazo Maestro",d:"Dibuja en el aire con el dedo índice. Los demás tienen 30 segundos para adivinar. Prohibido hablar.",rt:"actor",al:"DIBUJANTE",ad:"Dibuja en el aire con el dedo.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
@@ -299,6 +299,7 @@ function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});return;}
+    if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
       pub({type:'teams',teams:teamDefs});if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
@@ -674,6 +675,18 @@ function assignRoles(ch,active,allPs,aT,oT){
         ?{label:ch.al||'DESCRIPTOR',emoji:'🔢',isSecret:false,roleDesc:ch.ad||'Tu número secreto:',chosen:true,phrase:'Tu número secreto es: '+num}
         :{label:ch.bl||'JURADO',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Adivina el número.'};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'cipher':{
+      const tp=active.filter(p=>p.team===aT);
+      const rep=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),rep.name);
+      const movie=rndOf(MOVIES);
+      // Build masked display: first letter + underscores for rest (preserve spaces)
+      const cipher={answer:movie,revealed:[]};
+      tp.forEach(p=>{R[p.name]=(p.name===rep.name)
+        ?{label:ch.al||'DESCIFRADOR',emoji:'🔐',isSecret:false,roleDesc:'Pide letras (máx. 3, cada una resta 1 casilla) y resuelve cuando lo sepáis.',chosen:true,cipher:cipher,cipherRep:true}
+        :{label:'EQUIPO',emoji:'🔍',isSecret:false,roleDesc:'Ayuda a adivinar la película. Solo el representante pide letras y resuelve.',cipher:cipher,cipherRep:false};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa. No reveles la película si la sabes.'};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
