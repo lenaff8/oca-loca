@@ -254,12 +254,12 @@ window.addEventListener('DOMContentLoaded',()=>{
       wildcardsLeft=s.wc!=null?s.wc:2;stealsLeft=s.st!=null?s.st:1;
       document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
       document.getElementById('waitCode').textContent=s.code;
+      announce();subscribe();
       const savedCh=sessionStorage.getItem('ocaChallenge');
       if(savedCh){
-        try{const pc=JSON.parse(savedCh);curChallenge=pc;showChallenge(pc);}
+        try{const pc=JSON.parse(savedCh);curChallenge=pc;setTimeout(()=>showChallenge(pc),300);}
         catch(e){show('sWait');}
       }else{show('sWait');}
-      announce();subscribe();
       return;
     }catch(e){sessionStorage.removeItem('ocaSession');}
   }
@@ -526,6 +526,16 @@ function solveCipher(){
 }
 
 
+function requestBuzzSync(){
+  let tries=0;
+  const send=()=>{
+    if(!buzzerData)return;
+    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzSync'})}).catch(()=>{});
+    tries++;
+    if(tries<4)setTimeout(send,700);
+  };
+  send();
+}
 function renderBuzzer(){
   const wrap=document.getElementById('buzzWrap');
   if(!wrap)return;
@@ -719,8 +729,9 @@ function renderRoleExtra(role){
     const wrap=document.createElement('div');wrap.id='buzzWrap';
     ex.appendChild(wrap);
     renderBuzzer();
-    // Ask TV for the current buzzer state (covers reloads mid-round)
-    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzSync'})}).catch(()=>{});
+    // Ask TV for the current buzzer state (covers reloads mid-round).
+    // Retry a few times because the SSE connection may not be open yet on reload.
+    requestBuzzSync();
     return;
   }
   // Cifrado Secreto
