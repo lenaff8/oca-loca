@@ -131,6 +131,12 @@ input::placeholder{color:var(--status-color)}
 @keyframes buzzPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 .buzzer-status{text-align:center;font-size:15px;font-weight:700;color:#fff;margin-top:8px;min-height:22px}
 .buzzer-timer{text-align:center;font-size:40px;font-weight:900;color:var(--gold);margin-top:4px}
+
+.letter-box{background:rgba(0,0,0,.25);border-radius:18px;padding:24px;margin-top:10px;text-align:center}
+.letter-big{font-size:72px;font-weight:900;color:#fff;line-height:1}
+.color-box{border-radius:18px;padding:28px 18px;margin-top:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.color-swatch{width:90px;height:90px;border-radius:50%;border:4px solid rgba(255,255,255,.6);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.color-name{font-size:26px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
@@ -584,6 +590,21 @@ function renderRoleExtra(role){
     ex.appendChild(wrap);
     renderCipher();
     return; // cipher takes over the extra area
+  }
+  // Letter hunt (Expedición Relámpago)
+  if(role.letter){
+    const box=document.createElement('div');
+    box.className='letter-box';
+    box.innerHTML='<div style="color:rgba(255,255,255,.6);font-size:13px;font-weight:700;margin-bottom:6px">VUESTRA LETRA</div><div class="letter-big">'+role.letter+'</div>';
+    ex.appendChild(box);
+  }
+  // Color hunt (Caza de Color)
+  if(role.color){
+    const box=document.createElement('div');
+    box.className='color-box';
+    box.style.background='rgba(0,0,0,.2)';
+    box.innerHTML='<div class="color-swatch" style="background:'+role.color.c+'"></div><div class="color-name">'+role.color.n+'</div>';
+    ex.appendChild(box);
   }
   // Hunt object (Caza al Tesoro)
   if(role.hunt){
