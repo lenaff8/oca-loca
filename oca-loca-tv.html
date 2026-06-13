@@ -212,10 +212,10 @@ versus:[
  {n:"Cara o Cruz Extremo",d:"El equipo retador lanza la moneda. El rival elige cara o cruz. El perdedor recibe penitencia.",rt:"rep",al:"LANZADOR",ad:"Tú lanzas la moneda.",bl:"ELECTOR",bd:"Elegid cara o cruz cuando lance el rival."},
  {n:"Cara de Piedra",d:"Un representante de cada equipo llena la boca de agua. Sus equipos intentan hacerles reír.",rt:"rep",al:"CARA DE PIEDRA",ad:"Llena la boca de agua. 60 segundos sin reírte.",bl:"COMEDIANTE",bd:"Haced reír al representante rival. Sin tocarlo."},
  {n:"Duelo de Fuerza",d:"Un representante por equipo. El que más flexiones seguidas haga sin parar, gana.",rt:"rep",al:"ATLETA",ad:"Tú haces las flexiones.",bl:"ÁRBITRO",bd:"Contad las flexiones."},
- {n:"Guardianes del Globo",d:"Dos representantes se pasan un globo. El grupo dicta cada 5 segundos qué parte del cuerpo usar.",rt:"rep",al:"GUARDIÁN",ad:"Pasas el globo con el representante rival.",bl:"DICTADOR",bd:"Cada 5 segundos gritad qué parte del cuerpo usar."},
+ {n:"Guardianes del Globo",d:"Dos representantes se pasan un globo sin que caiga, sujetándolo solo con la parte del cuerpo que indica la app (la misma para los dos). El que lo deje caer, pierde.",rt:"globe"},
  {n:"El Gran Salto",d:"Salto de longitud desde parado. Un intento por representante. El más lejos, gana.",rt:"rep",al:"SALTADOR",ad:"Tú saltas. Un intento.",bl:"JUEZ",bd:"Medid quién ha llegado más lejos."},
  {n:"Sirenas Terrestres",d:"Natación en tierra hasta la meta. El más rápido gana.",rt:"rep",al:"SIRENA",ad:"Nadas por el suelo hasta la meta.",bl:"ÁRBITRO",bd:"El más rápido con técnica correcta gana."},
- {n:"Trivia Rápida",d:"3 preguntas de cultura general. Primer equipo en responder correctamente gana el punto.",rt:"all"},
+ {n:"Trivia Rápida",d:"El moderador lee preguntas de cultura general. Pulsa el botón para responder: tienes 10 segundos. Si fallas, tu equipo no puede volver a pulsar hasta el siguiente rebote. El primero que acierte se lleva las casillas.",rt:"buzzer"},
  {n:"Batalla de Baile",d:"Un representante baila 30 segundos. El público vota.",rt:"rep",al:"BAILARÍN",ad:"Tú bailas 30 segundos.",bl:"COREÓGRAFO",bd:"Luego el grupo vota."},
  {n:"Torre vs Torre",d:"60 segundos para construir la torre más alta posible con objetos de la sala.",rt:"all"},
  {n:"Mímica Cruzada",d:"Cada equipo prepara una mímica en secreto. El rival tiene 30 segundos para adivinar.",rt:"all"},
@@ -235,6 +235,7 @@ const MOVIES=["El Rey León", "Toy Story", "Buscando a Nemo", "Shrek", "Frozen",
 const TWISTERS=["Tres tristes tigres tragaban trigo en un trigal", "El cielo está enladrillado, ¿quién lo desenladrillará? El desenladrillador que lo desenladrille buen desenladrillador será", "Pablito clavó un clavito, ¿qué clavito clavó Pablito?", "El perro de San Roque no tiene rabo porque Ramón Ramírez se lo ha robado", "Pepe Pecas pica papas con un pico, con un pico pica papas Pepe Pecas", "Cuando cuentes cuentos, cuenta cuántos cuentos cuentas", "Erre con erre cigarro, erre con erre barril, rápido corren los carros cargados de azúcar del ferrocarril", "El cartero come carne cruda en cuarto cerrado", "Como poco coco como, poco coco compro", "Si yo como como como, y tú comes como comes, ¿cómo comes como como?", "Compré pocas copas, pocas copas compré, como compré pocas copas, pocas copas pagué", "Juan tuvo un tubo y el tubo que tuvo se le rompió", "El amor es una locura que solo el cura lo cura, pero el cura que lo cura comete una gran locura", "Pancha plancha con cuatro planchas, ¿con cuántas planchas plancha Pancha?", "Una cabra ética, perlética, pelapelambrética, peluda, pelapelambrúa", "Me han dicho un dicho que dicen que he dicho yo, ese dicho está mal dicho", "Paco Peco chico rico insultaba como un loco a su tío Federico", "Pedro Pablo Pérez Pereira pobre pintor portugués pinta paisajes por poca plata", "El hipopótamo Hipo está con hipo, ¿quién le quita el hipo al hipopótamo Hipo?", "Treinta y tres tramos de troncos trozaron tres tristes trozadores", "Pepe puso un peso en el piso del pozo, en el piso del pozo Pepe puso un peso", "La sucesión sucesiva de sucesos sucede sucesivamente con la sucesión del tiempo", "Pablito clavó un clavito y un clavito clavó Pablito", "Por la calle Carretas pasaba un perrito, pasó una carreta y le pilló el rabito", "En tres tristes trastos de trigo, tres tristes tigres comían trigo", "Los cojines de la reina, los cajones del sultán, qué cojines, qué cajones", "Hugo el hugonote huía de un guante y un guante huía del hugonote Hugo", "Yo lloro si lloras, si lloras yo lloro, tu llanto es mi llanto, tu pena es mi pena", "Dábale arroz a la zorra el abad", "El rey de Constantinopla está constantinopolizado", "Buscaba el bosque Francisco, un vasco bizco muy brusco", "Pablito enrolló un ovillo, qué ovillo enrolló Pablito", "El suelo está enmoquetado, ¿quién lo desenmoquetará?", "Pepe Cuesta cuesta arriba cuesta y cuesta abajo descuesta", "Lado, ledo, lido, lodo, ludo, decirlo al revés lo dudo", "Mariana Magaña desenmarañará mañana la maraña que enmarañara Marina", "Si don Curro ahorra ahora, ahora ahorra don Curro", "Cuando yo digo Diego, digo digo, y cuando digo digo, digo Diego", "Toto toma té, Tita toma mate, y yo me tomo toda mi taza de chocolate", "La piña tiene piñones y los piñones de la piña pican", "Pataletas tuvo Cleta por las pesetas de Peta", "El volcán de Parangaricutirimícuaro se quiere desemparangaricutirimicuarizar", "Pedro Pérez pide permiso para partir para París", "Pepe pela papas en la pila pelando papas pela Pepe", "Pinto pinta cuadros lindos, lindos cuadros Pinto pinta", "Como quieres que te quiera si el que quiero que me quiera no me quiere como quiero que me quiera", "Pablo pidió pala para palear paja", "Pedro Picapiedra parte piedras para poder partir piedras", "En un plato de trigo comen tres tigres trigo", "Tomás toma tomate, Tina toma toronja, ¿quién toma más?", "El rapero Pedro Pérez raspa rápido la rampa rosa"];
 const LETTERS=["B","C","D","F","G","L","M","P","R","S","T","A","E","O"];
 const COLORS_HUNT=[{n:"ROJO",c:"#e21b3c"},{n:"AZUL",c:"#1cb0f6"},{n:"VERDE",c:"#22c55e"},{n:"AMARILLO",c:"#f5b800"},{n:"NARANJA",c:"#ff9600"},{n:"ROSA",c:"#ff5fa2"},{n:"MORADO",c:"#9b27af"},{n:"NEGRO",c:"#222"},{n:"BLANCO",c:"#f5f5f5"},{n:"MARRÓN",c:"#8b5a2b"}];
+const BODY_PARTS=["la cabeza","los codos","las rodillas","los hombros","la espalda","las caderas","los pies","el pecho","las manos juntas","los antebrazos","la frente","los glúteos"];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -737,6 +738,16 @@ function assignRoles(ch,active,allPs,aT,oT){
           :{label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu fotógrafo.'};});
       });
       break;}
+    case'globe':{
+      const part=rndOf(BODY_PARTS);
+      [aT,oT].filter(Boolean).forEach(t=>{
+        const tp=active.filter(p=>p.team===t);if(!tp.length)return;
+        const rep=rnd(tp);
+        tp.forEach(p=>{R[p.name]=p.name===rep.name
+          ?{label:'GUARDIÁN',emoji:'🎈',isSecret:false,roleDesc:'Sujeta el globo con el rival usando solo esta parte del cuerpo:',chosen:true,bodypart:part}
+          :{label:'EQUIPO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu guardián.'};});
+      });
+      break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       break;
@@ -847,7 +858,7 @@ function renderBuzzerTV(){
   if(!mp||!lastCh||lastCh.ch.rt!=='buzzer')return;
   const teamName=t=>{const d=teamDefs.find(x=>x.id===t);return d?d.name:'Equipo '+t;};
   let html='<div style="text-align:center"><div style="font-size:56px">🔔</div>';
-  html+='<div style="color:var(--cat-evento);font-size:15px;font-weight:900;letter-spacing:.12em;margin:6px 0">ACÚSTICO IMPERFECTO</div>';
+  html+='<div style="color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.12em;margin:6px 0">'+(lastCh?lastCh.ch.n.toUpperCase():'BUZZER')+'</div>';
   if(buzzer.locked){
     const secs=Math.max(0,Math.ceil((buzzer.deadline-Date.now())/1000));
     html+='<div style="font-size:30px;font-weight:900;color:#fff;margin:14px 0">🔒 '+buzzer.locked+'</div>';
