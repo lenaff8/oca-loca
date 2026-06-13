@@ -294,10 +294,20 @@ function subscribe(){
   es.onerror=()=>{document.getElementById('connStatus').textContent='● reconectando...';setTimeout(subscribe,3000);};
   es.onopen=()=>{const el=document.getElementById('connStatus');if(el)el.textContent='●  conectado';};
 }
+function tvDbg(msg){
+  let el=document.getElementById('tvDbgLine');
+  if(!el){
+    el=document.createElement('div');el.id='tvDbgLine';
+    el.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#0f0;font-size:13px;padding:6px 14px;border-radius:8px;z-index:9999;font-family:monospace';
+    document.body.appendChild(el);
+  }
+  el.textContent=msg;
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.textContent='';},4000);
+}
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
-    if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});return;}
+    if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});tvDbg('📨 requestTeams recibido → enviados '+teamDefs.length+' equipos');return;}
     if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='buzzPress'){handleBuzz(d.name,d.team);return;}
     if(d.type==='buzzResult'){handleBuzzResult(d.success);return;}
