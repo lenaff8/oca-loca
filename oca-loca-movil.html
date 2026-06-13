@@ -277,22 +277,29 @@ function leaveSession(){
 }
 
 let codeEs=null,teamsTimeout=null;
+let teamPollTimer=null;
 function onCodeInput(val){
   // any change in code invalidates previously fetched teams
   teamDefs=[];myTeam='';
   renderTeamBtns();
+  if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
+  if(codeEs){codeEs.close();codeEs=null;}
   if(val.length>=6){
-    // subscribe temporarily to get teams from the TV
     const t='oca-'+val.toUpperCase();
-    if(codeEs)codeEs.close();
-    const since=Math.floor(Date.now()/1000);
+    const since=Math.floor(Date.now()/1000)-5;
     codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
     codeEs.addEventListener('message',e=>{
-      try{const d=JSON.parse(JSON.parse(e.data).message);if(d.type==='teams'){teamDefs=d.teams||[];renderTeamBtns();if(codeEs){codeEs.close();codeEs=null;}}}catch(err){}
+      try{const d=JSON.parse(JSON.parse(e.data).message);
+        if(d.type==='teams'&&d.teams&&d.teams.length){
+          teamDefs=d.teams;renderTeamBtns();
+          if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
+        }
+      }catch(err){}
     });
-    // Request teams (retry a couple of times in case the first is missed)
     const ask=()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{});
-    setTimeout(ask,300);setTimeout(ask,1200);setTimeout(ask,2500);
+    ask();
+    // keep asking every 1.5s until we get a non-empty team list
+    teamPollTimer=setInterval(()=>{if(teamDefs.length){clearInterval(teamPollTimer);teamPollTimer=null;return;}ask();},1500);
   }
 }
 function renderTeamBtns(){
