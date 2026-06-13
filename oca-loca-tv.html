@@ -280,6 +280,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   topic='oca-'+code;
   if(location.hash!=='#'+code){history.replaceState(null,'','#'+code);}
   saveTV();
+  setInterval(()=>{if(document.getElementById('sLobby')&&document.getElementById('sLobby').classList.contains('active'))pub({type:'teams',teams:teamDefs});},3000);
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
