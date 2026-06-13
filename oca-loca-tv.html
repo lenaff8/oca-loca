@@ -268,11 +268,17 @@ window.addEventListener('DOMContentLoaded',()=>{
   }
   teamDefs=JSON.parse(localStorage.getItem('ocaTeams')||'[]');
   if(!teamDefs.length)teamDefs=[{id:'A',name:'Equipo A',color:TC[0]}];
+  // Prefer code from URL hash (#XXXXXX) so reloads always keep the same room
+  if(!code){
+    const h=(location.hash||'').replace('#','').toUpperCase();
+    if(h.length>=6)code=h;
+  }
   if(!code){
     const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     code=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
   }
   topic='oca-'+code;
+  if(location.hash!=='#'+code){history.replaceState(null,'','#'+code);}
   saveTV();
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
@@ -307,7 +313,7 @@ function tvDbg(msg){
 function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
-    if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});tvDbg('📨 requestTeams recibido → enviados '+teamDefs.length+' equipos');return;}
+    if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});return;}
     if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='buzzPress'){handleBuzz(d.name,d.team);return;}
     if(d.type==='buzzResult'){handleBuzzResult(d.success);return;}
