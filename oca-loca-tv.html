@@ -425,6 +425,8 @@ function newRoom(){
   if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores.'))return;
   pub({type:'clear'});
   localStorage.removeItem('ocaTV');
+  // clear the URL hash so a fresh code is generated on reload
+  history.replaceState(null,'',location.pathname+location.search);
   location.reload();
 }
 function kickPlayer(name){
