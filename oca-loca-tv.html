@@ -194,9 +194,9 @@ minijuego:[
 ],
 evento:[
  {n:"Acústico Imperfecto",d:"El moderador pone 1 segundo de una canción. Pulsa el botón para bloquear: tendrás 10 segundos para responder. Si fallas, tu equipo no puede volver a pulsar hasta el siguiente rebote. El primero que acierte se lleva las casillas.",rt:"buzzer"},
- {n:"Funambulista Urbano",d:"Un representante por equipo recorre la distancia con un objeto en equilibrio sobre la cabeza.",rt:"rep_team",al:"FUNAMBULISTA",ad:"Tú caminas con el objeto en la cabeza.",bl:"ESPECTADOR",bd:"Animad a vuestro representante."},
+ {n:"Carrera de la Cuchara",d:"Un representante por equipo sostiene una cuchara en la boca con una pelota de ping-pong encima. Carrera hasta la meta sin que caiga. 1º: +3 casillas · 2º: +2 · 3º: +1 · 4º: 0 y bajando (puede ser negativo).",rt:"rep_team",al:"CORREDOR",ad:"Cuchara en la boca, pelota encima. ¡Corre hasta la meta sin que caiga!",bl:"ESPECTADOR",bd:"Anima a tu corredor."},
  {n:"El Último Ninja",d:"Todos adoptan pose ninja. Completamente inmóviles. El primero en moverse pierde.",rt:"all"},
- {n:"Eco Salvaje",d:"Uno por equipo participa. El moderador da la primera palabra. Cada uno sigue con la última sílaba.",rt:"rep_team",al:"JUGADOR",ad:"Tú participas en el Eco Salvaje.",bl:"HINCHA",bd:"Anima a tu representante."},
+ {n:"Eco Salvaje",d:"Patata caliente de palabras. La primera palabra que alguien diga en alto es la inicial. Por turnos (alternando equipos), cada uno dice una palabra que empiece por la última sílaba de la anterior. El equipo que no responda antes de que el contador llegue a 0 pierde y retrocede 5 casillas.",rt:"hotpotato"},
  {n:"Expedición Relámpago",d:"El moderador dice una letra. Todos buscan objetos que empiecen por esa letra en 60 segundos.",rt:"all"},
  {n:"Pareja Indisoluble",d:"Un par por equipo se ata los tobillos. El moderador propone una tarea absurda.",rt:"pair_team"},
  {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. ¿Alguien le descubre?",rt:"assassin"},
@@ -343,6 +343,7 @@ function renderPlayers(){
 
 let tvInGame=false,lastCh=null;
 let buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0},buzzerTimer=null;
+let hpTimer=null,hpRemaining=90,hpRunning=false;
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pub({type:'teams',teams:teamDefs});
@@ -471,6 +472,7 @@ function launch(){
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
   lastCh={ch,type:wType,roles};saveTV();
   if(ch.rt==='buzzer'){setTimeout(()=>{resetBuzzer();renderBuzzerTV();},2600);}
+  if(ch.rt==='hotpotato'){hpRemaining=90;hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}setTimeout(renderHotPotato,2600);}
   if(roulette){
     playTVRoulette(roulette,()=>{finalChallenge(ch,wType);renderRoles(roles,ps);busy=false;});
   }else{
@@ -478,7 +480,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});lastCh=null;if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}saveTV();wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
@@ -707,6 +709,9 @@ function assignRoles(ch,active,allPs,aT,oT){
     case'buzzer':{
       active.forEach(p=>{R[p.name]={label:'PULSADOR',emoji:'🔔',isSecret:false,roleDesc:'Pulsa para bloquear cuando sepas la canción. ¡Tienes 10 segundos para responder!',buzzer:true};});
       break;}
+    case'hotpotato':{
+      active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'🥔',isSecret:false,roleDesc:'Patata caliente: di una palabra que empiece por la última sílaba de la anterior antes de que el contador llegue a 0. Mira la TV.'};});
+      break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       break;
@@ -877,6 +882,50 @@ function handleBuzzResult(success){
     renderBuzzerTV();
   }
 }
+function renderHotPotato(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||!lastCh||lastCh.ch.rt!=='hotpotato')return;
+  let html='<div style="text-align:center"><div style="font-size:56px">🥔</div>';
+  html+='<div style="color:var(--cat-evento);font-size:15px;font-weight:900;letter-spacing:.12em;margin:6px 0">ECO SALVAJE · PATATA CALIENTE</div>';
+  html+='<div style="color:var(--dim);font-size:14px;margin-bottom:14px;line-height:1.6">La primera palabra que alguien diga en alto es la inicial.<br>Por turnos, una palabra que empiece por la última sílaba. Si el contador llega a 0, el equipo de turno pierde 5 casillas.</div>';
+  const danger=hpRemaining<=10;
+  html+='<div style="font-size:84px;font-weight:900;color:'+(danger?'#e21b3c':'var(--gold)')+';line-height:1;margin:10px 0">'+hpRemaining+'</div>';
+  html+='<div style="display:flex;gap:10px;justify-content:center;margin-top:10px">';
+  if(!hpRunning){
+    html+='<button class="btn btn-gold" style="padding:14px 32px;font-size:17px" onclick="hpStart()">▶ Empezar</button>';
+  }else{
+    html+='<button class="btn" style="background:var(--kick-bg);color:var(--kick-color);padding:14px 28px;font-size:16px" onclick="hpStop()">⏸ Pausar</button>';
+    html+='<button class="btn" style="background:var(--btn-ghost-bg);color:var(--btn-ghost-color);padding:14px 24px;font-size:15px" onclick="hpReset()">↻ Reiniciar</button>';
+  }
+  html+='</div>';
+  html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
+  html+='</div>';
+  mp.innerHTML=html;
+}
+function hpStart(){
+  hpRunning=true;
+  if(hpTimer)clearInterval(hpTimer);
+  hpTimer=setInterval(()=>{
+    hpRemaining--;
+    if(hpRemaining<=0){
+      hpRemaining=0;hpRunning=false;clearInterval(hpTimer);hpTimer=null;
+      renderHotPotato();
+      const mp=document.getElementById('mainPanel');
+      if(mp){
+        const over=document.createElement('div');
+        over.style.cssText='position:fixed;inset:0;background:rgba(226,27,60,.95);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;cursor:pointer';
+        over.innerHTML='<div style="font-size:80px">🥔💥</div><div style="font-size:36px;font-weight:900;margin-top:10px">¡TIEMPO!</div><div style="font-size:18px;margin-top:8px;opacity:.9">El equipo de turno retrocede 5 casillas</div>';
+        over.onclick=()=>over.remove();
+        document.body.appendChild(over);
+      }
+      return;
+    }
+    renderHotPotato();
+  },1000);
+  renderHotPotato();
+}
+function hpStop(){hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}renderHotPotato();}
+function hpReset(){hpStop();hpRemaining=90;renderHotPotato();}
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
