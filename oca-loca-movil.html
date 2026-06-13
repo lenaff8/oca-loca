@@ -284,6 +284,7 @@ function onCodeInput(val){
   renderTeamBtns();
   if(code.length<6)return;
   const t='oca-'+code;
+  // Just listen — TV broadcasts teams every 3s automatically
   const since=Math.floor(Date.now()/1000)-5;
   codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
   codeEs.addEventListener('message',e=>{
@@ -292,13 +293,9 @@ function onCodeInput(val){
       if(d.type==='teams'&&d.teams&&d.teams.length){
         teamDefs=d.teams;
         renderTeamBtns();
-        codeEs.close();codeEs=null;
       }
     }catch(e){}
   });
-  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),400);
-  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),1500);
-  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),3000);
 }
 function renderTeamBtns(){
   const codeVal=(document.getElementById('codeIn')||{}).value||'';
