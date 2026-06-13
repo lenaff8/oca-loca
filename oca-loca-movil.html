@@ -585,7 +585,7 @@ function buzzWin(team,name){
 function timerSyncStart(){
   if(navigator.vibrate)navigator.vibrate(30);
   roundStarted=true;
-  if(curRole)renderRoleExtra(curRole);
+  if(curRole){renderRoleExtra(curRole);renderPowers(curRole);}
 }
 function timerSyncStop(){}
 function timerSyncEnd(){
@@ -623,6 +623,8 @@ function renderPowers(role){
   let host=document.getElementById('powerHost');
   if(host)host.remove();
   if(!challengeIsRandom())return;
+  // If this is a timed challenge and the round already started, powers are locked
+  if(role&&role.waitStart&&roundStarted)return;
   host=document.createElement('div');host.id='powerHost';host.style.width='100%';
   let html='';
   if(amChosen()){
