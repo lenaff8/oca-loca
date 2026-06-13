@@ -217,7 +217,7 @@ versus:[
  {n:"Sirenas Terrestres",d:"Natación en tierra hasta la meta. El más rápido gana.",rt:"rep",al:"SIRENA",ad:"Nadas por el suelo hasta la meta.",bl:"ÁRBITRO",bd:"El más rápido con técnica correcta gana."},
  {n:"Trivia Rápida",d:"El moderador lee preguntas de cultura general. Pulsa el botón para responder: tienes 10 segundos. Si fallas, tu equipo no puede volver a pulsar hasta el siguiente rebote. El primero que acierte se lleva las casillas.",rt:"buzzer"},
  {n:"Tira y Afloja",d:"Con una cuerda o similar. Gana el equipo que cruce la línea central.",rt:"all"},
- {n:"Humming Battle",d:"Un representante tararea una canción en secreto. El equipo rival intenta adivinarla.",rt:"rep",al:"HUMMER SECRETO",ad:"El moderador te dirá una canción al oído. Tararéala.",bl:"DETECTIVE",bd:"Intentad adivinar qué canción tararea el rival."},
+ {n:"Humming Battle",d:"Juega un equipo y luego el otro. Un cantante de cada equipo tararea una canción (de su móvil) y SU PROPIO equipo debe adivinarla. Cronómetro en marcha: cuando la adivinen, el cantante pulsa para parar el tiempo. El equipo más rápido gana. El tiempo se ve en la TV para evitar trampas.",rt:"humming"},
  {n:"Cazadores Rivales",d:"Se revela un objeto al azar. Ambos equipos corren a buscarlo por la casa. El primer equipo que lo traiga, gana.",rt:"hunt_versus"},
  {n:"Captura el Micro",d:"Dos filas enfrentadas, una por equipo. En el centro, un objeto que hará de micrófono. Suena 1 segundo de una canción: los dos jugadores de cabeza corren a por el micro y deben cantar la canción. El que no lo logre queda eliminado. Sigue hasta que un equipo se quede sin jugadores.",rt:"all"},
 ]};
@@ -292,6 +292,8 @@ function onMsg(e){
     if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='buzzPress'){handleBuzz(d.name,d.team);return;}
     if(d.type==='buzzResult'){handleBuzzResult(d.success);return;}
+    if(d.type==='hummStart'){hummStart(d.team);return;}
+    if(d.type==='hummStop'){hummStop(d.team,d.time);return;}
     if(d.type==='join'){players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
       pub({type:'teams',teams:teamDefs});if(wState==='cat'&&document.getElementById('sGame').classList.contains('active'))renderWizard();}
   }catch(err){}
@@ -339,6 +341,7 @@ function renderPlayers(){
 let tvInGame=false,lastCh=null;
 let buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0},buzzerTimer=null;
 let hpTimer=null,hpRemaining=90,hpRunning=false;
+let humming={times:{},running:{},starts:{}},hummingRaf=null;
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pub({type:'teams',teams:teamDefs});
@@ -465,9 +468,10 @@ function launch(){
   else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
   const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
-  lastCh={ch,type:wType,roles};saveTV();
+  lastCh={ch,type:wType,roles,aT:wActive,oT:wOpp};saveTV();
   if(ch.rt==='buzzer'){setTimeout(()=>{resetBuzzer();renderBuzzerTV();},2600);}
   if(ch.rt==='hotpotato'){hpRemaining=90;hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}setTimeout(renderHotPotato,2600);}
+  if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};setTimeout(renderHumming,2600);}
   if(roulette){
     playTVRoulette(roulette,()=>{finalChallenge(ch,wType);renderRoles(roles,ps);busy=false;});
   }else{
@@ -743,6 +747,16 @@ function assignRoles(ch,active,allPs,aT,oT){
           :{label:'EQUIPO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu guardián.'};});
       });
       break;}
+    case'humming':{
+      const movie=rndOf(MOVIES);
+      [aT,oT].filter(Boolean).forEach(t=>{
+        const tp=active.filter(p=>p.team===t);if(!tp.length)return;
+        const singer=rnd(tp);
+        tp.forEach(p=>{R[p.name]=p.name===singer.name
+          ?{label:'CANTANTE',emoji:'🎤',isSecret:false,roleDesc:'Tararea esta canción para tu equipo. Cuando la adivinen, pulsa el botón para parar tu tiempo.',chosen:true,phrase:movie,hummingTeam:t}
+          :{label:'ADIVINA',emoji:'🎧',isSecret:false,roleDesc:'Adivina la canción que tararea tu cantante. ¡Rápido!'};});
+      });
+      break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       break;
@@ -951,6 +965,53 @@ function hpStart(){
 }
 function hpStop(){hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}renderHotPotato();}
 function hpReset(){hpStop();hpRemaining=90;renderHotPotato();}
+function teamNm(t){const d=teamDefs.find(x=>x.id===t);return d?d.name:'Equipo '+t;}
+function hummStart(t){
+  humming.running[t]=true;humming.starts[t]=Date.now();
+  renderHumming();
+  if(!hummingRaf)hummingTick();
+}
+function hummStop(t,time){
+  humming.running[t]=false;
+  humming.times[t]=time;
+  renderHumming();
+}
+function hummingTick(){
+  const anyRunning=Object.values(humming.running).some(Boolean);
+  renderHumming();
+  if(anyRunning)hummingRaf=requestAnimationFrame(hummingTick);
+  else hummingRaf=null;
+}
+function renderHumming(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||!lastCh||lastCh.ch.rt!=='humming')return;
+  const teamsIn=[lastCh.aT,lastCh.oT].filter(Boolean);
+  let html='<div style="text-align:center"><div style="font-size:52px">🎤</div>';
+  html+='<div style="color:var(--cat-versus);font-size:15px;font-weight:900;letter-spacing:.12em;margin:6px 0">HUMMING BATTLE</div>';
+  html+='<div style="display:flex;gap:14px;justify-content:center;margin-top:14px;flex-wrap:wrap">';
+  teamsIn.forEach(t=>{
+    let secs;
+    if(humming.running[t])secs=((Date.now()-humming.starts[t])/1000).toFixed(1);
+    else if(humming.times[t]!=null)secs=humming.times[t].toFixed(1);
+    else secs='—';
+    const done=humming.times[t]!=null;
+    const run=humming.running[t];
+    html+='<div style="background:var(--card);border-radius:16px;padding:18px 22px;min-width:130px;border:2px solid '+(run?'var(--gold)':done?'#22c55e':'var(--wood)')+'">';
+    html+='<div style="font-size:13px;font-weight:800;color:var(--dim);margin-bottom:6px">'+teamNm(t)+'</div>';
+    html+='<div style="font-size:38px;font-weight:900;color:'+(done?'#22c55e':'var(--gold)')+'">'+secs+(secs!=='—'?'s':'')+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  // Winner
+  const allDone=teamsIn.every(t=>humming.times[t]!=null);
+  if(allDone&&teamsIn.length>=2){
+    const win=teamsIn.reduce((a,b)=>humming.times[a]<humming.times[b]?a:b);
+    html+='<div style="font-size:22px;font-weight:900;color:#22c55e;margin-top:16px">🏆 Gana '+teamNm(win)+'</div>';
+  }
+  html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
+  html+='</div>';
+  mp.innerHTML=html;
+}
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
