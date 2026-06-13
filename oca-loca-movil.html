@@ -107,6 +107,12 @@ input::placeholder{color:var(--status-color)}
 .word-arrow:active{transform:scale(.9)}
 .word-arrow:disabled{opacity:.3;cursor:default}
 .word-counter{font-size:14px;font-weight:700;color:rgba(255,255,255,.7)}
+
+.timer-display{font-size:52px;font-weight:900;color:#fff;text-align:center;margin:8px 0;font-variant-numeric:tabular-nums}
+.timer-btn{background:var(--gold);color:var(--gold-text);border:none;border-radius:12px;padding:14px;font-weight:900;font-size:17px;cursor:pointer;font-family:inherit;width:100%;transition:transform .1s}
+.timer-btn:active{transform:scale(.96)}
+.timer-result{font-size:15px;font-weight:700;color:#fff;text-align:center;margin-top:10px;line-height:1.5}
+.hunt-box{background:rgba(0,0,0,.25);border-radius:16px;padding:22px 18px;margin-top:10px;font-size:24px;font-weight:900;color:#fff;text-align:center;line-height:1.3}
 </style>
 </head>
 <body>
@@ -406,6 +412,51 @@ function renderRoleExtra(role){
     };
     ex.appendChild(btn);
     ex.appendChild(box);
+  }
+  // Hunt object (Caza al Tesoro)
+  if(role.hunt){
+    const box=document.createElement('div');
+    box.className='hunt-box';
+    box.textContent='🔦 '+role.hunt;
+    ex.appendChild(box);
+  }
+  // Timer (Reloj Humano)
+  if(role.timer){
+    const wrap=document.createElement('div');
+    const disp=document.createElement('div');
+    disp.className='timer-display';
+    disp.textContent='0.0';
+    const btn=document.createElement('button');
+    btn.className='timer-btn';
+    btn.textContent='▶ Iniciar';
+    const result=document.createElement('div');
+    result.className='timer-result';
+    let running=false,startT=0,raf=null,finalT=null;
+    const tick=()=>{
+      if(!running)return;
+      const el=(Date.now()-startT)/1000;
+      disp.textContent=el.toFixed(1);
+      raf=requestAnimationFrame(tick);
+    };
+    btn.onclick=()=>{
+      if(!running&&finalT===null){
+        running=true;startT=Date.now();btn.textContent='⏹ Parar';
+        disp.style.color='#fff';tick();
+      }else if(running){
+        running=false;cancelAnimationFrame(raf);
+        finalT=(Date.now()-startT)/1000;
+        const diff=Math.abs(finalT-role.timer);
+        disp.textContent=finalT.toFixed(1);
+        result.textContent='Objetivo: '+role.timer+'s · Te desviaste '+diff.toFixed(1)+'s';
+        btn.textContent='↻ Reintentar';
+        if(navigator.vibrate)navigator.vibrate(80);
+      }else{
+        finalT=null;running=true;startT=Date.now();btn.textContent='⏹ Parar';
+        result.textContent='';disp.style.color='#fff';tick();
+      }
+    };
+    wrap.appendChild(disp);wrap.appendChild(btn);wrap.appendChild(result);
+    ex.appendChild(wrap);
   }
   // Word carousel (Sin Palabras)
   if(role.words&&role.words.length){
