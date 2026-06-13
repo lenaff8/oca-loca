@@ -715,10 +715,12 @@ function renderRoleExtra(role){
   // Acústico buzzer
   if(role.buzzer){
     buzzerData={team:myTeam};
-    buzzMyState='ready';
+    if(!buzzMyState)buzzMyState='ready';
     const wrap=document.createElement('div');wrap.id='buzzWrap';
     ex.appendChild(wrap);
     renderBuzzer();
+    // Ask TV for the current buzzer state (covers reloads mid-round)
+    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzSync'})}).catch(()=>{});
     return;
   }
   // Cifrado Secreto
