@@ -657,7 +657,7 @@ function renderRoleExtra(role){
   if(role.hunt){
     const box=document.createElement('div');
     box.className='hunt-box';
-    box.textContent='🔦 '+role.hunt;
+    box.textContent=(role.emoji||'🔦')+' '+role.hunt;
     ex.appendChild(box);
   }
   // Timer (Reloj Humano)
