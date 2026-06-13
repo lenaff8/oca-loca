@@ -185,18 +185,12 @@ minijuego:[
  {n:"Cifrado Secreto",d:"Se elige una película secreta. En los móviles se ve la primera letra y un guion por cada letra restante. Un representante puede pedir hasta 3 letras (cada una cuesta retroceder 1 casilla) y resolver cuando el equipo crea saberla.",rt:"cipher"},
  {n:"Safari Urbano",d:"En 2 minutos haced la foto más absurda o creativa posible. El resto vota.",rt:"all"},
  {n:"La Cadena",d:"Pasad una carta de naipes de boca en boca. Sin usar las manos. Si cae, vuelta a empezar. 90 segundos.",rt:"chain"},
- {n:"Trazo Maestro",d:"Dibuja en el aire con el dedo índice. Los demás tienen 30 segundos para adivinar. Prohibido hablar.",rt:"actor",al:"DIBUJANTE",ad:"Dibuja en el aire con el dedo.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
+ {n:"Trazo Maestro",d:"Un jugador recibe una palabra y la dibuja en el aire con el dedo. Su equipo tiene 30 segundos para adivinarla. Prohibido hablar o hacer sonidos.",rt:"draw_word",al:"DIBUJANTE",ad:"Dibuja esta palabra en el aire con el dedo. Sin hablar.",bl:"ADIVINA",bd:"30 segundos para adivinar qué dibuja."},
  {n:"El Jurado",d:"Haz el salto más espectacular posible desde parado. Los demás puntúan del 1 al 10.",rt:"actor",al:"SALTADOR",ad:"Haz el salto más épico desde parado.",bl:"JURADO",bd:"Puntúa del 1 al 10."},
- {n:"Torre de Naipes",d:"Construid la torre más alta posible con cartas en 90 segundos.",rt:"all"},
- {n:"Sopladores Profesionales",d:"Moved un objeto ligero solo soplando desde la salida hasta la meta.",rt:"all"},
- {n:"El Precio Justo",d:"El moderador describe un objeto. El equipo tiene 30 segundos para adivinar su precio.",rt:"all"},
- {n:"Nudo Humano",d:"Agarraos de las manos formando un nudo. Deshacedlo sin soltaros. 3 minutos.",rt:"all"},
- {n:"Memoria Fotográfica",d:"El moderador muestra 10 objetos 30 segundos. Se tapan. 7 o más aciertos = superado.",rt:"all"},
- {n:"El Espejo",d:"Uno lidera movimientos lentos, el otro los replica como espejo. 30 segundos.",rt:"mirror"},
- {n:"Trabalenguas en Cadena",d:"Un trabalenguas viaja por el equipo. Dos fallos = reto fallado.",rt:"chain"},
- {n:"Blindtest de Objetos",d:"Con los ojos vendados, toca 5 objetos e identifícalos. Solo pueden decir frío o caliente.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Identifica los objetos.",bl:"GUÍA",bd:"Pasad objetos. Solo podéis decir frío o caliente."},
+ {n:"Torre de Naipes",d:"Construid una torre de cartas en 90 segundos. Mínimo 3 pisos. Por cada piso de menos retrocedéis 1 casilla; por cada piso de más avanzáis 1.",rt:"all"},
+ {n:"Trabalenguas en Cadena",d:"Se asigna un trabalenguas secreto al primer jugador. Cada miembro del equipo debe decirlo correctamente en cadena. Dos fallos del equipo = reto fallado.",rt:"twister"},
+ {n:"Blindtest de Objetos",d:"Con los ojos vendados, un jugador toca UN objeto que le pasa su equipo y debe identificarlo. El equipo solo puede decir si va frío o caliente.",rt:"actor",al:"CIEGO",ad:"Te vendan los ojos. Toca el objeto e identifícalo.",bl:"GUÍA",bd:"Pasad un objeto. Solo podéis decir frío o caliente."},
  {n:"Arquitectos de Papel",d:"Con 5 folios sin cinta, construid el puente más largo posible. 2 minutos.",rt:"all"},
- {n:"El Cubo Imposible",d:"Lanzad un objeto blando a una papelera desde la distancia marcada. Mayoría encesta = superado.",rt:"all"},
 ],
 evento:[
  {n:"Acústico Imperfecto",d:"Un miembro de cada equipo tararea la misma canción. Su equipo tiene 45 segundos para adivinar. Primer equipo en acertar, gana.",rt:"rep_team",al:"HUMMEADOR",ad:"Tú tarareas la canción. Sin palabras.",bl:"ADIVINA",bd:"45 segundos para adivinar la canción."},
@@ -241,6 +235,7 @@ const WORDS=["Elefante", "Bailar", "Guitarra", "Surfear", "Pingüino", "Estornud
 function rndOf(a){return a[Math.floor(Math.random()*a.length)];}
 function pick5(a){const s=[...a].sort(()=>Math.random()-.5);return s.slice(0,5);}
 const MOVIES=["El Rey León", "Toy Story", "Buscando a Nemo", "Shrek", "Frozen", "Los Increíbles", "Up", "Wall-E", "Ratatouille", "Monstruos S.A.", "Aladdín", "La Sirenita", "La Bella y la Bestia", "El Viaje de Chihiro", "Coco", "Del Revés (Inside Out)", "Cómo Entrenar a tu Dragón", "Madagascar", "La Era de Hielo", "Kung Fu Panda", "Harry Potter", "El Señor de los Anillos", "Piratas del Caribe", "Jurassic Park", "Titanic", "Avatar", "Matrix", "Gladiator", "Spider-Man", "Los Vengadores", "Batman", "Star Wars", "Indiana Jones", "Regreso al Futuro", "E.T.", "Forrest Gump", "El Rey Arturo", "La La Land", "Joker", "Parásitos", "Interstellar", "Origen (Inception)", "El Caballero Oscuro", "Deadpool", "Aquaman", "Wonder Woman", "Mary Poppins", "Enredados", "Valiente (Brave)", "Zootrópolis", "Vaiana (Moana)", "Bambi", "Cenicienta", "Peter Pan", "El Libro de la Selva", "101 Dálmatas", "Encanto", "Big Hero 6"];
+const TWISTERS=["Tres tristes tigres tragaban trigo en un trigal", "El cielo está enladrillado, ¿quién lo desenladrillará? El desenladrillador que lo desenladrille buen desenladrillador será", "Pablito clavó un clavito, ¿qué clavito clavó Pablito?", "El perro de San Roque no tiene rabo porque Ramón Ramírez se lo ha robado", "Pepe Pecas pica papas con un pico, con un pico pica papas Pepe Pecas", "Cuando cuentes cuentos, cuenta cuántos cuentos cuentas", "Erre con erre cigarro, erre con erre barril, rápido corren los carros cargados de azúcar del ferrocarril", "El cartero come carne cruda en cuarto cerrado", "Como poco coco como, poco coco compro", "Si yo como como como, y tú comes como comes, ¿cómo comes como como?", "Compré pocas copas, pocas copas compré, como compré pocas copas, pocas copas pagué", "Juan tuvo un tubo y el tubo que tuvo se le rompió", "El amor es una locura que solo el cura lo cura, pero el cura que lo cura comete una gran locura", "Pancha plancha con cuatro planchas, ¿con cuántas planchas plancha Pancha?", "Una cabra ética, perlética, pelapelambrética, peluda, pelapelambrúa", "Me han dicho un dicho que dicen que he dicho yo, ese dicho está mal dicho", "Paco Peco chico rico insultaba como un loco a su tío Federico", "Pedro Pablo Pérez Pereira pobre pintor portugués pinta paisajes por poca plata", "El hipopótamo Hipo está con hipo, ¿quién le quita el hipo al hipopótamo Hipo?", "Treinta y tres tramos de troncos trozaron tres tristes trozadores", "Pepe puso un peso en el piso del pozo, en el piso del pozo Pepe puso un peso", "La sucesión sucesiva de sucesos sucede sucesivamente con la sucesión del tiempo", "Pablito clavó un clavito y un clavito clavó Pablito", "Por la calle Carretas pasaba un perrito, pasó una carreta y le pilló el rabito", "En tres tristes trastos de trigo, tres tristes tigres comían trigo", "Los cojines de la reina, los cajones del sultán, qué cojines, qué cajones", "Hugo el hugonote huía de un guante y un guante huía del hugonote Hugo", "Yo lloro si lloras, si lloras yo lloro, tu llanto es mi llanto, tu pena es mi pena", "Dábale arroz a la zorra el abad", "El rey de Constantinopla está constantinopolizado", "Buscaba el bosque Francisco, un vasco bizco muy brusco", "Pablito enrolló un ovillo, qué ovillo enrolló Pablito", "El suelo está enmoquetado, ¿quién lo desenmoquetará?", "Pepe Cuesta cuesta arriba cuesta y cuesta abajo descuesta", "Lado, ledo, lido, lodo, ludo, decirlo al revés lo dudo", "Mariana Magaña desenmarañará mañana la maraña que enmarañara Marina", "Si don Curro ahorra ahora, ahora ahorra don Curro", "Cuando yo digo Diego, digo digo, y cuando digo digo, digo Diego", "Toto toma té, Tita toma mate, y yo me tomo toda mi taza de chocolate", "La piña tiene piñones y los piñones de la piña pican", "Pataletas tuvo Cleta por las pesetas de Peta", "El volcán de Parangaricutirimícuaro se quiere desemparangaricutirimicuarizar", "Pedro Pérez pide permiso para partir para París", "Pepe pela papas en la pila pelando papas pela Pepe", "Pinto pinta cuadros lindos, lindos cuadros Pinto pinta", "Como quieres que te quiera si el que quiero que me quiera no me quiere como quiero que me quiera", "Pablo pidió pala para palear paja", "Pedro Picapiedra parte piedras para poder partir piedras", "En un plato de trigo comen tres tigres trigo", "Tomás toma tomate, Tina toma toronja, ¿quién toma más?", "El rapero Pedro Pérez raspa rápido la rampa rosa"];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -687,6 +682,28 @@ function assignRoles(ch,active,allPs,aT,oT){
         ?{label:ch.al||'DESCIFRADOR',emoji:'🔐',isSecret:false,roleDesc:'Pide letras (máx. 3, cada una resta 1 casilla) y resuelve cuando lo sepáis.',chosen:true,cipher:cipher,cipherRep:true}
         :{label:'EQUIPO',emoji:'🔍',isSecret:false,roleDesc:'Ayuda a adivinar la película. Solo el representante pide letras y resuelve.',cipher:cipher,cipherRep:false};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa. No reveles la película si la sabes.'};});
+      break;}
+    case'draw_word':{
+      const tp=active.filter(p=>p.team===aT);
+      const drawer=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),drawer.name);
+      const word=rndOf(WORDS);
+      tp.forEach(p=>{R[p.name]=p.name===drawer.name
+        ?{label:ch.al||'DIBUJANTE',emoji:'✍️',isSecret:false,roleDesc:ch.ad||'Dibuja la palabra en el aire.',chosen:true,phrase:word}
+        :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Adivina qué dibuja.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'twister':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      const tw=rndOf(TWISTERS);
+      tp.forEach((p,idx2)=>{
+        const f=idx2===0;
+        R[p.name]={label:f?'PRIMERO':'#'+(idx2+1),emoji:f?'1️⃣':(idx2+1)+'️⃣',isSecret:false,
+          roleDesc:f?'Lee el trabalenguas y empieza la cadena. Cada uno debe decirlo correctamente.':'Cuando te toque, di el trabalenguas correctamente.',
+          phrase:f?tw:null};
+        if(!f)delete R[p.name].phrase;
+      });
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Escucha si lo dicen bien.'};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
