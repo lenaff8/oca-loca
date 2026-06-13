@@ -290,25 +290,19 @@ function onCodeInput(val){
   if(code.length>=6){
     const t='oca-'+code;
     const since=Math.floor(Date.now()/1000)-5;
-    dbg('Conectando a '+t+'...');
     codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
-    codeEs.onopen=()=>dbg('Canal abierto. Pidiendo equipos...');
-    codeEs.onerror=()=>dbg('⚠️ Error de conexión SSE');
     codeEs.addEventListener('message',e=>{
       try{
         const raw=JSON.parse(e.data);
         if(raw.event&&raw.event!=='message')return;
         const d=JSON.parse(raw.message);
-        dbg('Recibido: '+(d.type||'?'));
-        if(d.type==='teams'){
-          if(d.teams&&d.teams.length){
-            teamDefs=d.teams;renderTeamBtns();dbg('');
-            if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
-          }else{dbg('La TV respondió pero sin equipos creados');}
+        if(d.type==='teams'&&d.teams&&d.teams.length){
+          teamDefs=d.teams;renderTeamBtns();
+          if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
         }
       }catch(err){}
     });
-    const ask=()=>{dbg('Pidiendo equipos a la TV...');fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).then(()=>dbg('Petición enviada ✓')).catch(()=>dbg('⚠️ No se pudo enviar la petición'));};
+    const ask=()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{});
     ask();
     // keep asking every 1.5s until we get a non-empty team list
     teamPollTimer=setInterval(()=>{if(teamDefs.length){clearInterval(teamPollTimer);teamPollTimer=null;return;}ask();},1500);
