@@ -171,6 +171,7 @@ minijuego:[
  {n:"Cadena Rota",d:"Al primer jugador se le asigna una frase secreta. La susurra al oído del siguiente, y así por toda la cadena. El último la dice en voz alta. Después, otro equipo revela la frase original para comprobar cuánto ha cambiado.",rt:"chain_phrase"},
  {n:"El Artista Invisible",d:"Un jugador dibuja una palabra con el dedo en la espalda de un compañero. Solo ese compañero debe adivinar qué es, sin mirar. El resto observa.",rt:"artist_back"},
  {n:"Sin Palabras",d:"Un jugador recibe 5 palabras y debe representarlas por mímica, una a una, sin hablar ni hacer sonidos. Su equipo adivina. 45 segundos por palabra.",rt:"mimica",al:"ACTOR",ad:"Representa cada palabra por mímica. Usa las flechas para pasar de una a otra.",bl:"ADIVINA",bd:"Tu equipo adivina qué representa."},
+ {n:"Pictionary",d:"Un jugador recibe 5 palabras y debe dibujarlas (en papel o pantalla), una a una. Su equipo adivina. Pasa de palabra con las flechas. Prohibido escribir letras o números.",rt:"pictionary",al:"DIBUJANTE",ad:"Dibuja cada palabra. Usa las flechas para pasar. Sin letras ni números.",bl:"ADIVINA",bd:"Tu equipo adivina qué dibuja."},
  {n:"El Reloj Humano",d:"Un jugador debe detener el cronómetro de su móvil lo más cerca posible de los 30 segundos, sin mirar ningún reloj ni contar en voz alta. El resto observa.",rt:"timer",al:"CRONÓMETRO",ad:"Pulsa Iniciar y para el cronómetro cuando creas que han pasado 30 segundos. ¡Sin mirar relojes!"},
  {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
  {n:"Buceador Lingüístico",d:"Un jugador mete la cara en un cuenco de agua (o aguanta el aliento) y dice el título de una película. Su equipo debe adivinarla por el movimiento de la boca y los sonidos ahogados.",rt:"diver",al:"BUCEADOR",ad:"Mete la cara en el agua y di el título de la película aguantando el aliento. Repite si hace falta.",bl:"ADIVINA",bd:"Intentad adivinar qué película dice vuestro buceador."},
@@ -756,6 +757,16 @@ function assignRoles(ch,active,allPs,aT,oT){
           ?{label:'CANTANTE',emoji:'🎤',isSecret:false,roleDesc:'Tararea esta canción para tu equipo. Cuando la adivinen, pulsa el botón para parar tu tiempo.',chosen:true,phrase:movie,hummingTeam:t}
           :{label:'ADIVINA',emoji:'🎧',isSecret:false,roleDesc:'Adivina la canción que tararea tu cantante. ¡Rápido!'};});
       });
+      break;}
+    case'pictionary':{
+      const tp=active.filter(p=>p.team===aT);
+      const drawer=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),drawer.name);
+      const words=pick5(WORDS);
+      tp.forEach(p=>{R[p.name]=p.name===drawer.name
+        ?{label:ch.al||'DIBUJANTE',emoji:'🎨',isSecret:false,roleDesc:ch.ad||'Dibuja cada palabra.',chosen:true,words:words}
+        :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Tu equipo adivina.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
