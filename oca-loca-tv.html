@@ -167,10 +167,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
 const CH={
 minijuego:[
- {n:"Tiro de Honor",d:"Haz una canasta improvisada desde donde estéis. El grupo decide el aro y la pelota. Encested antes de 3 intentos.",rt:"actor",al:"LANZADOR",ad:"Tú eres quien tiene que encestar.",bl:"ÁRBITRO",bd:"Pon el aro y decide si ha encestado."},
- {n:"Cadena Rota",d:"El primero susurra una frase al oído. Viaja por todo el equipo. El último la dice en voz alta. ¿Queda algo de la original?",rt:"chain"},
- {n:"El Artista Invisible",d:"Dibuja una palabra en la espalda de otro con el dedo. Ese jugador debe adivinar qué es sin mirar.",rt:"artist_back"},
- {n:"Sin Palabras",d:"Actúa sin hablar ni sonidos. Nada de señalar directamente. Los demás tienen 45 segundos para adivinar.",rt:"actor",al:"ACTOR",ad:"Actúas sin palabras ni sonidos.",bl:"ADIVINA",bd:"Intenta adivinar qué representa."},
+ {n:"Tiro de Honor",d:"Un jugador hace una canasta improvisada desde donde esté. El grupo decide el aro y la pelota. Encesta antes de 3 intentos.",rt:"solo",al:"LANZADOR",ad:"Tú eres quien tiene que encestar. Tienes 3 intentos."},
+ {n:"Cadena Rota",d:"Al primer jugador se le asigna una frase secreta. La susurra al oído del siguiente, y así por toda la cadena. El último la dice en voz alta. Después, otro equipo revela la frase original para comprobar cuánto ha cambiado.",rt:"chain_phrase"},
+ {n:"El Artista Invisible",d:"Un jugador dibuja una palabra con el dedo en la espalda de un compañero. Solo ese compañero debe adivinar qué es, sin mirar. El resto observa.",rt:"artist_back"},
+ {n:"Sin Palabras",d:"Un jugador recibe 5 palabras y debe representarlas por mímica, una a una, sin hablar ni hacer sonidos. Su equipo adivina. 45 segundos por palabra.",rt:"mimica",al:"ACTOR",ad:"Representa cada palabra por mímica. Usa las flechas para pasar de una a otra.",bl:"ADIVINA",bd:"Tu equipo adivina qué representa."},
  {n:"El Reloj Humano",d:"Levantad la mano cuando creáis que han pasado exactamente 30 segundos. Sin mirar el reloj ni contar en voz alta.",rt:"all"},
  {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
  {n:"Buceador Lingüístico",d:"Aguanta el aliento y di una frase. Los demás adivinan qué has dicho.",rt:"actor",al:"BUCEADOR",ad:"Tú hablas aguantando el aliento.",bl:"OYENTE",bd:"Intentad adivinar qué dice."},
@@ -234,6 +234,12 @@ versus:[
  {n:"Debate Absurdo",d:"Afirmación ridícula. Un equipo defiende SÍ, el otro NO. 2 minutos. El resto vota.",rt:"sides"},
  {n:"Quién Ríe Primero",d:"Un representante de cada equipo se miran fijamente. Sus equipos intentan hacer reír al rival.",rt:"rep",al:"CARA SERIA",ad:"Mírate con el representante rival sin reírte 60 segundos.",bl:"BROMISTA",bd:"Haced reír al representante rival. Sin tocarlo."},
 ]};
+
+const PHRASES=["El perro de San Roque no tiene rabo porque Ramón Ramírez se lo ha robado", "Tres tristes tigres tragaban trigo en un trigal", "La gallina pinta cacaraquea en el corral de mi abuela", "Pablito clavó un clavito en la calva de un calvito", "El cielo está enladrillado, ¿quién lo desenladrillará?", "Mi mamá me mima mucho cuando como manzanas maduras", "Cuando cuentes cuentos cuenta cuantos cuentos cuentas", "El amor es como un pájaro que vuela libre por el cielo azul", "Ayer comí paella con gambas, mejillones y mucho azafrán", "El tren de las tres salió tarde por culpa de la lluvia", "Un elefante rosa bailaba salsa sobre una nube de algodón", "La bruja Maruja vuela en su escoba bajo la luna llena", "Compré pan, leche, huevos y un kilo de tomates maduros", "El dragón escupía fuego mientras protegía su tesoro dorado", "María tiene un gato gris que duerme todo el día al sol", "El viento del norte trae tormentas y el del sur calor", "Mañana iremos al mercado a comprar fruta fresca y verdura", "Los piratas buscaban el cofre enterrado en la isla desierta", "El reloj del campanario marca las doce en punto cada noche", "Siete elefantes saltaban encima de una tela de araña", "El cocodrilo verde se comió tres sandías en el río amazonas", "Bajo el puente del río suena una melodía de violín antiguo", "La princesa dejó caer su zapato de cristal en la escalera", "Doce monos morados montaban en monopatín por la montaña", "El cartero llamó dos veces pero nadie abrió la puerta roja", "Caperucita llevaba una cesta de dulces para su abuelita enferma", "El astronauta plantó una bandera en la superficie lunar polvorienta", "Cinco ranas verdes croaban felices en el estanque del jardín", "El mago sacó un conejo blanco de su sombrero de copa negro", "La tormenta arrancó las hojas secas de los árboles del parque", "Un barco pirata navegaba entre las olas del océano tormentoso", "El panadero amasa el pan a las cinco de la madrugada cada día", "Los duendes escondieron una olla de oro al final del arcoíris", "La orquesta tocó una sinfonía mientras llovían pétalos de rosa", "El gato con botas engañó al ogro convirtiéndolo en ratón", "Treinta y tres tortugas trotan tranquilas por el camino polvoriento", "La luna llena iluminaba el bosque encantado lleno de luciérnagas", "El vendedor de globos perdió todos sus globos en el viento fuerte", "Una jirafa con bufanda bebía limonada en la cafetería del centro", "El caballero rescató a la doncella del castillo encantado y oscuro", "Los niños construyeron un castillo de arena junto al mar azul", "El búho sabio leía libros antiguos a la luz de una vela", "Cuatro caracoles cargaban sus casas cuesta arriba lentamente", "La hechicera mezcló pociones mágicas en su caldero burbujeante", "El payaso hizo malabares con siete naranjas en el circo grande", "Una ballena azul cantaba canciones tristes en el fondo del mar", "El leñador cortaba troncos en el bosque mientras silbaba contento", "Los exploradores encontraron una pirámide perdida en la selva densa", "El faro guiaba a los barcos perdidos durante las noches de niebla", "Un ratoncito valiente desafió al enorme gato del granero viejo"];
+const WORDS=["Elefante", "Bailar", "Guitarra", "Surfear", "Pingüino", "Estornudar", "Astronauta", "Cocinar", "Dinosaurio", "Nadar", "Vampiro", "Fotografía", "Karate", "Tornado", "Robot", "Esquiar", "Cangrejo", "Llorar", "Superhéroe", "Pescar", "Fantasma", "Estatua", "Boxeo", "Helicóptero", "Mariposa", "Dormir", "Pirata", "Telescopio", "Yoga", "Volcán", "Mago", "Patinar", "Tiburón", "Reír", "Médico", "Paracaídas", "Jirafa", "Conducir", "Zombi", "Maquillarse", "Escalada", "Terremoto", "Payaso", "Microscopio", "Boxeador", "Bucear", "Murciélago", "Roncar", "Princesa", "Brújula", "Tenis", "Huracán", "Bruja", "Saltar", "Bombero", "Trompeta", "Canguro", "Toser", "Ninja", "Ancla", "Gimnasia", "Relámpago", "Hada", "Trepar", "Pulpo", "Bostezar", "Policía", "Violín", "Esqueleto", "Espejo", "Lucha", "Cohete", "Camaleón", "Pintar", "Caballero", "Catalejo", "Ballet", "Tsunami", "Genio", "Correr", "Serpiente", "Aplaudir", "Astrónomo", "Tambor", "Momia", "Globo", "Esgrima", "Avión", "Koala", "Silbar", "Detective", "Flauta", "Ogro", "Vela", "Judo", "Submarino", "Erizo", "Temblar", "Cartero", "Arpa", "Duende", "Cometa"];
+function rndOf(a){return a[Math.floor(Math.random()*a.length)];}
+function pick5(a){const s=[...a].sort(()=>Math.random()-.5);return s.slice(0,5);}
+
 
 
 let topic='',players={},es=null,since=0,busy=false;
@@ -587,6 +593,47 @@ function assignRoles(ch,active,allPs,aT,oT){
   const shuf=arr=>[...arr].sort(()=>Math.random()-.5);
 
   switch(ch.rt){
+    case'solo':{
+      const tp=active.filter(p=>p.team===aT);
+      const chosen=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),chosen.name);
+      tp.forEach(p=>{R[p.name]=p.name===chosen.name
+        ?{label:ch.al||'PROTAGONISTA',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú haces el reto.',chosen:true}
+        :{label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa cómo lo hace tu compañero.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'};});
+      break;}
+    case'mimica':{
+      const tp=active.filter(p=>p.team===aT);
+      const actor=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),actor.name);
+      const words=pick5(WORDS);
+      tp.forEach(p=>{R[p.name]=p.name===actor.name
+        ?{label:ch.al||'ACTOR',emoji:'🎭',isSecret:false,roleDesc:ch.ad||'Representa cada palabra por mímica.',chosen:true,words:words}
+        :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Tu equipo adivina.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'chain_phrase':{
+      const tp=shuf(active.filter(p=>p.team===aT));
+      const phrase=rndOf(PHRASES);
+      // Pick a checker from another team (or spectators) to verify at the end
+      const others=allPs.filter(p=>p.team!==aT);
+      const checker=others.length?rnd(others):null;
+      tp.forEach((p,idx2)=>{
+        const f=idx2===0,l=idx2===tp.length-1;
+        if(f){
+          R[p.name]={label:'PRIMERO',emoji:'1️⃣',isSecret:false,roleDesc:'Te damos una frase secreta. Memorízala y susúrrala al oído del siguiente. Solo una vez.',phrase:phrase};
+        }else{
+          R[p.name]={label:l?'ÚLTIMO':'#'+(idx2+1),emoji:l?'🔚':(idx2+1)+'️⃣',isSecret:false,
+            roleDesc:l?'Cuando te susurren la frase, dila en VOZ ALTA para todos.':'Escucha la frase y susúrrala al siguiente. Solo una vez.'};
+        }
+      });
+      // Checker (verifier) gets the phrase to compare at the end
+      if(checker){
+        R[checker.name]={label:'VERIFICADOR',emoji:'🔍',isSecret:false,roleDesc:'Al terminar la cadena, revela la frase original y compárala con lo que dijo el último jugador.',phrase:phrase,verifier:true};
+      }
+      // Everyone else not yet assigned = spectator
+      allPs.forEach(p=>{if(!R[p.name])R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la cadena.'};});
+      break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       break;
@@ -609,10 +656,10 @@ function assignRoles(ch,active,allPs,aT,oT){
     case'artist_back':{
       const tp=shuf(active.filter(p=>p.team===aT));
       if(tp.length>=2){
-        if(tp.length>2)roulette=buildRoulette(tp.map(p=>p.name),tp[0].name);
-        R[tp[0].name]={label:'ARTISTA',emoji:'✍️',isSecret:false,roleDesc:'Dibuja con el dedo en la espalda de '+tp[1].name+'.',chosen:true};
-        R[tp[1].name]={label:'RECEPTOR',emoji:'🔮',isSecret:false,roleDesc:'Te dibujan en la espalda. Adivina qué es.'};
-        tp.slice(2).forEach(p=>{R[p.name]={label:'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:'Tú también intentas adivinar.'};});
+        const word=rndOf(WORDS);
+        R[tp[0].name]={label:'ARTISTA',emoji:'✍️',isSecret:false,roleDesc:'Dibuja esta palabra con el dedo en la espalda de '+tp[1].name+'. Que solo la veas tú.',phrase:word};
+        R[tp[1].name]={label:'RECEPTOR',emoji:'🔮',isSecret:false,roleDesc:'Te dibujan en la espalda. Solo TÚ debes adivinar qué es, sin mirar.',chosen:true};
+        tp.slice(2).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa en silencio. No ayudes a adivinar.'};});
       }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
