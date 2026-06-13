@@ -121,6 +121,16 @@ input::placeholder{color:var(--status-color)}
 .cipher-btn:active{transform:scale(.95)}
 .cipher-btn.solve{background:#22c55e;color:#fff}
 .cipher-btn:disabled{opacity:.35;cursor:default}
+
+.buzzer{width:100%;aspect-ratio:1;max-width:240px;margin:10px auto;border-radius:50%;border:none;font-size:24px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:transform .1s,opacity .2s;box-shadow:0 8px 0 rgba(0,0,0,.3)}
+.buzzer:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.buzzer.ready{background:radial-gradient(circle at 40% 35%,#ff6b6b,#d63031)}
+.buzzer.locked-me{background:radial-gradient(circle at 40% 35%,#22c55e,#16a34a);animation:buzzPulse 1s ease infinite}
+.buzzer.locked-other{background:#555;opacity:.6}
+.buzzer.vetoed{background:#444;opacity:.45}
+@keyframes buzzPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.buzzer-status{text-align:center;font-size:15px;font-weight:700;color:#fff;margin-top:8px;min-height:22px}
+.buzzer-timer{text-align:center;font-size:40px;font-weight:900;color:var(--gold);margin-top:4px}
 </style>
 </head>
 <body>
@@ -207,6 +217,7 @@ const TEAMS=['A','B','C','D','E','F','G','H'];
 let teamDefs=[]; // populated from TV via ntfy
 let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
 let cipherState=null;
+let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
@@ -317,7 +328,9 @@ function onMsg(e){
     }else if(d.type==='teams'){teamDefs=d.teams;renderTeamBtns();}
     else if(d.type==='cipherUpdate'){
       if(cipherState){cipherState.revealed=d.revealed;renderCipher();}
-    }else if(d.type==='clear'){
+    }
+    else if(d.type==='buzzState'){updateBuzzer(d.state);}
+    else if(d.type==='buzzWin'){buzzWin(d.team,d.name);}else if(d.type==='clear'){
       sessionStorage.removeItem('ocaChallenge');
       show('sWait');
     }
@@ -477,6 +490,62 @@ function solveCipher(){
   }
 }
 
+
+function renderBuzzer(){
+  const wrap=document.getElementById('buzzWrap');
+  if(!wrap)return;
+  let cls='ready',label='PULSA',sub='¡Pulsa cuando sepas la canción!';
+  if(buzzMyState==='locked-me'){cls='locked-me';label='¡RESPONDE!';sub='Tienes 10 segundos';}
+  else if(buzzMyState==='locked-other'){cls='locked-other';label='🔒';sub='Otro equipo responde...';}
+  else if(buzzMyState==='vetoed'){cls='vetoed';label='⛔';sub='Bloqueado hasta el siguiente rebote';}
+  wrap.innerHTML='<button class="buzzer '+cls+'" id="buzzBtn"'+((cls==='locked-other'||cls==='vetoed'||cls==='locked-me')?' disabled':'')+'>'+'<span style="font-size:40px">🔔</span><span>'+label+'</span></button>'+
+    '<div class="buzzer-timer" id="buzzTimer"></div>'+
+    '<div class="buzzer-status">'+sub+'</div>';
+  const btn=document.getElementById('buzzBtn');
+  if(btn&&cls==='ready'){
+    btn.onclick=()=>{
+      if(navigator.vibrate)navigator.vibrate(40);
+      fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzPress',name:myName,team:myTeam})}).catch(()=>{});
+    };
+  }
+}
+function updateBuzzer(state){
+  if(!buzzerData)return;
+  if(state.locked){
+    if(state.lockedTeam===myTeam){
+      buzzMyState='locked-me';startBuzzCountdown(state.deadline);
+    }else{
+      buzzMyState='locked-other';stopBuzzCountdown();
+    }
+  }else{
+    stopBuzzCountdown();
+    buzzMyState=state.vetoed&&state.vetoed.includes(myTeam)?'vetoed':'ready';
+  }
+  renderBuzzer();
+}
+function startBuzzCountdown(deadline){
+  stopBuzzCountdown();
+  const tick=()=>{
+    const el=document.getElementById('buzzTimer');
+    if(!el)return;
+    const secs=Math.max(0,(deadline-Date.now())/1000);
+    el.textContent=secs.toFixed(1)+'s';
+    if(secs>0)buzzTimerRaf=requestAnimationFrame(tick);
+  };
+  tick();
+}
+function stopBuzzCountdown(){if(buzzTimerRaf){cancelAnimationFrame(buzzTimerRaf);buzzTimerRaf=null;}}
+function buzzWin(team,name){
+  stopBuzzCountdown();
+  const wrap=document.getElementById('buzzWrap');
+  if(!wrap)return;
+  const won=team===myTeam;
+  wrap.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:56px">'+(won?'🎉':'🔔')+'</div>'+
+    '<div style="font-size:22px;font-weight:900;color:#fff;margin-top:8px">'+(won?'¡Vuestro equipo acertó!':name+' acertó')+'</div></div>';
+  if(won&&navigator.vibrate)navigator.vibrate([100,50,100,50,200]);
+  if(won)confetti();
+}
+
 function renderRoleExtra(role){
   const ex=document.getElementById('roleExtra');
   ex.innerHTML='';
@@ -497,6 +566,15 @@ function renderRoleExtra(role){
     };
     ex.appendChild(btn);
     ex.appendChild(box);
+  }
+  // Acústico buzzer
+  if(role.buzzer){
+    buzzerData={team:myTeam};
+    buzzMyState='ready';
+    const wrap=document.createElement('div');wrap.id='buzzWrap';
+    ex.appendChild(wrap);
+    renderBuzzer();
+    return;
   }
   // Cifrado Secreto
   if(role.cipher){
