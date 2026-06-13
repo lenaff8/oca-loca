@@ -140,6 +140,11 @@ input::placeholder{color:var(--status-color)}
 
 .bodypart-box{background:rgba(0,0,0,.25);border-radius:18px;padding:24px 18px;margin-top:10px;text-align:center}
 .bodypart-big{font-size:32px;font-weight:900;color:#fff;line-height:1.2;margin-top:6px}
+
+.humm-btn{background:var(--gold);color:var(--gold-text);border:none;border-radius:14px;padding:16px;font-weight:900;font-size:17px;cursor:pointer;font-family:inherit;width:100%;margin-top:8px;transition:transform .1s}
+.humm-btn:active{transform:scale(.96)}
+.humm-btn.stop{background:#22c55e;color:#fff}
+.humm-timer{font-size:46px;font-weight:900;color:var(--gold);text-align:center;margin:8px 0;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -575,6 +580,38 @@ function renderRoleExtra(role){
     };
     ex.appendChild(btn);
     ex.appendChild(box);
+  }
+  // Humming Battle (singer)
+  if(role.hummingTeam){
+    const wrap=document.createElement('div');
+    // reveal song
+    const btn=document.createElement('button');btn.className='reveal-btn';btn.textContent='👁️ Ver canción';
+    const box=document.createElement('div');box.className='phrase-box';box.style.display='none';box.textContent=role.phrase;
+    let shown=false;
+    btn.onclick=()=>{shown=!shown;box.style.display=shown?'block':'none';btn.textContent=shown?'🙈 Ocultar':'👁️ Ver canción';};
+    wrap.appendChild(btn);wrap.appendChild(box);
+    // timer + start/stop
+    const timer=document.createElement('div');timer.className='humm-timer';timer.textContent='0.0';
+    const action=document.createElement('button');action.className='humm-btn';action.textContent='▶ Empezar a tararear';
+    let running=false,startT=0,raf=null,done=false;
+    const tick=()=>{if(!running)return;timer.textContent=((Date.now()-startT)/1000).toFixed(1);raf=requestAnimationFrame(tick);};
+    action.onclick=()=>{
+      if(!running&&!done){
+        running=true;startT=Date.now();action.textContent='✓ ¡Lo han adivinado!';action.className='humm-btn stop';
+        fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'hummStart',team:role.hummingTeam})}).catch(()=>{});
+        tick();
+      }else if(running){
+        running=false;done=true;cancelAnimationFrame(raf);
+        const t=(Date.now()-startT)/1000;
+        timer.textContent=t.toFixed(1)+'s';
+        action.textContent='Tiempo: '+t.toFixed(1)+'s';action.disabled=true;
+        if(navigator.vibrate)navigator.vibrate(100);
+        fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'hummStop',team:role.hummingTeam,time:t})}).catch(()=>{});
+      }
+    };
+    wrap.appendChild(timer);wrap.appendChild(action);
+    ex.appendChild(wrap);
+    return;
   }
   // Acústico buzzer
   if(role.buzzer){
