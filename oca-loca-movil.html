@@ -145,6 +145,13 @@ input::placeholder{color:var(--status-color)}
 .humm-btn:active{transform:scale(.96)}
 .humm-btn.stop{background:#22c55e;color:#fff}
 .humm-timer{font-size:46px;font-weight:900;color:var(--gold);text-align:center;margin:8px 0;font-variant-numeric:tabular-nums}
+
+.power-btns{display:flex;gap:8px;margin-top:12px;width:100%}
+.power-btn{flex:1;border:none;border-radius:12px;padding:12px 8px;font-weight:900;font-size:13px;cursor:pointer;font-family:inherit;color:#fff;transition:transform .1s;line-height:1.3}
+.power-btn:active{transform:scale(.95)}
+.power-btn:disabled{opacity:.35;cursor:default}
+.power-wild{background:#8b5cf6}
+.power-steal{background:#f59e0b;color:#1a1200}
 </style>
 </head>
 <body>
@@ -232,6 +239,7 @@ let teamDefs=[]; // populated from TV via ntfy
 let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
+let wildcardsLeft=2,stealsLeft=1,curChallenge=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
@@ -243,11 +251,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     try{
       const s=JSON.parse(saved);
       myName=s.name;myTeam=s.team;myTopic='oca-'+s.code;mySince=Math.floor(Date.now()/1000);
+      wildcardsLeft=s.wc!=null?s.wc:2;stealsLeft=s.st!=null?s.st:1;
       document.getElementById('waitInfo').textContent=s.name+' · Equipo '+s.team;
       document.getElementById('waitCode').textContent=s.code;
       const savedCh=sessionStorage.getItem('ocaChallenge');
       if(savedCh){
-        try{showChallenge(JSON.parse(savedCh));}
+        try{const pc=JSON.parse(savedCh);curChallenge=pc;showChallenge(pc);}
         catch(e){show('sWait');}
       }else{show('sWait');}
       announce();subscribe();
@@ -311,7 +320,7 @@ function joinRoom(){
   if(!myTeam){err.textContent='Selecciona tu equipo.';err.style.display='block';return;}
   err.style.display='none';
   myName=name;myTopic='oca-'+code;mySince=Math.floor(Date.now()/1000);
-  sessionStorage.setItem('ocaSession',JSON.stringify({code,name,team:myTeam}));
+  sessionStorage.setItem('ocaSession',JSON.stringify({code,name,team:myTeam,wc:wildcardsLeft,st:stealsLeft}));
   const tDef=teamDefs.find(t=>t.id===myTeam);
   const tName=tDef?tDef.name:'Equipo '+myTeam;
   document.getElementById('waitInfo').textContent=name+' · '+tName;
@@ -433,6 +442,7 @@ function applyRole(role,secret){
   document.getElementById('roleName').textContent=role.label||'-';
   document.getElementById('roleDesc').textContent=role.roleDesc||'';
   renderRoleExtra(role);
+  renderPowers(role);
 }
 
 
@@ -581,6 +591,69 @@ function timerSyncEnd(){
   ov.onclick=()=>ov.remove();
   document.body.appendChild(ov);
   setTimeout(()=>{if(ov.parentNode)ov.remove();},4000);
+}
+
+
+function challengeIsRandom(){
+  // Only when the challenge picks specific people (has a chosen role), not 'all'
+  if(!curChallenge||!curChallenge.roles)return false;
+  return Object.values(curChallenge.roles).some(r=>r.chosen);
+}
+function amChosen(){
+  return curChallenge&&curChallenge.roles&&curChallenge.roles[myName]&&curChallenge.roles[myName].chosen;
+}
+function chosenIsMyTeammate(){
+  if(!curChallenge||!curChallenge.roles)return false;
+  for(const n in curChallenge.roles){
+    if(curChallenge.roles[n].chosen){
+      // is that player on my team? we infer from my own role being EQUIPO/ADIVINA (same team participant)
+      const myRole=curChallenge.roles[myName];
+      if(!myRole)return false;
+      // I can steal if I'm a non-spectator participant (not chosen, not espectador)
+      const lbl=(myRole.label||'').toUpperCase();
+      return !myRole.chosen && lbl!=='ESPECTADOR' && lbl!=='ÁNIMO';
+    }
+  }
+  return false;
+}
+function renderPowers(role){
+  // remove old
+  const ex=document.getElementById('roleExtra');
+  let host=document.getElementById('powerHost');
+  if(host)host.remove();
+  if(!challengeIsRandom())return;
+  host=document.createElement('div');host.id='powerHost';host.style.width='100%';
+  let html='';
+  if(amChosen()){
+    html+='<button class="power-btn power-wild" id="wildBtn" '+(wildcardsLeft<=0?'disabled':'')+'>🃏 Comodín<br><span style="font-size:11px;opacity:.85">No quiero (quedan '+wildcardsLeft+')</span></button>';
+  }else if(chosenIsMyTeammate()){
+    html+='<button class="power-btn power-steal" id="stealBtn" '+(stealsLeft<=0?'disabled':'')+'>🦹 Robar<br><span style="font-size:11px;opacity:.85">Lo hago yo (queda '+stealsLeft+')</span></button>';
+  }
+  if(!html)return;
+  host.innerHTML='<div class="power-btns">'+html+'</div>';
+  // insert after roleExtra
+  ex.parentNode.insertBefore(host,ex.nextSibling);
+  const wb=document.getElementById('wildBtn');
+  if(wb)wb.onclick=()=>{
+    if(wildcardsLeft<=0)return;
+    wildcardsLeft--;persistPowers();
+    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'wildcard',name:myName})}).catch(()=>{});
+    if(navigator.vibrate)navigator.vibrate(40);
+    host.remove();
+  };
+  const sb=document.getElementById('stealBtn');
+  if(sb)sb.onclick=()=>{
+    if(stealsLeft<=0)return;
+    stealsLeft--;persistPowers();
+    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'steal',name:myName})}).catch(()=>{});
+    if(navigator.vibrate)navigator.vibrate([60,40,60]);
+    host.remove();
+  };
+}
+function persistPowers(){
+  const s=JSON.parse(sessionStorage.getItem('ocaSession')||'{}');
+  s.wc=wildcardsLeft;s.st=stealsLeft;
+  sessionStorage.setItem('ocaSession',JSON.stringify(s));
 }
 
 function renderRoleExtra(role){
