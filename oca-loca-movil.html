@@ -344,7 +344,11 @@ function onMsg(e){
       if(cipherState){cipherState.revealed=d.revealed;renderCipher();}
     }
     else if(d.type==='buzzState'){updateBuzzer(d.state);}
-    else if(d.type==='buzzWin'){buzzWin(d.team,d.name);}else if(d.type==='clear'){
+    else if(d.type==='buzzWin'){buzzWin(d.team,d.name);}
+    else if(d.type==='timerStart'){timerSyncStart();}
+    else if(d.type==='timerPause'){timerSyncStop();}
+    else if(d.type==='timerReset'){timerSyncStop();}
+    else if(d.type==='timerEnd'){timerSyncEnd();}else if(d.type==='clear'){
       sessionStorage.removeItem('ocaChallenge');
       show('sWait');
     }
@@ -564,6 +568,21 @@ function buzzWin(team,name){
   if(won)confetti();
 }
 
+
+function timerSyncStart(){
+  if(navigator.vibrate)navigator.vibrate(30);
+}
+function timerSyncStop(){}
+function timerSyncEnd(){
+  if(navigator.vibrate)navigator.vibrate([200,80,200,80,400]);
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(226,27,60,.96);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;cursor:pointer';
+  ov.innerHTML='<div style="font-size:90px">⏰</div><div style="font-size:42px;font-weight:900;margin-top:8px">¡TIEMPO!</div>';
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+  setTimeout(()=>{if(ov.parentNode)ov.remove();},4000);
+}
+
 function renderRoleExtra(role){
   const ex=document.getElementById('roleExtra');
   ex.innerHTML='';
@@ -706,28 +725,6 @@ function renderRoleExtra(role){
   if(role.words&&role.words.length){
     const wrap=document.createElement('div');
     wrap.className='word-carousel';
-    // 90s timer
-    const tWrap=document.createElement('div');
-    tWrap.style.cssText='text-align:center;margin-bottom:8px';
-    const tDisp=document.createElement('div');
-    tDisp.style.cssText='font-size:30px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums';
-    tDisp.textContent='90.0';
-    const tBtn=document.createElement('button');
-    tBtn.className='reveal-btn';tBtn.style.marginTop='4px';tBtn.textContent='▶ Empezar 90s';
-    let tRunning=false,tStart=0,tRaf=null,tDone=false;
-    const tTick=()=>{
-      if(!tRunning)return;
-      const left=90-(Date.now()-tStart)/1000;
-      if(left<=0){tDisp.textContent='0.0';tDisp.style.color='#e21b3c';tRunning=false;tBtn.textContent='⏱ ¡Tiempo!';tBtn.disabled=true;if(navigator.vibrate)navigator.vibrate([100,60,100]);return;}
-      tDisp.textContent=left.toFixed(1);
-      if(left<=10)tDisp.style.color='#e21b3c';
-      tRaf=requestAnimationFrame(tTick);
-    };
-    tBtn.onclick=()=>{
-      if(!tRunning&&!tDone){tRunning=true;tStart=Date.now();tBtn.textContent='⏸ En marcha';tTick();}
-    };
-    tWrap.appendChild(tDisp);tWrap.appendChild(tBtn);
-    wrap.appendChild(tWrap);
     const disp=document.createElement('div');
     disp.className='word-display';
     const nav=document.createElement('div');
