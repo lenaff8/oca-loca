@@ -698,10 +698,32 @@ function renderRoleExtra(role){
     wrap.appendChild(disp);wrap.appendChild(btn);wrap.appendChild(result);
     ex.appendChild(wrap);
   }
-  // Word carousel (Sin Palabras)
+  // Word carousel (Sin Palabras / Pictionary) with 90s total timer
   if(role.words&&role.words.length){
     const wrap=document.createElement('div');
     wrap.className='word-carousel';
+    // 90s timer
+    const tWrap=document.createElement('div');
+    tWrap.style.cssText='text-align:center;margin-bottom:8px';
+    const tDisp=document.createElement('div');
+    tDisp.style.cssText='font-size:30px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums';
+    tDisp.textContent='90.0';
+    const tBtn=document.createElement('button');
+    tBtn.className='reveal-btn';tBtn.style.marginTop='4px';tBtn.textContent='▶ Empezar 90s';
+    let tRunning=false,tStart=0,tRaf=null,tDone=false;
+    const tTick=()=>{
+      if(!tRunning)return;
+      const left=90-(Date.now()-tStart)/1000;
+      if(left<=0){tDisp.textContent='0.0';tDisp.style.color='#e21b3c';tRunning=false;tBtn.textContent='⏱ ¡Tiempo!';tBtn.disabled=true;if(navigator.vibrate)navigator.vibrate([100,60,100]);return;}
+      tDisp.textContent=left.toFixed(1);
+      if(left<=10)tDisp.style.color='#e21b3c';
+      tRaf=requestAnimationFrame(tTick);
+    };
+    tBtn.onclick=()=>{
+      if(!tRunning&&!tDone){tRunning=true;tStart=Date.now();tBtn.textContent='⏸ En marcha';tTick();}
+    };
+    tWrap.appendChild(tDisp);tWrap.appendChild(tBtn);
+    wrap.appendChild(tWrap);
     const disp=document.createElement('div');
     disp.className='word-display';
     const nav=document.createElement('div');
