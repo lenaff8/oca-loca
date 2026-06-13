@@ -609,17 +609,13 @@ function amChosen(){
 }
 function chosenIsMyTeammate(){
   if(!curChallenge||!curChallenge.roles)return false;
-  for(const n in curChallenge.roles){
-    if(curChallenge.roles[n].chosen){
-      // is that player on my team? we infer from my own role being EQUIPO/ADIVINA (same team participant)
-      const myRole=curChallenge.roles[myName];
-      if(!myRole)return false;
-      // I can steal if I'm a non-spectator participant (not chosen, not espectador)
-      const lbl=(myRole.label||'').toUpperCase();
-      return !myRole.chosen && lbl!=='ESPECTADOR' && lbl!=='ÁNIMO';
-    }
-  }
-  return false;
+  const myRole=curChallenge.roles[myName];
+  if(!myRole||myRole.chosen)return false;
+  const lbl=(myRole.label||'').toUpperCase();
+  // must be an active-ish participant of my team, not a pure spectator
+  if(lbl==='ESPECTADOR')return false;
+  // is there at least one chosen player? (we allow steal if I'm a participant on a team that has a chosen)
+  return Object.values(curChallenge.roles).some(r=>r.chosen);
 }
 function renderPowers(role){
   // remove old
