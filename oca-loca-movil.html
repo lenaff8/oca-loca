@@ -277,15 +277,18 @@ function leaveSession(){
 }
 
 let codeEs=null,teamsTimeout=null;
-let teamPollTimer=null;
+let teamPollTimer=null,lastCodeFetched='';
 function onCodeInput(val){
-  // any change in code invalidates previously fetched teams
+  const code=(val||'').toUpperCase().trim();
+  // ignore if code hasn't actually changed (e.g. re-fired by toUpperCase reassignment)
+  if(code===lastCodeFetched)return;
+  lastCodeFetched=code;
   teamDefs=[];myTeam='';
   renderTeamBtns();
   if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
   if(codeEs){codeEs.close();codeEs=null;}
-  if(val.length>=6){
-    const t='oca-'+val.toUpperCase();
+  if(code.length>=6){
+    const t='oca-'+code;
     const since=Math.floor(Date.now()/1000)-5;
     codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
     codeEs.addEventListener('message',e=>{
