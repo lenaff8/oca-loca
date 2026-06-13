@@ -290,17 +290,20 @@ function onCodeInput(val){
   if(code.length>=6){
     const t='oca-'+code;
     const since=Math.floor(Date.now()/1000)-5;
+    window._dbgMsgs=0;window._dbgTypes=[];
     codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
+    codeEs.onopen=()=>dbg('SSE abierto ✓ | msgs:0');
     codeEs.addEventListener('message',e=>{
+      window._dbgMsgs++;
       try{
-        const raw=JSON.parse(e.data);
-        if(raw.event&&raw.event!=='message')return;
-        const d=JSON.parse(raw.message);
+        const d=JSON.parse(JSON.parse(e.data).message);
+        window._dbgTypes.push(d.type||'?');
+        dbg('SSE abierto ✓ | msgs:'+window._dbgMsgs+' | tipos:'+window._dbgTypes.slice(-4).join(','));
         if(d.type==='teams'&&d.teams&&d.teams.length){
           teamDefs=d.teams;renderTeamBtns();
           if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
         }
-      }catch(err){}
+      }catch(err){dbg('SSE abierto ✓ | msgs:'+window._dbgMsgs+' (no-json)');}
     });
     const ask=()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{});
     ask();
