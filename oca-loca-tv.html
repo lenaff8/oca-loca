@@ -172,6 +172,13 @@ minijuego:[
  {n:"El Artista Invisible",d:"Un jugador dibuja una palabra con el dedo en la espalda de un compañero. Solo ese compañero debe adivinar qué es, sin mirar. El resto observa.",rt:"artist_back"},
  {n:"Sin Palabras",d:"Un jugador recibe 5 palabras y debe representarlas por mímica, una a una, sin hablar ni hacer sonidos. Su equipo adivina. 45 segundos por palabra.",rt:"mimica",al:"ACTOR",ad:"Representa cada palabra por mímica. Usa las flechas para pasar de una a otra.",bl:"ADIVINA",bd:"Tu equipo adivina qué representa."},
  {n:"Pictionary",d:"Un jugador recibe 5 palabras y debe dibujarlas (en papel o pantalla), una a una. Su equipo adivina. Pasa de palabra con las flechas. Prohibido escribir letras o números.",rt:"pictionary",al:"DIBUJANTE",ad:"Dibuja cada palabra. Usa las flechas para pasar. Sin letras ni números.",bl:"ADIVINA",bd:"Tu equipo adivina qué dibuja."},
+ {n:"Sigue la Canción",d:"El moderador pone una canción y la pausa de golpe. El equipo debe continuar cantando el trozo que sigue. Si lo clavan, superado.",rt:"all"},
+ {n:"Adivina Cantante y Canción",d:"El moderador pone un fragmento. El equipo debe acertar el título Y el intérprete. Los dos = superado; solo uno = a medias (lo decide el grupo).",rt:"all"},
+ {n:"Guerra de Canciones",d:"Se revela una palabra. Por turnos, cada miembro del equipo canta un trozo de una canción real que contenga esa palabra. El que no sepa continuar, hace perder al equipo.",rt:"songword"},
+ {n:"Solo Tararear",d:"Un jugador tararea una canción (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
+ {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
+ {n:"Canciones Temáticas",d:"Se revela una temática. Por turnos, cada miembro del equipo canta un trozo de una canción que encaje en ella. El que no sepa seguir hace perder al equipo.",rt:"songtheme"},
+
  {n:"El Reloj Humano",d:"Un jugador debe detener el cronómetro de su móvil lo más cerca posible de los 30 segundos, sin mirar ningún reloj ni contar en voz alta. El resto observa.",rt:"timer",al:"CRONÓMETRO",ad:"Pulsa Iniciar y para el cronómetro cuando creas que han pasado 30 segundos. ¡Sin mirar relojes!"},
  {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
  {n:"Buceador Lingüístico",d:"Un jugador mete la cara en un cuenco de agua (o aguanta el aliento) y dice el título de una película. Su equipo debe adivinarla por el movimiento de la boca y los sonidos ahogados.",rt:"diver",al:"BUCEADOR",ad:"Mete la cara en el agua y di el título de la película aguantando el aliento. Repite si hace falta.",bl:"ADIVINA",bd:"Intentad adivinar qué película dice vuestro buceador."},
@@ -232,6 +239,8 @@ const TWISTERS=["Tres tristes tigres tragaban trigo en un trigal", "El cielo est
 const LETTERS=["B","C","D","F","G","L","M","P","R","S","T","A","E","O"];
 const COLORS_HUNT=[{n:"ROJO",c:"#e21b3c"},{n:"AZUL",c:"#1cb0f6"},{n:"VERDE",c:"#22c55e"},{n:"AMARILLO",c:"#f5b800"},{n:"NARANJA",c:"#ff9600"},{n:"ROSA",c:"#ff5fa2"},{n:"MORADO",c:"#9b27af"},{n:"NEGRO",c:"#222"},{n:"BLANCO",c:"#f5f5f5"},{n:"MARRÓN",c:"#8b5a2b"}];
 const BODY_PARTS=["la cabeza","los codos","las rodillas","los hombros","la espalda","las caderas","los pies","el pecho","las manos juntas","los antebrazos","la frente","los glúteos"];
+const SONG_WORDS=["amor","corazón","noche","baila","luna","fuego","sol","cielo","vida","mar","beso","loco","tiempo","calle","fiesta","llorar","bailar","verano","sueño","mundo"];
+const SONG_THEMES=["desamor","verano","fiesta","los 80","reguetón","Disney","rock español","baladas","villancicos","canciones de boda","bandas sonoras de películas","cantantes femeninas","one-hit wonders","canciones en inglés"];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -766,6 +775,16 @@ function assignRoles(ch,active,allPs,aT,oT){
       tp.forEach(p=>{R[p.name]=p.name===drawer.name
         ?{label:ch.al||'DIBUJANTE',emoji:'🎨',isSecret:false,roleDesc:ch.ad||'Dibuja cada palabra.',chosen:true,words:words}
         :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Tu equipo adivina.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'songword':{
+      const word=rndOf(SONG_WORDS);
+      active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos, cantad una canción que contenga esta palabra:',hunt:word};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
+    case'songtheme':{
+      const theme=rndOf(SONG_THEMES);
+      active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos, cantad una canción de esta temática:',hunt:theme};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'all':
