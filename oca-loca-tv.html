@@ -116,11 +116,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
       <div class="card" style="margin-top:12px">
         <div class="label" style="margin-bottom:10px">EQUIPOS (<span id="teamCountL">0</span>)</div>
         <div id="teamDefList"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:stretch">
           <input id="newTeamName" type="text" placeholder="Nombre del equipo..."
-            style="flex:1;background:var(--chip-bg);border:1px solid var(--wood);border-radius:10px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit"
+            style="flex:1;min-width:0;background:var(--chip-bg);border:1px solid var(--wood);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit"
             onkeydown="if(event.key==='Enter')addTeam()">
-          <button class="btn btn-gold" style="padding:9px 14px;font-size:14px;white-space:nowrap" onclick="addTeam()">+ Añadir</button>
+          <button class="btn btn-gold" style="flex-shrink:0;padding:10px 16px;font-size:14px;white-space:nowrap;box-shadow:none" onclick="addTeam()">+ Añadir</button>
         </div>
         <div id="teamListL" style="display:none"></div>
       </div>
