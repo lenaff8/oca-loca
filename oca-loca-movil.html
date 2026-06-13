@@ -452,6 +452,10 @@ function renderCipher(){
   const wrap=document.getElementById('cipherWrap');
   if(!wrap||!cipherState)return;
   const ans=cipherState.answer;
+  if(cipherState.revealed==='ALL'){
+    wrap.innerHTML='<div class="cipher-info">La película era:</div><div class="cipher-display">'+ans+'</div>';
+    return;
+  }
   const rev=cipherState.revealed||[];
   // count requested letters (excludes the free first letter)
   const used=rev.length;
