@@ -96,6 +96,17 @@ input::placeholder{color:var(--status-color)}
   box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .15s;
 }
 #themeToggle:hover{transform:scale(1.1)}
+
+.reveal-btn{background:var(--gold);color:var(--gold-text);border:none;border-radius:12px;padding:14px 22px;font-weight:900;font-size:16px;cursor:pointer;font-family:inherit;transition:transform .1s}
+.reveal-btn:active{transform:scale(.95)}
+.phrase-box{background:rgba(0,0,0,.25);border-radius:14px;padding:18px;margin-top:10px;font-size:17px;font-weight:700;line-height:1.5;color:#fff}
+.word-carousel{margin-top:6px;width:100%}
+.word-display{background:rgba(0,0,0,.25);border-radius:16px;padding:28px 16px;font-size:30px;font-weight:900;color:#fff;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center}
+.word-nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px}
+.word-arrow{background:var(--gold);color:var(--gold-text);border:none;border-radius:50%;width:52px;height:52px;font-size:24px;font-weight:900;cursor:pointer;font-family:inherit;flex-shrink:0;transition:transform .1s}
+.word-arrow:active{transform:scale(.9)}
+.word-arrow:disabled{opacity:.3;cursor:default}
+.word-counter{font-size:14px;font-weight:700;color:rgba(255,255,255,.7)}
 </style>
 </head>
 <body>
@@ -155,6 +166,7 @@ input::placeholder{color:var(--status-color)}
     <div style="font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--role-label)" id="roleLabel">TU ROL</div>
     <div style="font-size:28px;font-weight:900;color:var(--role-title);line-height:1.2" id="roleName">-</div>
     <div style="font-size:15px;line-height:1.65;color:var(--role-desc);max-width:300px" id="roleDesc"></div>
+    <div id="roleExtra" style="width:100%;margin-top:8px"></div>
   </div>
 </div>
 
@@ -371,6 +383,55 @@ function applyRole(role,secret){
   lbl.style.color=secret?'var(--role-secret-label)':'var(--role-label)';
   document.getElementById('roleName').textContent=role.label||'-';
   document.getElementById('roleDesc').textContent=role.roleDesc||'';
+  renderRoleExtra(role);
+}
+
+function renderRoleExtra(role){
+  const ex=document.getElementById('roleExtra');
+  ex.innerHTML='';
+  // Phrase reveal (Cadena Rota first player + verifier; Artista word)
+  if(role.phrase){
+    const btn=document.createElement('button');
+    btn.className='reveal-btn';
+    btn.textContent='👁️ Revelar';
+    const box=document.createElement('div');
+    box.className='phrase-box';
+    box.style.display='none';
+    box.textContent=role.phrase;
+    let shown=false;
+    btn.onclick=()=>{
+      shown=!shown;
+      box.style.display=shown?'block':'none';
+      btn.textContent=shown?'🙈 Ocultar':'👁️ Revelar';
+    };
+    ex.appendChild(btn);
+    ex.appendChild(box);
+  }
+  // Word carousel (Sin Palabras)
+  if(role.words&&role.words.length){
+    const wrap=document.createElement('div');
+    wrap.className='word-carousel';
+    const disp=document.createElement('div');
+    disp.className='word-display';
+    const nav=document.createElement('div');
+    nav.className='word-nav';
+    const prev=document.createElement('button');prev.className='word-arrow';prev.textContent='‹';
+    const counter=document.createElement('div');counter.className='word-counter';
+    const next=document.createElement('button');next.className='word-arrow';next.textContent='›';
+    let i=0;
+    const update=()=>{
+      disp.textContent=role.words[i];
+      counter.textContent=(i+1)+' / '+role.words.length;
+      prev.disabled=i===0;
+      next.disabled=i===role.words.length-1;
+    };
+    prev.onclick=()=>{if(i>0){i--;update();}};
+    next.onclick=()=>{if(i<role.words.length-1){i++;update();}};
+    nav.appendChild(prev);nav.appendChild(counter);nav.appendChild(next);
+    wrap.appendChild(disp);wrap.appendChild(nav);
+    ex.appendChild(wrap);
+    update();
+  }
 }
 
 function confetti(){
