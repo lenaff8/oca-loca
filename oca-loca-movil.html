@@ -239,7 +239,7 @@ let teamDefs=[]; // populated from TV via ntfy
 let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
-let wildcardsLeft=2,stealsLeft=1,curChallenge=null;
+let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
@@ -345,6 +345,7 @@ function onMsg(e){
   try{
     const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='challenge'){
+      curChallenge=d;
       sessionStorage.setItem('ocaChallenge',JSON.stringify(d));
       if(d.roulette){playRoulette(d);}
       else{showChallenge(d);}
@@ -415,6 +416,7 @@ function showChallenge(d){
   document.getElementById('chDesc').textContent=d.desc;
   document.getElementById('chBar').className='ch-bar '+(d.ctype||'minijuego');
   show('sPlay');
+  roundStarted=false;
   const role=d.roles&&d.roles[myName];
   if(role){
     if(role.isSecret){
@@ -432,6 +434,7 @@ function revealSecret(){
 }
 
 function applyRole(role,secret){
+  curRole=role;
   const card=document.getElementById('roleCard');
   card.style.animation='none';void card.offsetWidth;card.style.animation='';
   card.className='role-card '+(secret?'secret':role.chosen?'chosen':'normal');
@@ -581,6 +584,8 @@ function buzzWin(team,name){
 
 function timerSyncStart(){
   if(navigator.vibrate)navigator.vibrate(30);
+  roundStarted=true;
+  if(curRole)renderRoleExtra(curRole);
 }
 function timerSyncStop(){}
 function timerSyncEnd(){
@@ -794,7 +799,15 @@ function renderRoleExtra(role){
     wrap.appendChild(disp);wrap.appendChild(btn);wrap.appendChild(result);
     ex.appendChild(wrap);
   }
-  // Word carousel (Sin Palabras / Pictionary) with 90s total timer
+  // Reveal widgets gated until TV starts the round (timed challenges)
+  if(role.waitStart&&!roundStarted){
+    const wait=document.createElement('div');
+    wait.style.cssText='background:rgba(0,0,0,.2);border-radius:14px;padding:20px;margin-top:10px;text-align:center;color:#fff;font-size:15px;font-weight:700';
+    wait.textContent='⏳ Espera a que empiece la prueba en la TV';
+    ex.appendChild(wait);
+    return;
+  }
+  // Word carousel (Sin Palabras / Pictionary)
   if(role.words&&role.words.length){
     const wrap=document.createElement('div');
     wrap.className='word-carousel';
