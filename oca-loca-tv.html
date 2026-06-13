@@ -301,6 +301,7 @@ function onMsg(e){
     if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='buzzPress'){handleBuzz(d.name,d.team);return;}
     if(d.type==='buzzResult'){handleBuzzResult(d.success);return;}
+    if(d.type==='buzzSync'){pub({type:'buzzState',state:buzzer});return;}
     if(d.type==='hummStart'){hummStart(d.team);return;}
     if(d.type==='hummStop'){hummStop(d.team,d.time);return;}
     if(d.type==='wildcard'){handleWildcard(d.name);return;}
