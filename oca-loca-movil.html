@@ -277,51 +277,28 @@ function leaveSession(){
 }
 
 let codeEs=null,teamsTimeout=null;
-let teamPollTimer=null,lastCodeFetched='';
 function onCodeInput(val){
   const code=(val||'').toUpperCase().trim();
-  // ignore if code hasn't actually changed (e.g. re-fired by toUpperCase reassignment)
-  if(code===lastCodeFetched)return;
-  lastCodeFetched=code;
   teamDefs=[];myTeam='';
-  renderTeamBtns();
-  if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
   if(codeEs){codeEs.close();codeEs=null;}
-  if(code.length>=6){
-    const t='oca-'+code;
-    const since=Math.floor(Date.now()/1000)-5;
-    window._dbgMsgs=0;window._dbgTypes=[];
-    codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
-    codeEs.onopen=()=>dbg('SSE abierto ✓ | msgs:0');
-    codeEs.addEventListener('message',e=>{
-      window._dbgMsgs++;
-      try{
-        const d=JSON.parse(JSON.parse(e.data).message);
-        window._dbgTypes.push(d.type||'?');
-        dbg('SSE abierto ✓ | msgs:'+window._dbgMsgs+' | tipos:'+window._dbgTypes.slice(-4).join(','));
-        if(d.type==='teams'&&d.teams&&d.teams.length){
-          teamDefs=d.teams;renderTeamBtns();
-          if(teamPollTimer){clearInterval(teamPollTimer);teamPollTimer=null;}
-        }
-      }catch(err){dbg('SSE abierto ✓ | msgs:'+window._dbgMsgs+' (no-json)');}
-    });
-    const ask=()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{});
-    ask();
-    // keep asking every 1.5s until we get a non-empty team list
-    teamPollTimer=setInterval(()=>{if(teamDefs.length){clearInterval(teamPollTimer);teamPollTimer=null;return;}ask();},1500);
-  }
-}
-function dbg(msg){
-  let el=document.getElementById('dbgLine');
-  if(!el){
-    const host=document.getElementById('teamBtns');
-    if(host&&host.parentNode){
-      el=document.createElement('div');el.id='dbgLine';
-      el.style.cssText='font-size:10px;color:var(--status-color);opacity:.7;margin-top:6px;grid-column:1/-1;word-break:break-word';
-      host.parentNode.insertBefore(el,host.nextSibling);
-    }
-  }
-  if(el)el.textContent=msg||'';
+  renderTeamBtns();
+  if(code.length<6)return;
+  const t='oca-'+code;
+  const since=Math.floor(Date.now()/1000)-5;
+  codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
+  codeEs.addEventListener('message',e=>{
+    try{
+      const d=JSON.parse(JSON.parse(e.data).message);
+      if(d.type==='teams'&&d.teams&&d.teams.length){
+        teamDefs=d.teams;
+        renderTeamBtns();
+        codeEs.close();codeEs=null;
+      }
+    }catch(e){}
+  });
+  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),400);
+  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),1500);
+  setTimeout(()=>fetch('https://ntfy.sh/'+t,{method:'POST',body:JSON.stringify({type:'requestTeams'})}).catch(()=>{}),3000);
 }
 function renderTeamBtns(){
   const codeVal=(document.getElementById('codeIn')||{}).value||'';
