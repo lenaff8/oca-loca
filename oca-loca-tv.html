@@ -843,8 +843,8 @@ function assignRoles(ch,active,allPs,aT,oT){
     case'pair':{
       const tp=shuf(active.filter(p=>p.team===aT));
       if(tp.length>=2){
-        R[tp[0].name]={label:'PAREJA A',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[1].name+'.'};
-        R[tp[1].name]={label:'PAREJA B',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[0].name+'.'};
+        R[tp[0].name]={label:'PAREJA A',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[1].name+'.',chosen:true,pairWith:tp[1].name};
+        R[tp[1].name]={label:'PAREJA B',emoji:'🤝',isSecret:false,roleDesc:'Formas pareja con '+tp[0].name+'.',chosen:true,pairWith:tp[0].name};
         tp.slice(2).forEach(p=>{R[p.name]={label:'APOYO',emoji:'👥',isSecret:false,roleDesc:'Animad a la pareja.'};});
       }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
@@ -1105,48 +1105,52 @@ function showTimeUp(){
   document.body.appendChild(ov);
   confetti();
 }
-function getChosenInfo(){
-  // Returns {name, candidates[], roleKey} for the currently chosen player in lastCh
-  if(!lastCh||!lastCh.roles)return null;
-  let chosenName=null;
-  for(const n in lastCh.roles){if(lastCh.roles[n].chosen){chosenName=n;break;}}
-  if(!chosenName)return null;
-  // Candidates = all players who currently share the chosen player's team & could be picked
-  const chosenTeam=(players[chosenName]||{}).team;
-  const cands=Object.values(players).filter(p=>p.team===chosenTeam).map(p=>p.name);
-  return {chosenName,cands,chosenTeam};
+function getChosenNames(){
+  const out=[];
+  if(!lastCh||!lastCh.roles)return out;
+  for(const n in lastCh.roles){if(lastCh.roles[n].chosen)out.push(n);}
+  return out;
 }
-function reassignChosen(newName){
-  // Move the 'chosen' role + its special data to newName, swap the old chosen to a normal role
-  const info=getChosenInfo();if(!info)return;
-  const old=info.chosenName;
-  if(newName===old)return;
-  const chosenRole=lastCh.roles[old];
+function candsForTeam(team){
+  return Object.values(players).filter(p=>p.team===team).map(p=>p.name);
+}
+function swapRole(oldName,newName){
+  // give oldName's chosen role to newName, oldName becomes a normal participant
+  const chosenRole=lastCh.roles[oldName];
   const otherRole=lastCh.roles[newName];
-  // swap
-  lastCh.roles[newName]=chosenRole;
-  lastCh.roles[old]=otherRole&&!otherRole.chosen?otherRole:{label:chosenRole.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:'Ahora participas con el resto del equipo.'};
-  // re-broadcast challenge with updated roles
+  // update pair references if present
+  const updated=Object.assign({},chosenRole);
+  lastCh.roles[newName]=updated;
+  lastCh.roles[oldName]=(otherRole&&!otherRole.chosen)?otherRole:{label:'EQUIPO',emoji:'👥',isSecret:false,roleDesc:'Ahora participas con el resto del equipo.'};
+  // fix pairWith pointers on partner if any
+  for(const n in lastCh.roles){
+    if(lastCh.roles[n].pairWith===oldName)lastCh.roles[n].pairWith=newName;
+  }
+  if(updated.pairWith){updated.roleDesc='Formas pareja con '+updated.pairWith+'.';}
   pub({type:'challenge',name:lastCh.ch.n,desc:lastCh.ch.d,ctype:lastCh.type,roles:lastCh.roles,roulette:null});
   saveTV();
   renderRoles(lastCh.roles,Object.values(players));
 }
 function handleWildcard(name){
-  const info=getChosenInfo();if(!info)return;
-  if(name!==info.chosenName)return; // only the chosen can use wildcard
-  const pool=info.cands.filter(n=>n!==name);
+  const chosen=getChosenNames();
+  if(!chosen.includes(name))return; // only a chosen player can wildcard
+  const team=(players[name]||{}).team;
+  // pool = same team, not currently chosen
+  const pool=candsForTeam(team).filter(n=>!chosen.includes(n));
   if(!pool.length)return;
   const pick=pool[Math.floor(Math.random()*pool.length)];
   showStealAnim('🃏','COMODÍN','Nuevo elegido',pick);
-  reassignChosen(pick);
+  swapRole(name,pick);
 }
 function handleSteal(name){
-  const info=getChosenInfo();if(!info)return;
-  if(name===info.chosenName)return;
-  // stealer must be a candidate (same team)
-  if(!info.cands.includes(name))return;
-  showStealAnim('🦹','¡ROBO!',name+' roba la posición a',info.chosenName);
-  reassignChosen(name);
+  const chosen=getChosenNames();
+  if(chosen.includes(name))return; // already chosen
+  const team=(players[name]||{}).team;
+  // find a chosen player on the same team to steal from
+  const target=chosen.find(n=>(players[n]||{}).team===team);
+  if(!target)return;
+  showStealAnim('🦹','¡ROBO!',name+' roba la posición a',target);
+  swapRole(target,name);
 }
 function showStealAnim(emoji,title,subtitle,who){
   const ov=document.createElement('div');
