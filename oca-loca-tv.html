@@ -197,18 +197,13 @@ evento:[
  {n:"Carrera de la Cuchara",d:"Un representante por equipo sostiene una cuchara en la boca con una pelota de ping-pong encima. Carrera hasta la meta sin que caiga. 1º: +3 casillas · 2º: +2 · 3º: +1 · 4º: 0 y bajando (puede ser negativo).",rt:"rep_team",al:"CORREDOR",ad:"Cuchara en la boca, pelota encima. ¡Corre hasta la meta sin que caiga!",bl:"ESPECTADOR",bd:"Anima a tu corredor."},
  {n:"El Último Ninja",d:"Todos adoptan pose ninja. Completamente inmóviles. El primero en moverse pierde.",rt:"all"},
  {n:"Eco Salvaje",d:"Patata caliente de palabras. La primera palabra que alguien diga en alto es la inicial. Por turnos (alternando equipos), cada uno dice una palabra que empiece por la última sílaba de la anterior. El equipo que no responda antes de que el contador llegue a 0 pierde y retrocede 5 casillas.",rt:"hotpotato"},
- {n:"Expedición Relámpago",d:"El moderador dice una letra. Todos buscan objetos que empiecen por esa letra en 60 segundos.",rt:"all"},
- {n:"Pareja Indisoluble",d:"Un par por equipo se ata los tobillos. El moderador propone una tarea absurda.",rt:"pair_team"},
- {n:"El Asesino",d:"Un jugador secreto guiña el ojo a los demás. Las víctimas esperan 5 segundos y caen. ¿Alguien le descubre?",rt:"assassin"},
- {n:"Instante Inmortal",d:"3 minutos para hacer la foto más épica posible. Votación anónima.",rt:"all"},
- {n:"Congelados",d:"Música → silencio → todos inmóviles. El que se mueva, eliminado.",rt:"all"},
- {n:"Flash Talent",d:"Cada equipo tiene 60 segundos para preparar un número de talento. El público vota.",rt:"all"},
+ {n:"Expedición Relámpago",d:"A cada equipo se le muestra una letra. Deben encontrar y traer un objeto que empiece por esa letra. Carrera: 1º +3 casillas, 2º +2, 3º +1, y bajando.",rt:"letter_hunt"},
+ {n:"Pareja Indisoluble",d:"Una pareja de cada equipo se ata los tobillos (la pierna de uno con la del otro). Carrera hasta la meta. 1º +3 casillas, 2º +2, 3º +1, y bajando.",rt:"pair_race"},
+ {n:"Caza de Color",d:"A un representante de cada equipo se le muestra un color en su móvil. El primero que fotografíe algo de ese color gana. 1º +3 casillas, 2º +2, y bajando.",rt:"color_hunt"},
  {n:"Limbo Universal",d:"Clásico limbo. Se baja la altura cada ronda. El que caiga, eliminado.",rt:"all"},
- {n:"¿Quién del grupo?",d:"El moderador lee una pregunta. Todos señalan a alguien al mismo tiempo.",rt:"all"},
- {n:"Gran Prix de Cuclillas",d:"Todos a cuclillas a la señal. El último en levantarse o caerse gana.",rt:"all"},
- {n:"Coreografía Relámpago",d:"60 segundos para inventar una coreografía de 8 pasos. Se ejecuta a la vez.",rt:"all"},
- {n:"El Gran Debate",d:"Dos equipos defienden SÍ y NO ante un tema absurdo. 2 minutos. El resto vota.",rt:"sides"},
- {n:"Concurso de Caras",d:"5 segundos para hacer la cara más rara posible. El moderador vota la mejor.",rt:"all"},
+ {n:"Gran Prix de Cuclillas",d:"Todos en cuclillas a la señal. Se vale empujar (sin pasarse) para hacer caer a los demás. El último que aguante sin caer ni apoyarse gana para su equipo.",rt:"all"},
+ {n:"Cuenta hasta 20",d:"Por turnos, juega primero un equipo y luego otro. El equipo cuenta en voz alta del 1 hacia arriba sin repetir número ni pisarse (si dos hablan a la vez, vuelta a empezar). El equipo que llegue más alto gana: 1º +3 casillas, 2º +2, y bajando.",rt:"all"},
+ {n:"Balón Prisionero",d:"¡A matar! Equipos enfrentados se lanzan un balón blando. Si te da, quedas eliminado. El equipo que elimine a todos los rivales gana. Si hay varios equipos, el último con jugadores en pie gana.",rt:"all"},
 ],
 versus:[
  {n:"Duelo Ancestral",d:"Piedra, papel o tijera. Mejor de 3 rondas.",rt:"rep",al:"COMBATIENTE",ad:"Tú juegas el duelo contra el representante rival.",bl:"HINCHA",bd:"Anima a tu representante."},
@@ -236,6 +231,8 @@ function rndOf(a){return a[Math.floor(Math.random()*a.length)];}
 function pick5(a){const s=[...a].sort(()=>Math.random()-.5);return s.slice(0,5);}
 const MOVIES=["El Rey León", "Toy Story", "Buscando a Nemo", "Shrek", "Frozen", "Los Increíbles", "Up", "Wall-E", "Ratatouille", "Monstruos S.A.", "Aladdín", "La Sirenita", "La Bella y la Bestia", "El Viaje de Chihiro", "Coco", "Del Revés (Inside Out)", "Cómo Entrenar a tu Dragón", "Madagascar", "La Era de Hielo", "Kung Fu Panda", "Harry Potter", "El Señor de los Anillos", "Piratas del Caribe", "Jurassic Park", "Titanic", "Avatar", "Matrix", "Gladiator", "Spider-Man", "Los Vengadores", "Batman", "Star Wars", "Indiana Jones", "Regreso al Futuro", "E.T.", "Forrest Gump", "El Rey Arturo", "La La Land", "Joker", "Parásitos", "Interstellar", "Origen (Inception)", "El Caballero Oscuro", "Deadpool", "Aquaman", "Wonder Woman", "Mary Poppins", "Enredados", "Valiente (Brave)", "Zootrópolis", "Vaiana (Moana)", "Bambi", "Cenicienta", "Peter Pan", "El Libro de la Selva", "101 Dálmatas", "Encanto", "Big Hero 6"];
 const TWISTERS=["Tres tristes tigres tragaban trigo en un trigal", "El cielo está enladrillado, ¿quién lo desenladrillará? El desenladrillador que lo desenladrille buen desenladrillador será", "Pablito clavó un clavito, ¿qué clavito clavó Pablito?", "El perro de San Roque no tiene rabo porque Ramón Ramírez se lo ha robado", "Pepe Pecas pica papas con un pico, con un pico pica papas Pepe Pecas", "Cuando cuentes cuentos, cuenta cuántos cuentos cuentas", "Erre con erre cigarro, erre con erre barril, rápido corren los carros cargados de azúcar del ferrocarril", "El cartero come carne cruda en cuarto cerrado", "Como poco coco como, poco coco compro", "Si yo como como como, y tú comes como comes, ¿cómo comes como como?", "Compré pocas copas, pocas copas compré, como compré pocas copas, pocas copas pagué", "Juan tuvo un tubo y el tubo que tuvo se le rompió", "El amor es una locura que solo el cura lo cura, pero el cura que lo cura comete una gran locura", "Pancha plancha con cuatro planchas, ¿con cuántas planchas plancha Pancha?", "Una cabra ética, perlética, pelapelambrética, peluda, pelapelambrúa", "Me han dicho un dicho que dicen que he dicho yo, ese dicho está mal dicho", "Paco Peco chico rico insultaba como un loco a su tío Federico", "Pedro Pablo Pérez Pereira pobre pintor portugués pinta paisajes por poca plata", "El hipopótamo Hipo está con hipo, ¿quién le quita el hipo al hipopótamo Hipo?", "Treinta y tres tramos de troncos trozaron tres tristes trozadores", "Pepe puso un peso en el piso del pozo, en el piso del pozo Pepe puso un peso", "La sucesión sucesiva de sucesos sucede sucesivamente con la sucesión del tiempo", "Pablito clavó un clavito y un clavito clavó Pablito", "Por la calle Carretas pasaba un perrito, pasó una carreta y le pilló el rabito", "En tres tristes trastos de trigo, tres tristes tigres comían trigo", "Los cojines de la reina, los cajones del sultán, qué cojines, qué cajones", "Hugo el hugonote huía de un guante y un guante huía del hugonote Hugo", "Yo lloro si lloras, si lloras yo lloro, tu llanto es mi llanto, tu pena es mi pena", "Dábale arroz a la zorra el abad", "El rey de Constantinopla está constantinopolizado", "Buscaba el bosque Francisco, un vasco bizco muy brusco", "Pablito enrolló un ovillo, qué ovillo enrolló Pablito", "El suelo está enmoquetado, ¿quién lo desenmoquetará?", "Pepe Cuesta cuesta arriba cuesta y cuesta abajo descuesta", "Lado, ledo, lido, lodo, ludo, decirlo al revés lo dudo", "Mariana Magaña desenmarañará mañana la maraña que enmarañara Marina", "Si don Curro ahorra ahora, ahora ahorra don Curro", "Cuando yo digo Diego, digo digo, y cuando digo digo, digo Diego", "Toto toma té, Tita toma mate, y yo me tomo toda mi taza de chocolate", "La piña tiene piñones y los piñones de la piña pican", "Pataletas tuvo Cleta por las pesetas de Peta", "El volcán de Parangaricutirimícuaro se quiere desemparangaricutirimicuarizar", "Pedro Pérez pide permiso para partir para París", "Pepe pela papas en la pila pelando papas pela Pepe", "Pinto pinta cuadros lindos, lindos cuadros Pinto pinta", "Como quieres que te quiera si el que quiero que me quiera no me quiere como quiero que me quiera", "Pablo pidió pala para palear paja", "Pedro Picapiedra parte piedras para poder partir piedras", "En un plato de trigo comen tres tigres trigo", "Tomás toma tomate, Tina toma toronja, ¿quién toma más?", "El rapero Pedro Pérez raspa rápido la rampa rosa"];
+const LETTERS=["B","C","D","F","G","L","M","P","R","S","T","A","E","O"];
+const COLORS_HUNT=[{n:"ROJO",c:"#e21b3c"},{n:"AZUL",c:"#1cb0f6"},{n:"VERDE",c:"#22c55e"},{n:"AMARILLO",c:"#f5b800"},{n:"NARANJA",c:"#ff9600"},{n:"ROSA",c:"#ff5fa2"},{n:"MORADO",c:"#9b27af"},{n:"NEGRO",c:"#222"},{n:"BLANCO",c:"#f5f5f5"},{n:"MARRÓN",c:"#8b5a2b"}];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -712,6 +709,32 @@ function assignRoles(ch,active,allPs,aT,oT){
     case'hotpotato':{
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'🥔',isSecret:false,roleDesc:'Patata caliente: di una palabra que empiece por la última sílaba de la anterior antes de que el contador llegue a 0. Mira la TV.'};});
       break;}
+    case'letter_hunt':{
+      // Each team gets the SAME letter shown to all its members
+      const teamLetters={};
+      teams.forEach(t=>{teamLetters[t]=rndOf(LETTERS);});
+      active.forEach(p=>{R[p.name]={label:'BUSCADOR',emoji:'🔤',isSecret:false,roleDesc:'Encuentra y trae un objeto que empiece por esta letra. ¡Es una carrera!',letter:teamLetters[p.team]};});
+      break;}
+    case'pair_race':{
+      teams.forEach(t=>{
+        const tp=shuf(active.filter(p=>p.team===t));if(!tp.length)return;
+        if(tp.length>=2){
+          R[tp[0].name]={label:'ATADO A',emoji:'🔗',isSecret:false,roleDesc:'Te atas el tobillo con '+tp[1].name+'. ¡Carrera hasta la meta!'};
+          R[tp[1].name]={label:'ATADO B',emoji:'🔗',isSecret:false,roleDesc:'Te atas el tobillo con '+tp[0].name+'. ¡Carrera hasta la meta!'};
+          tp.slice(2).forEach(p=>{R[p.name]={label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Anima a la pareja de tu equipo.'};});
+        }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
+      });
+      break;}
+    case'color_hunt':{
+      teams.forEach(t=>{
+        const tp=active.filter(p=>p.team===t);if(!tp.length)return;
+        const rep=rnd(tp);
+        const col=rndOf(COLORS_HUNT);
+        tp.forEach(p=>{R[p.name]=p.name===rep.name
+          ?{label:'FOTÓGRAFO',emoji:'📸',isSecret:false,roleDesc:'¡Fotografía algo de este color lo antes posible!',chosen:true,color:col}
+          :{label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu fotógrafo.'};});
+      });
+      break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       break;
@@ -758,12 +781,6 @@ function assignRoles(ch,active,allPs,aT,oT){
         tp.slice(2).forEach(p=>{R[p.name]={label:'APOYO',emoji:'👥',isSecret:false,roleDesc:'Animad a la pareja.'};});
       }else tp.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
-      break;}
-    case'assassin':{
-      const killer=rnd(active);
-      active.forEach(p=>{R[p.name]=p.name===killer.name
-        ?{label:'ERES EL ASESINO',emoji:'🗡️',isSecret:true,roleDesc:'Guiña el ojo a los demás uno a uno. Que no te pillen. Las víctimas esperan 5 segundos antes de caer.'}
-        :{label:'VÍCTIMA',emoji:'😇',isSecret:true,roleDesc:'Si alguien te guiña el ojo, espera 5 segundos y cae dramáticamente. Si sabes quién es el asesino, di ¡Acusación!'};});
       break;}
     case'rep':{
       let firstRep=null,cands=null;
