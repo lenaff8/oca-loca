@@ -267,7 +267,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     }catch(e){localStorage.removeItem('ocaTV');}
   }
   teamDefs=JSON.parse(localStorage.getItem('ocaTeams')||'[]');
-  if(!teamDefs.length)teamDefs=[{id:'A',name:'Equipo A',color:TC[0]}];
   // Prefer code from URL hash (#XXXXXX) so reloads always keep the same room
   if(!code){
     const h=(location.hash||'').replace('#','').toUpperCase();
