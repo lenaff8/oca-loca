@@ -112,6 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
         <div class="code" id="codeDisp">------</div>
         <p style="color:var(--status-color);font-size:12px;margin-top:8px">Escanea para unirte</p>
         <div id="qrBox" style="margin-top:12px;display:flex;justify-content:center"></div>
+        <p id="lobbyStatus" style="color:var(--status-color);font-size:11px;margin-top:10px;opacity:.7">iniciando emisión...</p>
       </div>
       <div class="card" style="margin-top:12px">
         <div class="label" style="margin-bottom:10px">EQUIPOS (<span id="teamCountL">0</span>)</div>
@@ -283,6 +284,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     pub({type:'teams',teams:teamDefs});
     const cs=document.getElementById('connStatus');
     if(cs)cs.textContent='● emitiendo '+teamDefs.length+' equipos';
+    const ls=document.getElementById('lobbyStatus');
+    if(ls)ls.textContent='📡 emitiendo '+teamDefs.length+' equipos en sala '+topic.replace('oca-','');
   },3000);
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
