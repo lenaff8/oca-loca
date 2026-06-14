@@ -280,13 +280,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   topic='oca-'+code;
   if(location.hash!=='#'+code){history.replaceState(null,'','#'+code);}
   saveTV();
+  setTimeout(pushTeamsToFB,500);
   setInterval(()=>{
-    pub({type:'teams',teams:teamDefs});
-    const cs=document.getElementById('connStatus');
-    if(cs)cs.textContent='● emitiendo '+teamDefs.length+' equipos';
     const ls=document.getElementById('lobbyStatus');
-    if(ls)ls.textContent='📡 emitiendo '+teamDefs.length+' equipos en sala '+topic.replace('oca-','');
-  },3000);
+    if(ls)ls.textContent='Sala '+topic.replace('oca-','')+' · '+teamDefs.length+' equipos';
+  },2000);
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
@@ -300,12 +298,35 @@ window.addEventListener('DOMContentLoaded',()=>{
   setTimeout(initTeams,0);
 });
 
+const FB='https://okaloka-e0656-default-rtdb.firebaseio.com';
+let fbSince=0,fbPollTimer=null;
 function subscribe(){
-  if(es)es.close();
-  es=new EventSource('https://ntfy.sh/'+topic+'/sse?since='+since);
-  es.addEventListener('message',onMsg);
-  es.onerror=()=>{document.getElementById('connStatus').textContent='● reconectando...';setTimeout(subscribe,3000);};
-  es.onopen=()=>{const el=document.getElementById('connStatus');if(el)el.textContent='●  conectado';};
+  // Firebase polling transport. Reads messages newer than fbSince.
+  if(fbPollTimer)clearInterval(fbPollTimer);
+  fbSince=Date.now();
+  const room=topic.replace('oca-','');
+  const poll=async()=>{
+    try{
+      const r=await fetch(FB+'/rooms/'+room+'/msgs.json');
+      if(!r.ok)return;
+      const data=await r.json();
+      const cs=document.getElementById('connStatus');if(cs)cs.textContent='● conectado';
+      if(data){
+        const cutoff=Date.now()-60000;
+        Object.keys(data).forEach(k=>{
+          const it=data[k];
+          if(it.t>=fbSince){fbSince=it.t+1;onMsgData(it.d);}
+          // clean up old messages so the DB doesn't grow forever
+          if(it.t<cutoff){fetch(FB+'/rooms/'+room+'/msgs/'+k+'.json',{method:'DELETE'}).catch(()=>{});}
+        });
+      }
+    }catch(e){const cs=document.getElementById('connStatus');if(cs)cs.textContent='● reconectando...';}
+  };
+  poll();
+  fbPollTimer=setInterval(poll,1000);
+}
+function onMsgData(d){ // d is already the parsed message object
+  try{ _processMsg(d); }catch(e){}
 }
 function tvDbg(msg){
   let el=document.getElementById('tvDbgLine');
@@ -317,9 +338,7 @@ function tvDbg(msg){
   el.textContent=msg;
   clearTimeout(el._t);el._t=setTimeout(()=>{el.textContent='';},4000);
 }
-function onMsg(e){
-  try{
-    const d=JSON.parse(JSON.parse(e.data).message);
+function _processMsg(d){
     if(d.type==='requestTeams'){pub({type:'teams',teams:teamDefs});return;}
     if(d.type==='cipherReveal'){pub({type:'cipherUpdate',revealed:d.revealed});return;}
     if(d.type==='buzzPress'){handleBuzz(d.name,d.team);return;}
@@ -336,9 +355,9 @@ function onMsg(e){
       const idle=!lastCh && wState==='cat';
       if(idle){pub({type:'teams',teams:teamDefs});if(document.getElementById('sGame').classList.contains('active'))renderWizard();}
     }
-  }catch(err){}
-}
-async function pub(data){try{await fetch('https://ntfy.sh/'+topic,{method:'POST',body:JSON.stringify(data)});}catch(e){}}
+  }
+function onMsg(e){try{const d=JSON.parse(JSON.parse(e.data).message);_processMsg(d);}catch(err){}}
+async function pub(data){try{const room=topic.replace('oca-','');await fetch(FB+'/rooms/'+room+'/msgs.json',{method:'POST',body:JSON.stringify({t:Date.now(),d:data})});}catch(e){}}
 
 function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort();}
 
@@ -385,11 +404,13 @@ let humming={times:{},running:{},starts:{}},hummingRaf=null;
 let chTimer=null,chTimerSecs=0,chTimerTotal=0,chTimerRunning=false;
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
+  pushTeamsToFB();
   pub({type:'teams',teams:teamDefs});
   renderTeamDefs();
   renderPlayers();
   renderWizard();
 }
+async function pushTeamsToFB(){try{const room=topic.replace('oca-','');await fetch(FB+'/rooms/'+room+'/teams.json',{method:'PUT',body:JSON.stringify(teamDefs)});}catch(e){}}
 function addTeam(){
   if(teamDefs.length>=8)return;
   const inp=document.getElementById('newTeamName');
@@ -432,6 +453,7 @@ function newRoom(){
   pub({type:'clear'});
   localStorage.removeItem('ocaTV');
   localStorage.removeItem('ocaTeams');
+  try{const room=topic.replace('oca-','');fetch(FB+'/rooms/'+room+'.json',{method:'DELETE'});}catch(e){}
   players={};
   // clear the URL hash so a fresh code is generated on reload
   history.replaceState(null,'',location.pathname+location.search);
