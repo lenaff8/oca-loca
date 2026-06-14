@@ -286,16 +286,28 @@ function onCodeInput(val){
   const t='oca-'+code;
   // Just listen — TV broadcasts teams every 3s automatically
   const since=Math.floor(Date.now()/1000)-5;
+  window._connState='conectando';
+  setTeamStatus();
   codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
+  codeEs.onopen=()=>{window._connState='conectado';setTeamStatus();};
+  codeEs.onerror=()=>{window._connState='error';setTeamStatus();};
   codeEs.addEventListener('message',e=>{
     try{
       const d=JSON.parse(JSON.parse(e.data).message);
-      if(d.type==='teams'&&d.teams&&d.teams.length){
-        teamDefs=d.teams;
-        renderTeamBtns();
+      window._connState='recibiendo';
+      if(d.type==='teams'){
+        if(d.teams&&d.teams.length){teamDefs=d.teams;renderTeamBtns();}
       }
     }catch(e){}
   });
+}
+function setTeamStatus(){
+  if(teamDefs.length)return;
+  const el=document.getElementById('teamBtns');
+  if(!el)return;
+  const map={conectando:'Conectando con la sala...',conectado:'Conectado. Esperando equipos de la TV...',recibiendo:'Recibiendo datos...',error:'⚠️ Sin conexión. Revisa el WiFi/datos del móvil.'};
+  const msg=map[window._connState]||'Buscando equipos de la sala...';
+  el.innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">'+msg+'</p>';
 }
 function renderTeamBtns(){
   const codeVal=(document.getElementById('codeIn')||{}).value||'';
