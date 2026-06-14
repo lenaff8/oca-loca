@@ -508,13 +508,18 @@ function launch(){
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
   lastCh={ch,type:wType,roles,aT:wActive,oT:wOpp};saveTV();
   if(ch.secs){chTimerTotal=ch.secs;chTimerSecs=ch.secs;chTimerRunning=false;if(chTimer){clearInterval(chTimer);chTimer=null;}}
-  if(ch.rt==='buzzer'){setTimeout(()=>{resetBuzzer();renderBuzzerTV();},2600);}
-  if(ch.rt==='hotpotato'){hpRemaining=90;hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}setTimeout(renderHotPotato,2600);}
-  if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};setTimeout(renderHumming,2600);}
+  if(ch.rt==='hotpotato'){hpRemaining=90;hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}}
+  if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};}
+  const afterReveal=()=>{
+    renderRoles(roles,ps);busy=false;
+    if(ch.rt==='buzzer'){resetBuzzer();renderBuzzerTV();}
+    if(ch.rt==='hotpotato'){renderHotPotato();}
+    if(ch.rt==='humming'){renderHumming();}
+  };
   if(roulette){
-    playTVRoulette(roulette,()=>{finalChallenge(ch,wType);renderRoles(roles,ps);busy=false;});
+    playTVRoulette(roulette,()=>{finalChallenge(ch,wType);afterReveal();});
   }else{
-    slotReveal(ch,wType,()=>{renderRoles(roles,ps);busy=false;});
+    slotReveal(ch,wType,afterReveal);
   }
 }
 
