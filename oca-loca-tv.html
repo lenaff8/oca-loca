@@ -280,7 +280,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   topic='oca-'+code;
   if(location.hash!=='#'+code){history.replaceState(null,'','#'+code);}
   saveTV();
-  setInterval(()=>{pub({type:'teams',teams:teamDefs});},3000);
+  setInterval(()=>{
+    pub({type:'teams',teams:teamDefs});
+    const cs=document.getElementById('connStatus');
+    if(cs)cs.textContent='● emitiendo '+teamDefs.length+' equipos';
+  },3000);
   since=Math.floor(Date.now()/1000);
   document.getElementById('codeDisp').textContent=code;
   document.getElementById('codeSmall').textContent=code;
@@ -422,9 +426,11 @@ function saveTV(){
 function goGame(){pub({type:'start'});tvInGame=true;show('sGame');wizardReset();saveTV();}
 function initTeams(){renderTeamDefs();renderPlayers();}
 function newRoom(){
-  if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores.'))return;
+  if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores y se borrarán los equipos.'))return;
   pub({type:'clear'});
   localStorage.removeItem('ocaTV');
+  localStorage.removeItem('ocaTeams');
+  players={};
   // clear the URL hash so a fresh code is generated on reload
   history.replaceState(null,'',location.pathname+location.search);
   location.reload();
