@@ -350,7 +350,7 @@ function onMsg(e){
       curChallenge=d;
       sessionStorage.setItem('ocaChallenge',JSON.stringify(d));
       if(d.roulette){playRoulette(d);}
-      else{showChallenge(d);}
+      else{playSlotSuspense(d);}
     }else if(d.type==='teams'){teamDefs=d.teams;renderTeamBtns();}
     else if(d.type==='cipherUpdate'){
       if(cipherState){cipherState.revealed=d.revealed;renderCipher();}
@@ -408,6 +408,33 @@ function playRoulette(d){
         showChallenge(d);
       },2200);
     }
+  })();
+}
+
+
+function playSlotSuspense(d){
+  show('sPlay');
+  const labels={minijuego:'🎮 MINIJUEGO',evento:'⚡ EVENTO',versus:'⚔️ VERSUS'};
+  document.getElementById('chType').textContent=labels[d.ctype]||(d.ctype||'').toUpperCase();
+  document.getElementById('chBar').className='ch-bar '+(d.ctype||'minijuego');
+  document.getElementById('chName').textContent='···';
+  document.getElementById('chDesc').textContent='';
+  // role card shows a spinning suspense
+  const card=document.getElementById('roleCard');
+  card.className='role-card normal';
+  document.getElementById('roleEmoji').textContent='🎲';
+  document.getElementById('roleName').textContent='Preparando...';
+  document.getElementById('roleDesc').textContent='Mira la pantalla principal';
+  const ex=document.getElementById('roleExtra');if(ex)ex.innerHTML='';
+  const ph=document.getElementById('powerHost');if(ph)ph.remove();
+  // Mirror TV slot duration: ~15 steps of growing delay starting ~70ms*1.18^n ≈ 3s, plus 400ms
+  let i=0,delay=70,total=0;
+  const emojis=['🎮','⚡','⚔️','🎲','🎯','🎪'];
+  (function step(){
+    document.getElementById('roleEmoji').textContent=emojis[i%emojis.length];
+    i++;
+    if(i<15){delay*=1.18;total+=delay;setTimeout(step,delay);}
+    else setTimeout(()=>showChallenge(d),400);
   })();
 }
 
