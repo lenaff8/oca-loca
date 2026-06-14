@@ -297,6 +297,7 @@ function onCodeInput(val){
       window._connState='recibiendo';
       if(d.type==='teams'){
         if(d.teams&&d.teams.length){teamDefs=d.teams;renderTeamBtns();}
+        else{const el=document.getElementById('teamBtns');if(el&&!teamDefs.length)el.innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">La TV respondió pero no hay equipos creados. Créalos en la TV.</p>';}
       }
     }catch(e){}
   });
