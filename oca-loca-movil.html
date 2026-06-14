@@ -240,6 +240,9 @@ let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingCha
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
 let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null,codePoll=null;
+const FB='https://okaloka-e0656-default-rtdb.firebaseio.com';
+let fbSince=0,fbPollTimer=null;
+async function fbPub(data){try{const room=myTopic.replace('oca-','');await fetch(FB+'/rooms/'+room+'/msgs.json',{method:'POST',body:JSON.stringify({t:Date.now(),d:data})});}catch(e){}}
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
@@ -280,36 +283,24 @@ let codeEs=null,teamsTimeout=null;
 function onCodeInput(val){
   const code=(val||'').toUpperCase().trim();
   teamDefs=[];myTeam='';
-  if(codeEs){codeEs.close();codeEs=null;}
   if(codePoll){clearInterval(codePoll);codePoll=null;}
   renderTeamBtns();
   if(code.length<6)return;
-  const t='oca-'+code;
+  const room=code;
   window._connState='conectando';
   setTeamStatus();
-  const handleTeams=d=>{
-    if(d.type==='teams'&&d.teams&&d.teams.length){teamDefs=d.teams;renderTeamBtns();}
-  };
-  // Method 1: SSE stream
-  const since=Math.floor(Date.now()/1000)-5;
-  codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
-  codeEs.onopen=()=>{if(window._connState==='conectando'){window._connState='conectado';setTeamStatus();}};
-  codeEs.addEventListener('message',e=>{
-    try{const d=JSON.parse(JSON.parse(e.data).message);window._connState='recibiendo';handleTeams(d);}catch(e){}
-  });
-  // Method 2: polling fallback (works even if SSE is blocked)
-  if(codePoll)clearInterval(codePoll);
-  codePoll=setInterval(async()=>{
+  const poll=async()=>{
     if(teamDefs.length){clearInterval(codePoll);codePoll=null;return;}
     try{
-      const r=await fetch('https://ntfy.sh/'+t+'/json?poll=1&since=20s');
-      const txt=await r.text();
-      txt.trim().split('\n').forEach(line=>{
-        if(!line)return;
-        try{const m=JSON.parse(line);if(m.message){const d=JSON.parse(m.message);if(window._connState!=='recibiendo'){window._connState='conectado';setTeamStatus();}handleTeams(d);}}catch(e){}
-      });
-    }catch(e){}
-  },2000);
+      const r=await fetch(FB+'/rooms/'+room+'/teams.json');
+      if(!r.ok)return;
+      const data=await r.json();
+      window._connState='conectado';setTeamStatus();
+      if(data&&data.length){teamDefs=data;renderTeamBtns();}
+    }catch(e){window._connState='error';setTeamStatus();}
+  };
+  poll();
+  codePoll=setInterval(poll,1500);
 }
 function setTeamStatus(){
   if(teamDefs.length)return;
@@ -353,21 +344,32 @@ function joinRoom(){
 }
 
 async function announce(){
-  try{await fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'join',name:myName,team:myTeam})});}
+  try{await fbPub({type:'join',name:myName,team:myTeam});}
   catch(e){document.getElementById('connInfo').textContent='Sin conexión. Comprueba el WiFi.';}
 }
 
 function subscribe(){
-  if(es)es.close();
-  es=new EventSource('https://ntfy.sh/'+myTopic+'/sse?since='+mySince);
-  es.onopen=()=>{document.getElementById('connInfo').textContent='✓ Conectado';};
-  es.onerror=()=>{document.getElementById('connInfo').textContent='Reconectando...';setTimeout(subscribe,3000);};
-  es.addEventListener('message',onMsg);
+  if(fbPollTimer)clearInterval(fbPollTimer);
+  fbSince=Date.now();
+  const room=myTopic.replace('oca-','');
+  const poll=async()=>{
+    try{
+      const r=await fetch(FB+'/rooms/'+room+'/msgs.json');
+      if(!r.ok)return;
+      const data=await r.json();
+      const ci=document.getElementById('connInfo');if(ci)ci.textContent='✓ Conectado';
+      if(data){
+        const items=Object.values(data).sort((a,b)=>a.t-b.t);
+        items.forEach(it=>{if(it.t>=fbSince)fbSince=it.t+1;try{_processMsg(it.d);}catch(e){}});
+      }
+    }catch(e){const ci=document.getElementById('connInfo');if(ci)ci.textContent='Reconectando...';}
+  };
+  poll();
+  fbPollTimer=setInterval(poll,1000);
 }
-
-function onMsg(e){
+function onMsg(e){try{const d=JSON.parse(JSON.parse(e.data).message);_processMsg(d);}catch(err){}}
+function _processMsg(d){
   try{
-    const d=JSON.parse(JSON.parse(e.data).message);
     if(d.type==='challenge'){
       curChallenge=d;
       sessionStorage.setItem('ocaChallenge',JSON.stringify(d));
@@ -563,7 +565,7 @@ function askLetter(){
   const newRev=[...rev,pick];
   cipherState.revealed=newRev;
   // Broadcast to TV so everyone updates
-  fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'cipherReveal',revealed:newRev})}).catch(()=>{});
+  fbPub({type:'cipherReveal',revealed:newRev}).catch(()=>{});
   renderCipher();
 }
 
@@ -572,7 +574,7 @@ function solveCipher(){
     cipherState.revealed='ALL';
     const wrap=document.getElementById('cipherWrap');
     wrap.innerHTML='<div class="cipher-info">La película era:</div><div class="cipher-display">'+cipherState.answer+'</div>';
-    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'cipherReveal',revealed:'ALL'})}).catch(()=>{});
+    fbPub({type:'cipherReveal',revealed:'ALL'}).catch(()=>{});
   }
 }
 
@@ -581,7 +583,7 @@ function requestBuzzSync(){
   let tries=0;
   const send=()=>{
     if(!buzzerData)return;
-    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzSync'})}).catch(()=>{});
+    fbPub({type:'buzzSync'}).catch(()=>{});
     tries++;
     if(tries<4)setTimeout(send,700);
   };
@@ -601,7 +603,7 @@ function renderBuzzer(){
   if(btn&&cls==='ready'){
     btn.onclick=()=>{
       if(navigator.vibrate)navigator.vibrate(40);
-      fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'buzzPress',name:myName,team:myTeam})}).catch(()=>{});
+      fbPub({type:'buzzPress',name:myName,team:myTeam}).catch(()=>{});
     };
   }
 }
@@ -701,7 +703,7 @@ function renderPowers(role){
   if(wb)wb.onclick=()=>{
     if(wildcardsLeft<=0)return;
     wildcardsLeft--;persistPowers();
-    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'wildcard',name:myName})}).catch(()=>{});
+    fbPub({type:'wildcard',name:myName}).catch(()=>{});
     if(navigator.vibrate)navigator.vibrate(40);
     host.remove();
   };
@@ -709,7 +711,7 @@ function renderPowers(role){
   if(sb)sb.onclick=()=>{
     if(stealsLeft<=0)return;
     stealsLeft--;persistPowers();
-    fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'steal',name:myName})}).catch(()=>{});
+    fbPub({type:'steal',name:myName}).catch(()=>{});
     if(navigator.vibrate)navigator.vibrate([60,40,60]);
     host.remove();
   };
@@ -758,7 +760,7 @@ function renderRoleExtra(role){
     action.onclick=()=>{
       if(!running&&!done){
         running=true;startT=Date.now();action.textContent='✓ ¡Lo han adivinado!';action.className='humm-btn stop';
-        fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'hummStart',team:role.hummingTeam})}).catch(()=>{});
+        fbPub({type:'hummStart',team:role.hummingTeam}).catch(()=>{});
         tick();
       }else if(running){
         running=false;done=true;cancelAnimationFrame(raf);
@@ -766,7 +768,7 @@ function renderRoleExtra(role){
         timer.textContent=t.toFixed(1)+'s';
         action.textContent='Tiempo: '+t.toFixed(1)+'s';action.disabled=true;
         if(navigator.vibrate)navigator.vibrate(100);
-        fetch('https://ntfy.sh/'+myTopic,{method:'POST',body:JSON.stringify({type:'hummStop',team:role.hummingTeam,time:t})}).catch(()=>{});
+        fbPub({type:'hummStop',team:role.hummingTeam,time:t}).catch(()=>{});
       }
     };
     wrap.appendChild(timer);wrap.appendChild(action);
