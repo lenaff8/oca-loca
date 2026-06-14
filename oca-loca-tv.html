@@ -435,7 +435,7 @@ function kickPlayer(name){
 }
 
 // ════ WIZARD ════
-function wizardReset(){wState='cat';wType=null;wActive=null;wOpp=null;document.getElementById('rolesCard').style.display='none';renderWizard();}
+function wizardReset(){busy=false;wState='cat';wType=null;wActive=null;wOpp=null;document.getElementById('rolesCard').style.display='none';renderWizard();}
 
 function renderWizard(){
   const mp=document.getElementById('mainPanel');
@@ -518,7 +518,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});lastCh=null;if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;busy=false;buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
@@ -966,6 +966,7 @@ function renderBuzzerTV(){
   mp.innerHTML=html;
 }
 function handleBuzz(name,team){
+  if(!lastCh||lastCh.ch.rt!=='buzzer')return;
   // Only accept if nobody currently locked and this team isn't vetoed
   if(buzzer.locked)return;
   if(buzzer.vetoed.includes(team))return;
@@ -983,6 +984,7 @@ function handleBuzz(name,team){
 }
 function handleBuzzResult(success){
   if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}
+  if(!lastCh||lastCh.ch.rt!=='buzzer')return;
   if(success){
     pub({type:'buzzWin',team:buzzer.lockedTeam,name:buzzer.locked});
     confetti();
