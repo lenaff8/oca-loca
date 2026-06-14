@@ -240,7 +240,7 @@ let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingCha
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
 let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null,codePoll=null;
-const FB='https://okaloka-e0656-default-rtdb.firebaseio.com';
+const FB='https://okaloka-e0656-default-rtdb.europe-west1.firebasedatabase.app';
 let fbSince=0,fbPollTimer=null;
 async function fbPub(data){try{const room=myTopic.replace('oca-','');await fetch(FB+'/rooms/'+room+'/msgs.json',{method:'POST',body:JSON.stringify({t:Date.now(),d:data})});}catch(e){}}
 
