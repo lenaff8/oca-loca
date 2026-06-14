@@ -239,7 +239,7 @@ let teamDefs=[]; // populated from TV via ntfy
 let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingChallenge=null;
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
-let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null;
+let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null,codePoll=null;
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderTeamBtns();
@@ -281,26 +281,35 @@ function onCodeInput(val){
   const code=(val||'').toUpperCase().trim();
   teamDefs=[];myTeam='';
   if(codeEs){codeEs.close();codeEs=null;}
+  if(codePoll){clearInterval(codePoll);codePoll=null;}
   renderTeamBtns();
   if(code.length<6)return;
   const t='oca-'+code;
-  // Just listen — TV broadcasts teams every 3s automatically
-  const since=Math.floor(Date.now()/1000)-5;
   window._connState='conectando';
   setTeamStatus();
+  const handleTeams=d=>{
+    if(d.type==='teams'&&d.teams&&d.teams.length){teamDefs=d.teams;renderTeamBtns();}
+  };
+  // Method 1: SSE stream
+  const since=Math.floor(Date.now()/1000)-5;
   codeEs=new EventSource('https://ntfy.sh/'+t+'/sse?since='+since);
-  codeEs.onopen=()=>{window._connState='conectado';setTeamStatus();};
-  codeEs.onerror=()=>{window._connState='error';setTeamStatus();};
+  codeEs.onopen=()=>{if(window._connState==='conectando'){window._connState='conectado';setTeamStatus();}};
   codeEs.addEventListener('message',e=>{
-    try{
-      const d=JSON.parse(JSON.parse(e.data).message);
-      window._connState='recibiendo';
-      if(d.type==='teams'){
-        if(d.teams&&d.teams.length){teamDefs=d.teams;renderTeamBtns();}
-        else{const el=document.getElementById('teamBtns');if(el&&!teamDefs.length)el.innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">La TV respondió pero no hay equipos creados. Créalos en la TV.</p>';}
-      }
-    }catch(e){}
+    try{const d=JSON.parse(JSON.parse(e.data).message);window._connState='recibiendo';handleTeams(d);}catch(e){}
   });
+  // Method 2: polling fallback (works even if SSE is blocked)
+  if(codePoll)clearInterval(codePoll);
+  codePoll=setInterval(async()=>{
+    if(teamDefs.length){clearInterval(codePoll);codePoll=null;return;}
+    try{
+      const r=await fetch('https://ntfy.sh/'+t+'/json?poll=1&since=20s');
+      const txt=await r.text();
+      txt.trim().split('\n').forEach(line=>{
+        if(!line)return;
+        try{const m=JSON.parse(line);if(m.message){const d=JSON.parse(m.message);if(window._connState!=='recibiendo'){window._connState='conectado';setTeamStatus();}handleTeams(d);}}catch(e){}
+      });
+    }catch(e){}
+  },2000);
 }
 function setTeamStatus(){
   if(teamDefs.length)return;
