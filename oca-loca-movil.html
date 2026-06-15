@@ -597,7 +597,8 @@ function requestBuzzSync(){
 function renderBuzzer(){
   const wrap=document.getElementById('buzzWrap');
   if(!wrap)return;
-  let cls='ready',label='PULSA',sub='¡Pulsa cuando sepas la canción!';
+  const isSong=curChallenge&&/ac[úu]stico/i.test(curChallenge.name||'');
+  let cls='ready',label='PULSA',sub=isSong?'¡Pulsa cuando sepas la canción!':'¡Pulsa cuando sepas la respuesta!';
   if(buzzMyState==='locked-me'){cls='locked-me';label='¡RESPONDE!';sub='Tienes 10 segundos';}
   else if(buzzMyState==='locked-other'){cls='locked-other';label='🔒';sub='Otro equipo responde...';}
   else if(buzzMyState==='vetoed'){cls='vetoed';label='⛔';sub='Bloqueado hasta el siguiente rebote';}
