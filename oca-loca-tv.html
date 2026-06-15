@@ -943,13 +943,15 @@ function assignRoles(ch,active,allPs,aT,oT){
       break;}
     case'songword':{
       const word=rndOf(SONG_WORDS);
-      active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos, cantad una canción que contenga esta palabra:',hunt:word};});
-      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      [aT,oT].filter(Boolean).forEach(t=>{
+        active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos (alternando equipos), cantad una canción que contenga esta palabra:',hunt:word};});
+      });
       break;}
     case'songtheme':{
       const theme=rndOf(SONG_THEMES);
-      active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos, cantad una canción de esta temática:',hunt:theme};});
-      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      [aT,oT].filter(Boolean).forEach(t=>{
+        active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos (alternando equipos), cantad una canción de esta temática:',hunt:theme};});
+      });
       break;}
     case'timer_vs':{
       const groups=[];
