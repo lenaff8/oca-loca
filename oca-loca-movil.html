@@ -400,21 +400,27 @@ function playRoulette(d){
   ov.classList.remove('hidden','winner','lit');
   msg.style.display='block';winBox.style.display='none';
   msg.textContent='🎰 SORTEANDO...';
-  const myIdx=r.order.indexOf(myName);
+  // Normalize to groups
+  const groups=r.multi?r.groups:[{order:r.order,steps:r.steps,winnerIdx:r.winnerIdx}];
+  // Find the group I'm a candidate in (if any) and the longest animation
+  let myGroup=null,maxSteps=0;
+  groups.forEach(g=>{if(g.order.indexOf(myName)>=0)myGroup=g;if(g.steps.length>maxSteps)maxSteps=g.steps.length;});
+  const refGroup=myGroup||groups[0];
+  const myIdx=refGroup.order.indexOf(myName);
   const amCandidate=myIdx>=0;
   let step=0;
-  const total=r.steps.length;
+  const total=refGroup.steps.length;
   (function tick(){
-    const cur=step%r.order.length;
+    const cur=step%refGroup.order.length;
     const meLit=amCandidate&&cur===myIdx;
     ov.classList.toggle('lit',meLit);
     if(meLit&&navigator.vibrate)navigator.vibrate(30);
     step++;
-    if(step<total){setTimeout(tick,r.steps[step]);}
+    if(step<total){setTimeout(tick,refGroup.steps[step]);}
     else{
       ov.classList.remove('lit');
-      const winnerName=r.order[r.winnerIdx];
-      if(winnerName===myName){
+      const iWon=groups.some(g=>g.order[g.winnerIdx]===myName);
+      if(iWon){
         ov.classList.add('winner');
         msg.style.display='none';
         winBox.style.display='block';
@@ -422,19 +428,18 @@ function playRoulette(d){
         if(navigator.vibrate)navigator.vibrate([100,60,100,60,250]);
         confetti();
       }else{
-        msg.textContent='⭐ '+winnerName.toUpperCase();
+        const winners=groups.map(g=>g.order[g.winnerIdx]).filter(Boolean);
+        msg.textContent='⭐ '+winners.join(' · ').toUpperCase();
         msg.style.color='var(--gold)';
       }
       setTimeout(()=>{
         ov.classList.add('hidden');
-        ov.classList.remove('winner');
-        msg.style.color='';
+        ov.classList.remove('winner','lit');
         showChallenge(d);
       },2200);
     }
   })();
 }
-
 
 function playSlotSuspense(d){
   show('sPlay');
