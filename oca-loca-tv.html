@@ -213,6 +213,7 @@ evento:[
  {n:"Balón Prisionero",d:"¡A matar! Equipos enfrentados se lanzan un balón blando. Si te da, quedas eliminado. El equipo que elimine a todos los rivales gana. Si hay varios equipos, el último con jugadores en pie gana.",rt:"all"},
  {n:"Duelo de Cartas",d:"Dos filas de jugadores con equipos intercalados (para que no se enfrenten compañeros). Una baraja en el centro. Los dos primeros sacan carta: la más alta gana, el otro queda eliminado. El ganador sigue contra el siguiente. Continúa hasta que solo queden jugadores de un mismo equipo: ese equipo gana.",rt:"all"},
  {n:"Ninja",d:"Todos en círculo con los brazos en pose ninja. Por turnos, haces UN solo movimiento para intentar golpear la mano de otro jugador; esa persona puede esquivar con UN solo movimiento. Si te tocan una mano, la escondes; si te tocan las dos, quedas eliminado. Último en pie gana para su equipo.",rt:"all"},
+ {n:"La Carta de la Suerte",d:"Hay una carta por equipo boca abajo. Una esconde una 👑 (avanza 3 casillas) y otra una 💀 (retrocede 5). El resto no tienen nada. Cada equipo elige una carta y se revela su destino. ¡Pura suerte!",rt:"cards"},
  {n:"Vota a la Minoría",d:"La TV plantea un \"esto o aquello\". Cada jugador vota en secreto en su móvil. ¡Gana quien vote la opción MENOS elegida! Cada acertante suma 1 punto para su equipo. Piensa bien: si todos creéis que algo es lo raro... dejará de serlo.",rt:"majority"},
 ],
 versus:[
@@ -284,6 +285,7 @@ window.addEventListener('DOMContentLoaded',()=>{
             finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));
             if(lastCh.ch.rt==='quiz'){quizQ=lastCh.quizQ||null;quizShown=false;if(quizQ)renderQuiz();else{pickQuizQuestion();renderQuiz();}}
             else if(lastCh.ch.rt==='majority'){majQ=lastCh.majQ||null;majVotes={};majRevealed=false;if(majQ)renderMajority();else{pickMajorityQuestion();renderMajority();}}
+            else if(lastCh.ch.rt==='cards'){if(!cardDeck.length)setupCards();renderCards();}
             else if(lastCh.panelView==='special'){openSpecialPanel();}
             else{addSpecialPanelButton();}
           }
@@ -433,6 +435,7 @@ let endur={running:false,start:0,raf:null,fell:{}};
 let simon={seq:[],pos:0,showing:false};
 let quizQ=null,quizShown=false;
 let majQ=null,majVotes={},majRevealed=false;
+let cardDeck=[],cardPicks={};
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pushTeamsToFB();
@@ -575,6 +578,7 @@ function launch(){
     renderRoles(roles,ps);busy=false;
     if(ch.rt==='quiz'){pickQuizQuestion();lastCh.panelView='special';saveTV();renderQuiz();return;}
     if(ch.rt==='majority'){pickMajorityQuestion();lastCh.panelView='special';saveTV();renderMajority();return;}
+    if(ch.rt==='cards'){setupCards();lastCh.panelView='special';saveTV();renderCards();return;}
     // Special panels (buzzer/hotpotato/humming) are reached via a button on the challenge screen.
     if(ch.rt==='buzzer'){resetBuzzer();}
     addSpecialPanelButton();
@@ -586,7 +590,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});lastCh=null;busy=false;buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
@@ -979,6 +983,9 @@ function assignRoles(ch,active,allPs,aT,oT){
       break;}
     case'majority':{
       active.forEach(p=>{R[p.name]={label:'VOTA',emoji:'🗳️',isSecret:false,roleDesc:'Vota en secreto. ¡Gana la opción MENOS votada!',vote:true};});
+      break;}
+    case'cards':{
+      active.forEach(p=>{R[p.name]={label:'SUERTE',emoji:'🃏',isSecret:false,roleDesc:'Mira la TV. Cuando os toque, elegid una carta.'};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
@@ -1571,6 +1578,76 @@ function renderMajority(){
 }
 function majReveal(){majRevealed=true;pub({type:'voteReveal'});renderMajority();}
 function majNext(){pickMajorityQuestion();renderMajority();}
+function setupCards(){
+  const teamsIn=teams();
+  const n=Math.max(teamsIn.length,2);
+  // build deck: 1 crown, 1 skull, rest blank
+  const deck=[];
+  deck.push({type:'crown'});
+  deck.push({type:'skull'});
+  for(let i=2;i<n;i++)deck.push({type:'blank'});
+  // shuffle
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  cardDeck=deck.map((card,i)=>({...card,id:i,revealed:false,takenBy:null}));
+  cardPicks={};
+}
+function renderCards(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||!lastCh||lastCh.ch.rt!=='cards')return;
+  if(!cardDeck.length)setupCards();
+  const teamsIn=teams();
+  const tn=t=>{const d=teamDefs.find(x=>x.id===t);return d?d.name:'Equipo '+t;};
+  const pending=teamsIn.filter(t=>!Object.values(cardPicks).includes(t));
+  const nextTeam=pending[0]||null;
+  let html='<div style="text-align:center"><div style="font-size:44px">🃏</div>';
+  html+='<div style="color:var(--cat-evento);font-size:14px;font-weight:900;letter-spacing:.12em;margin:6px 0">LA CARTA DE LA SUERTE</div>';
+  if(nextTeam){
+    html+='<div style="font-size:20px;font-weight:900;color:#fff;margin:10px 0">Elige carta: <span style="color:var(--gold)">'+tn(nextTeam)+'</span></div>';
+  }else{
+    html+='<div style="font-size:18px;font-weight:900;color:#22c55e;margin:10px 0">¡Todas reveladas!</div>';
+  }
+  html+='<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px">';
+  cardDeck.forEach(card=>{
+    if(card.revealed){
+      const face=card.type==='crown'?'👑':card.type==='skull'?'💀':'➖';
+      const col=card.type==='crown'?'#22c55e':card.type==='skull'?'#e21b3c':'var(--wood)';
+      html+='<div style="width:90px;height:130px;border-radius:12px;background:var(--card);border:2px solid '+col+';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">';
+      html+='<div style="font-size:40px">'+face+'</div>';
+      if(card.takenBy)html+='<div style="font-size:11px;color:var(--dim);font-weight:700">'+tn(card.takenBy)+'</div>';
+      html+='</div>';
+    }else{
+      const clickable=nextTeam!=null;
+      html+='<button '+(clickable?'':'disabled')+' onclick="pickCard('+card.id+')" style="width:90px;height:130px;border-radius:12px;background:linear-gradient(135deg,#5d64a8,#33354a);border:2px solid var(--wood);cursor:'+(clickable?'pointer':'default')+';font-size:40px;color:#fff;opacity:'+(clickable?'1':'.6')+'">?</button>';
+    }
+  });
+  html+='</div>';
+  // results summary
+  if(!nextTeam){
+    html+='<div style="margin-top:14px;display:flex;flex-direction:column;gap:6px;max-width:340px;margin-left:auto;margin-right:auto">';
+    cardDeck.filter(c=>c.takenBy).forEach(card=>{
+      const r=card.type==='crown'?'👑 +3 casillas':card.type==='skull'?'💀 -5 casillas':'➖ sin efecto';
+      const col=card.type==='crown'?'#22c55e':card.type==='skull'?'#e21b3c':'var(--dim)';
+      html+='<div style="display:flex;justify-content:space-between;background:var(--card);border-radius:10px;padding:8px 14px"><span style="font-weight:700">'+tn(card.takenBy)+'</span><span style="font-weight:900;color:'+col+'">'+r+'</span></div>';
+    });
+    html+='</div>';
+  }
+  html+='</div>';
+  mp.innerHTML=html;
+  addBackToChallengeBtn();
+}
+function pickCard(id){
+  const teamsIn=teams();
+  const pending=teamsIn.filter(t=>!Object.values(cardPicks).includes(t));
+  const nextTeam=pending[0];
+  if(!nextTeam)return;
+  const card=cardDeck.find(c=>c.id===id);
+  if(!card||card.revealed)return;
+  card.revealed=true;card.takenBy=nextTeam;
+  cardPicks[id]=nextTeam;
+  if(card.type==='crown'||card.type==='skull')confetti();
+  saveTV();
+  renderCards();
+}
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
