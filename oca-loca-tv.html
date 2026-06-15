@@ -213,6 +213,7 @@ evento:[
  {n:"Balón Prisionero",d:"¡A matar! Equipos enfrentados se lanzan un balón blando. Si te da, quedas eliminado. El equipo que elimine a todos los rivales gana. Si hay varios equipos, el último con jugadores en pie gana.",rt:"all"},
  {n:"Duelo de Cartas",d:"Dos filas de jugadores con equipos intercalados (para que no se enfrenten compañeros). Una baraja en el centro. Los dos primeros sacan carta: la más alta gana, el otro queda eliminado. El ganador sigue contra el siguiente. Continúa hasta que solo queden jugadores de un mismo equipo: ese equipo gana.",rt:"all"},
  {n:"Ninja",d:"Todos en círculo con los brazos en pose ninja. Por turnos, haces UN solo movimiento para intentar golpear la mano de otro jugador; esa persona puede esquivar con UN solo movimiento. Si te tocan una mano, la escondes; si te tocan las dos, quedas eliminado. Último en pie gana para su equipo.",rt:"all"},
+ {n:"La Mayoría Gana",d:"La TV plantea un \"esto o aquello\". Cada jugador vota una opción en su móvil. Los que estén en la opción MAYORITARIA avanzan; la minoría retrocede. ¡Adivina lo que piensa el grupo!",rt:"majority"},
 ],
 versus:[
  {n:"Duelo Ancestral",d:"Piedra, papel o tijera. Mejor de 3 rondas.",rt:"rep",al:"COMBATIENTE",ad:"Tú juegas el duelo contra el representante rival.",bl:"HINCHA",bd:"Anima a tu representante."},
@@ -257,6 +258,8 @@ const Q_REFRAN=[{q:"A quien madruga...",a:"Dios le ayuda"},{q:"Más vale pájaro
 const Q_EMOJI=[{q:"🦁👑",a:"El Rey León"},{q:"❄️⛄👸",a:"Frozen"},{q:"🕷️👨",a:"Spider-Man"},{q:"🐠🔍",a:"Buscando a Nemo"},{q:"🚢🧊💔",a:"Titanic"},{q:"👻🚫 (¿a quién vas a llamar?)",a:"Los Cazafantasmas"},{q:"🦖🏞️",a:"Jurassic Park"},{q:"🧙⚡🤓",a:"Harry Potter"},{q:"🤖❤️🌱",a:"Wall-E"},{q:"🐭🍝🇫🇷👨‍🍳",a:"Ratatouille"},{q:"🌊🚣‍♀️🐔",a:"Vaiana / Moana"},{q:"🦇🦸‍♂️🌃",a:"Batman"},{q:"💍🌋🧝",a:"El Señor de los Anillos"},{q:"🐝🎬",a:"Bee Movie"},{q:"🔴💊🔵💊",a:"Matrix"}];
 const Q_TF=[{q:"Los pulpos tienen tres corazones",a:"VERDADERO"},{q:"La Muralla China se ve desde el espacio a simple vista",a:"FALSO"},{q:"Un grupo de flamencos se llama 'bochorno'",a:"VERDADERO"},{q:"Los plátanos crecen en árboles",a:"FALSO (crecen en hierbas gigantes)"},{q:"El corazón de una ballena azul es del tamaño de un coche pequeño",a:"VERDADERO"},{q:"Los tiburones existían antes que los árboles",a:"VERDADERO"},{q:"La miel nunca caduca",a:"VERDADERO"},{q:"Einstein suspendió las matemáticas de pequeño",a:"FALSO"},{q:"Los humanos tienen más de 5 sentidos",a:"VERDADERO"},{q:"Napoleón era extremadamente bajo",a:"FALSO (medía lo normal para su época)"},{q:"Las jirafas no tienen cuerdas vocales",a:"FALSO (sí emiten sonidos, muy graves)"},{q:"El oro es comestible en pequeñas cantidades",a:"VERDADERO"},{q:"Los gatos no pueden saborear lo dulce",a:"VERDADERO"},{q:"La sangre humana es azul dentro del cuerpo",a:"FALSO (siempre es roja)"},{q:"Un rayo nunca cae dos veces en el mismo sitio",a:"FALSO"}];
 const Q_ORDER=[{q:"Ordena de MAYOR a menor población",items:["China","India","Estados Unidos","Brasil"],a:"India, China, EE.UU., Brasil (aprox)"},{q:"Ordena estos planetas del más CERCANO al Sol al más lejano",items:["Marte","Mercurio","Júpiter","Tierra"],a:"Mercurio, Tierra, Marte, Júpiter"},{q:"Ordena de MÁS alto a más bajo",items:["Everest","Teide","Mont Blanc","Mulhacén"],a:"Everest, Mont Blanc, Teide, Mulhacén"},{q:"Ordena por orden CRONOLÓGICO (más antiguo primero)",items:["Imprenta","Internet","Rueda","Bombilla"],a:"Rueda, Imprenta, Bombilla, Internet"},{q:"Ordena de MÁS grande a más pequeño",items:["Sol","Tierra","Luna","Júpiter"],a:"Sol, Júpiter, Tierra, Luna"},{q:"Ordena estos océanos de MAYOR a menor",items:["Pacífico","Atlántico","Índico","Ártico"],a:"Pacífico, Atlántico, Índico, Ártico"},{q:"Ordena por velocidad, de MÁS rápido a más lento",items:["Guepardo","Humano","Tortuga","Caballo"],a:"Guepardo, Caballo, Humano, Tortuga"},{q:"Ordena estas películas de la MÁS antigua a la más reciente",items:["Titanic","Avatar","E.T.","Frozen"],a:"E.T., Titanic, Avatar, Frozen"}];
+const VOTE_Q=["¿Piña en la pizza?","¿Playa o montaña?","¿Madrugar o trasnochar?","¿Perros o gatos?","¿Dulce o salado para desayunar?","¿Verano o invierno?","¿Cine o serie en casa?","¿Café o té?","¿Tortilla con cebolla o sin cebolla?","¿Móvil Android o iPhone?","¿Ducha por la mañana o por la noche?","¿Libro en papel o digital?","¿Mejor el viernes o el sábado?","¿Comedia o terror?","¿Mar o piscina?","¿Pan con tomate o sin?","¿Calcetines para dormir: sí o no?","¿Helado de chocolate o de vainilla?","¿Conducir o que te lleven?","¿Fiesta multitudinaria o plan tranquilo?"];
+const VOTE_OPTS=[["Sí","No"],["Playa","Montaña"],["Madrugar","Trasnochar"],["Perros","Gatos"],["Dulce","Salado"],["Verano","Invierno"],["Cine","Casa"],["Café","Té"],["Con cebolla","Sin cebolla"],["Android","iPhone"],["Mañana","Noche"],["Papel","Digital"],["Viernes","Sábado"],["Comedia","Terror"],["Mar","Piscina"],["Con tomate","Sin"],["Sí","No"],["Chocolate","Vainilla"],["Conducir","Que me lleven"],["Multitudinaria","Tranquilo"]];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -280,6 +283,7 @@ window.addEventListener('DOMContentLoaded',()=>{
           if(lastCh){
             finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));
             if(lastCh.ch.rt==='quiz'){quizQ=lastCh.quizQ||null;quizShown=false;if(quizQ)renderQuiz();else{pickQuizQuestion();renderQuiz();}}
+            else if(lastCh.ch.rt==='majority'){majQ=lastCh.majQ||null;majVotes={};majRevealed=false;if(majQ)renderMajority();else{pickMajorityQuestion();renderMajority();}}
             else if(lastCh.panelView==='special'){openSpecialPanel();}
             else{addSpecialPanelButton();}
           }
@@ -370,6 +374,7 @@ function _processMsg(d){
     if(d.type==='hummStop'){hummStop(d.team,d.time);return;}
     if(d.type==='wildcard'){handleWildcard(d.name);return;}
     if(d.type==='steal'){handleSteal(d.name);return;}
+    if(d.type==='vote'){majVotes[d.name]=d.opt;renderMajority();return;}
     if(d.type==='join'){
       players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
       // Only re-send teams + refresh wizard when we're idle (lobby or wizard category choice),
@@ -427,6 +432,7 @@ let chTimer=null,chTimerSecs=0,chTimerTotal=0,chTimerRunning=false;
 let endur={running:false,start:0,raf:null,fell:{}};
 let simon={seq:[],pos:0,showing:false};
 let quizQ=null,quizShown=false;
+let majQ=null,majVotes={},majRevealed=false;
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pushTeamsToFB();
@@ -568,6 +574,7 @@ function launch(){
   const afterReveal=()=>{
     renderRoles(roles,ps);busy=false;
     if(ch.rt==='quiz'){pickQuizQuestion();lastCh.panelView='special';saveTV();renderQuiz();return;}
+    if(ch.rt==='majority'){pickMajorityQuestion();lastCh.panelView='special';saveTV();renderMajority();return;}
     // Special panels (buzzer/hotpotato/humming) are reached via a button on the challenge screen.
     if(ch.rt==='buzzer'){resetBuzzer();}
     addSpecialPanelButton();
@@ -969,6 +976,9 @@ function assignRoles(ch,active,allPs,aT,oT){
       break;}
     case'quiz':{
       active.forEach(p=>{R[p.name]={label:'EN EQUIPO',emoji:'🧠',isSecret:false,roleDesc:'Responded en equipo. Mirad la pregunta en la TV.'};});
+      break;}
+    case'majority':{
+      active.forEach(p=>{R[p.name]={label:'VOTA',emoji:'🗳️',isSecret:false,roleDesc:'Vota una opción en tu móvil. ¡La mayoría gana!',vote:true};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
@@ -1502,6 +1512,47 @@ function renderQuiz(){
   mp.innerHTML=html;
 }
 function quizNext(){pickQuizQuestion();renderQuiz();}
+function pickMajorityQuestion(){
+  const i=Math.floor(Math.random()*VOTE_Q.length);
+  majQ={q:VOTE_Q[i],opts:VOTE_OPTS[i]};
+  majVotes={};majRevealed=false;
+  if(lastCh){lastCh.majQ=majQ;saveTV();}
+  // broadcast the question so phones show the right options
+  pub({type:'voteQ',q:majQ.q,opts:majQ.opts});
+}
+function renderMajority(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||!lastCh||lastCh.ch.rt!=='majority'||!majQ)return;
+  const counts=[0,0];
+  Object.values(majVotes).forEach(o=>{if(o===0)counts[0]++;else if(o===1)counts[1]++;});
+  const total=counts[0]+counts[1];
+  let html='<div style="text-align:center"><div style="font-size:44px">🗳️</div>';
+  html+='<div style="color:var(--cat-evento);font-size:14px;font-weight:900;letter-spacing:.12em;margin:6px 0">LA MAYORÍA GANA</div>';
+  html+='<div style="font-size:26px;font-weight:900;color:#fff;margin:14px 0">'+majQ.q+'</div>';
+  html+='<div style="display:flex;gap:12px;justify-content:center;margin-top:10px">';
+  majQ.opts.forEach((o,i)=>{
+    const pct=total?Math.round(counts[i]/total*100):0;
+    const win=majRevealed&&counts[i]>counts[1-i];
+    html+='<div style="flex:1;max-width:200px;background:var(--card);border:2px solid '+(win?'#22c55e':'var(--wood)')+';border-radius:14px;padding:16px">';
+    html+='<div style="font-size:18px;font-weight:900;color:'+(win?'#22c55e':'#fff')+'">'+o+'</div>';
+    if(majRevealed){html+='<div style="font-size:32px;font-weight:900;color:var(--gold);margin-top:6px">'+counts[i]+'</div><div style="font-size:12px;color:var(--dim)">'+pct+'%</div>';}
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div style="color:var(--dim);font-size:13px;margin-top:10px">'+total+' votos recibidos</div>';
+  if(!majRevealed){
+    html+='<button class="btn btn-gold" style="margin-top:12px;width:100%;font-size:16px" onclick="majReveal()">👁️ Revelar resultado</button>';
+  }else{
+    const winIdx=counts[0]===counts[1]?-1:(counts[0]>counts[1]?0:1);
+    if(winIdx<0)html+='<div style="font-size:20px;font-weight:900;color:var(--gold);margin-top:12px">¡EMPATE! Nadie avanza</div>';
+    else html+='<div style="font-size:20px;font-weight:900;color:#22c55e;margin-top:12px">Gana \"'+majQ.opts[winIdx]+'\" — ¡esa mayoría avanza!</div>';
+  }
+  html+='<button class="btn btn-gold" style="margin-top:8px;width:100%;font-size:15px" onclick="majNext()">🔀 Otra pregunta</button>';
+  html+='</div>';
+  mp.innerHTML=html;
+}
+function majReveal(){majRevealed=true;pub({type:'voteReveal'});renderMajority();}
+function majNext(){pickMajorityQuestion();renderMajority();}
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 </script>
