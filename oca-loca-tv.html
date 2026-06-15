@@ -285,11 +285,12 @@ window.addEventListener('DOMContentLoaded',()=>{
           show('sGame');renderPlayers();
           if(lastCh){
             finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));
-            if(lastCh.ch.rt==='quiz'){quizQ=lastCh.quizQ||null;quizShown=false;if(quizQ)renderQuiz();else{pickQuizQuestion();renderQuiz();}}
-            else if(lastCh.ch.rt==='majority'){majQ=lastCh.majQ||null;majVotes={};majRevealed=false;if(majQ)renderMajority();else{pickMajorityQuestion();renderMajority();}}
-            else if(lastCh.ch.rt==='cards'){if(!cardDeck.length)setupCards();renderCards();}
-            else if(lastCh.ch.rt==='banker'){renderBanker();}
-            else if(lastCh.panelView==='special'){openSpecialPanel();}
+            // restore prepared data for special panels
+            if(lastCh.ch.rt==='quiz'){quizQ=lastCh.quizQ||null;quizShown=false;if(!quizQ)pickQuizQuestion();}
+            if(lastCh.ch.rt==='majority'){majQ=lastCh.majQ||null;majVotes={};majRevealed=false;if(!majQ)pickMajorityQuestion();}
+            if(lastCh.ch.rt==='cards'){if(!cardDeck.length)setupCards();}
+            if(lastCh.ch.rt==='banker'){if(!bankOffer)setupBanker();}
+            if(lastCh.panelView==='special'){openSpecialPanel();}
             else{addSpecialPanelButton();}
           }
           else wizardReset();
@@ -598,11 +599,11 @@ function launch(){
   if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};}
   const afterReveal=()=>{
     renderRoles(roles,ps);busy=false;
-    if(ch.rt==='quiz'){pickQuizQuestion();lastCh.panelView='special';saveTV();renderQuiz();return;}
-    if(ch.rt==='majority'){pickMajorityQuestion();lastCh.panelView='special';saveTV();renderMajority();return;}
-    if(ch.rt==='cards'){setupCards();lastCh.panelView='special';saveTV();renderCards();return;}
-    if(ch.rt==='banker'){setupBanker();lastCh.panelView='special';saveTV();renderBanker();return;}
-    // Special panels (buzzer/hotpotato/humming) are reached via a button on the challenge screen.
+    // Prepare data for special panels, but show the PRESENTATION first with a button to open the panel.
+    if(ch.rt==='quiz'){pickQuizQuestion();}
+    if(ch.rt==='majority'){pickMajorityQuestion();}
+    if(ch.rt==='cards'){setupCards();}
+    if(ch.rt==='banker'){setupBanker();}
     if(ch.rt==='buzzer'){resetBuzzer();}
     addSpecialPanelButton();
   };
@@ -1401,6 +1402,10 @@ function specialPanelInfo(){
   if(rt==='humming')return {label:'▶ Ir a los cronómetros',fn:'openSpecialPanel'};
   if(rt==='endurance')return {label:'▶ Ir al cronómetro',fn:'openSpecialPanel'};
   if(rt==='simon')return {label:'▶ Ir a la secuencia',fn:'openSpecialPanel'};
+  if(rt==='quiz')return {label:'▶ Ver la pregunta',fn:'openSpecialPanel'};
+  if(rt==='majority')return {label:'▶ Ir a la votación',fn:'openSpecialPanel'};
+  if(rt==='cards')return {label:'▶ Ir a las cartas',fn:'openSpecialPanel'};
+  if(rt==='banker')return {label:'▶ Ir a la oferta',fn:'openSpecialPanel'};
   return null;
 }
 function addSpecialPanelButton(){
@@ -1428,6 +1433,10 @@ function openSpecialPanel(){
   else if(rt==='humming'){renderHumming();}
   else if(rt==='endurance'){endur={running:false,start:0,raf:null,fell:{},_final:0};renderEndurance();}
   else if(rt==='simon'){simon={seq:[],pos:0,showing:false};renderSimon();}
+  else if(rt==='quiz'){if(!quizQ)pickQuizQuestion();renderQuiz();}
+  else if(rt==='majority'){if(!majQ)pickMajorityQuestion();renderMajority();}
+  else if(rt==='cards'){if(!cardDeck.length)setupCards();renderCards();}
+  else if(rt==='banker'){renderBanker();}
 }
 function renderEndurance(){
   const mp=document.getElementById('mainPanel');
