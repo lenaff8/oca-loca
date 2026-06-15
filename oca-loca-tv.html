@@ -213,7 +213,7 @@ evento:[
  {n:"Balón Prisionero",d:"¡A matar! Equipos enfrentados se lanzan un balón blando. Si te da, quedas eliminado. El equipo que elimine a todos los rivales gana. Si hay varios equipos, el último con jugadores en pie gana.",rt:"all"},
  {n:"Duelo de Cartas",d:"Dos filas de jugadores con equipos intercalados (para que no se enfrenten compañeros). Una baraja en el centro. Los dos primeros sacan carta: la más alta gana, el otro queda eliminado. El ganador sigue contra el siguiente. Continúa hasta que solo queden jugadores de un mismo equipo: ese equipo gana.",rt:"all"},
  {n:"Ninja",d:"Todos en círculo con los brazos en pose ninja. Por turnos, haces UN solo movimiento para intentar golpear la mano de otro jugador; esa persona puede esquivar con UN solo movimiento. Si te tocan una mano, la escondes; si te tocan las dos, quedas eliminado. Último en pie gana para su equipo.",rt:"all"},
- {n:"La Mayoría Gana",d:"La TV plantea un \"esto o aquello\". Cada jugador vota una opción en su móvil. Los que estén en la opción MAYORITARIA avanzan; la minoría retrocede. ¡Adivina lo que piensa el grupo!",rt:"majority"},
+ {n:"Vota a la Minoría",d:"La TV plantea un \"esto o aquello\". Cada jugador vota en secreto en su móvil. ¡Gana quien vote la opción MENOS elegida! Cada acertante suma 1 punto para su equipo. Piensa bien: si todos creéis que algo es lo raro... dejará de serlo.",rt:"majority"},
 ],
 versus:[
  {n:"Duelo Ancestral",d:"Piedra, papel o tijera. Mejor de 3 rondas.",rt:"rep",al:"COMBATIENTE",ad:"Tú juegas el duelo contra el representante rival.",bl:"HINCHA",bd:"Anima a tu representante."},
@@ -374,7 +374,7 @@ function _processMsg(d){
     if(d.type==='hummStop'){hummStop(d.team,d.time);return;}
     if(d.type==='wildcard'){handleWildcard(d.name);return;}
     if(d.type==='steal'){handleSteal(d.name);return;}
-    if(d.type==='vote'){majVotes[d.name]=d.opt;renderMajority();return;}
+    if(d.type==='vote'){majVotes[d.name]={opt:d.opt,team:d.team};renderMajority();return;}
     if(d.type==='join'){
       players[d.name]={name:d.name,team:d.team};saveTV();renderPlayers();
       // Only re-send teams + refresh wizard when we're idle (lobby or wizard category choice),
@@ -978,7 +978,7 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.forEach(p=>{R[p.name]={label:'EN EQUIPO',emoji:'🧠',isSecret:false,roleDesc:'Responded en equipo. Mirad la pregunta en la TV.'};});
       break;}
     case'majority':{
-      active.forEach(p=>{R[p.name]={label:'VOTA',emoji:'🗳️',isSecret:false,roleDesc:'Vota una opción en tu móvil. ¡La mayoría gana!',vote:true};});
+      active.forEach(p=>{R[p.name]={label:'VOTA',emoji:'🗳️',isSecret:false,roleDesc:'Vota en secreto. ¡Gana la opción MENOS votada!',vote:true};});
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
@@ -1524,30 +1524,48 @@ function renderMajority(){
   const mp=document.getElementById('mainPanel');
   if(!mp||!lastCh||lastCh.ch.rt!=='majority'||!majQ)return;
   const counts=[0,0];
-  Object.values(majVotes).forEach(o=>{if(o===0)counts[0]++;else if(o===1)counts[1]++;});
+  Object.values(majVotes).forEach(v=>{if(v.opt===0)counts[0]++;else if(v.opt===1)counts[1]++;});
   const total=counts[0]+counts[1];
+  // Minority = the option with FEWER votes (ties => nobody wins)
+  const minIdx=counts[0]===counts[1]?-1:(counts[0]<counts[1]?0:1);
   let html='<div style="text-align:center"><div style="font-size:44px">🗳️</div>';
-  html+='<div style="color:var(--cat-evento);font-size:14px;font-weight:900;letter-spacing:.12em;margin:6px 0">LA MAYORÍA GANA</div>';
+  html+='<div style="color:var(--cat-evento);font-size:14px;font-weight:900;letter-spacing:.12em;margin:6px 0">VOTA A LA MINORÍA</div>';
   html+='<div style="font-size:26px;font-weight:900;color:#fff;margin:14px 0">'+majQ.q+'</div>';
   html+='<div style="display:flex;gap:12px;justify-content:center;margin-top:10px">';
   majQ.opts.forEach((o,i)=>{
     const pct=total?Math.round(counts[i]/total*100):0;
-    const win=majRevealed&&counts[i]>counts[1-i];
+    const win=majRevealed&&minIdx===i;
     html+='<div style="flex:1;max-width:200px;background:var(--card);border:2px solid '+(win?'#22c55e':'var(--wood)')+';border-radius:14px;padding:16px">';
-    html+='<div style="font-size:18px;font-weight:900;color:'+(win?'#22c55e':'#fff')+'">'+o+'</div>';
+    html+='<div style="font-size:18px;font-weight:900;color:'+(win?'#22c55e':'#fff')+'">'+o+(win?' 🏆':'')+'</div>';
     if(majRevealed){html+='<div style="font-size:32px;font-weight:900;color:var(--gold);margin-top:6px">'+counts[i]+'</div><div style="font-size:12px;color:var(--dim)">'+pct+'%</div>';}
     html+='</div>';
   });
   html+='</div>';
   html+='<div style="color:var(--dim);font-size:13px;margin-top:10px">'+total+' votos recibidos</div>';
   if(!majRevealed){
-    html+='<button class="btn btn-gold" style="margin-top:12px;width:100%;font-size:16px" onclick="majReveal()">👁️ Revelar resultado</button>';
+    html+='<button class="btn btn-gold" style="margin-top:12px;width:100%;font-size:16px" onclick="majReveal()">👁️ Revelar minoría</button>';
   }else{
-    const winIdx=counts[0]===counts[1]?-1:(counts[0]>counts[1]?0:1);
-    if(winIdx<0)html+='<div style="font-size:20px;font-weight:900;color:var(--gold);margin-top:12px">¡EMPATE! Nadie avanza</div>';
-    else html+='<div style="font-size:20px;font-weight:900;color:#22c55e;margin-top:12px">Gana \"'+majQ.opts[winIdx]+'\" — ¡esa mayoría avanza!</div>';
+    if(minIdx<0){
+      html+='<div style="font-size:20px;font-weight:900;color:var(--gold);margin-top:12px">¡EMPATE! Nadie suma punto</div>';
+    }else{
+      // award points: each winner (voted the minority) gives +1 to their team
+      const teamPts={};
+      Object.values(majVotes).forEach(v=>{if(v.opt===minIdx&&v.team){teamPts[v.team]=(teamPts[v.team]||0)+1;}});
+      html+='<div style="font-size:17px;font-weight:900;color:#22c55e;margin-top:12px">Minoría: \"'+majQ.opts[minIdx]+'\" · +1 punto por acertante</div>';
+      const tn=t=>{const d=teamDefs.find(x=>x.id===t);return d?d.name:'Equipo '+t;};
+      const ranked=Object.keys(teamPts).sort((a,b)=>teamPts[b]-teamPts[a]);
+      if(ranked.length){
+        html+='<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;max-width:320px;margin-left:auto;margin-right:auto">';
+        ranked.forEach((t,i)=>{
+          html+='<div style="display:flex;justify-content:space-between;background:var(--card);border-radius:10px;padding:10px 14px;border:1px solid '+(i===0?'#22c55e':'var(--wood)')+'"><span style="font-weight:700">'+(i===0?'🏆 ':'')+tn(t)+'</span><span style="font-weight:900;color:var(--gold)">'+teamPts[t]+' pts</span></div>';
+        });
+        html+='</div>';
+      }else{
+        html+='<div style="color:var(--dim);font-size:13px;margin-top:8px">Ningún equipo acertó la minoría</div>';
+      }
+    }
   }
-  html+='<button class="btn btn-gold" style="margin-top:8px;width:100%;font-size:15px" onclick="majNext()">🔀 Otra pregunta</button>';
+  html+='<button class="btn btn-gold" style="margin-top:10px;width:100%;font-size:15px" onclick="majNext()">🔀 Otra pregunta</button>';
   html+='</div>';
   mp.innerHTML=html;
 }
