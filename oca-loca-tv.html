@@ -261,7 +261,11 @@ window.addEventListener('DOMContentLoaded',()=>{
         tvInGame=true;lastCh=s.lastCh||null;
         setTimeout(()=>{
           show('sGame');renderPlayers();
-          if(lastCh){finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));}
+          if(lastCh){
+            finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));
+            if(lastCh.panelView==='special'){openSpecialPanel();}
+            else{addSpecialPanelButton();}
+          }
           else wizardReset();
         },0);
       }
@@ -543,9 +547,9 @@ function launch(){
   if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};}
   const afterReveal=()=>{
     renderRoles(roles,ps);busy=false;
-    if(ch.rt==='buzzer'){resetBuzzer();renderBuzzerTV();}
-    if(ch.rt==='hotpotato'){renderHotPotato();}
-    if(ch.rt==='humming'){renderHumming();}
+    // Special panels (buzzer/hotpotato/humming) are reached via a button on the challenge screen.
+    if(ch.rt==='buzzer'){resetBuzzer();}
+    addSpecialPanelButton();
   };
   if(roulette){
     playTVRoulette(roulette,()=>{finalChallenge(ch,wType);afterReveal();});
@@ -1045,6 +1049,7 @@ function renderBuzzerTV(){
   html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
   html+='</div>';
   mp.innerHTML=html;
+  addBackToChallengeBtn();
 }
 function handleBuzz(name,team){
   if(!lastCh||lastCh.ch.rt!=='buzzer')return;
@@ -1103,6 +1108,7 @@ function renderHotPotato(){
   html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
   html+='</div>';
   mp.innerHTML=html;
+  addBackToChallengeBtn();
 }
 function hpStart(){
   hpRunning=true;
@@ -1174,6 +1180,7 @@ function renderHumming(){
   html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
   html+='</div>';
   mp.innerHTML=html;
+  addBackToChallengeBtn();
 }
 function renderChTimer(){
   const host=document.getElementById('chTimerHost');
@@ -1278,6 +1285,52 @@ function showStealAnim(emoji,title,subtitle,who){
   document.body.appendChild(ov);
   setTimeout(()=>{if(ov.parentNode)ov.remove();},3500);
   confetti();
+}
+function addBackToChallengeBtn(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||document.getElementById('backToChBtn'))return;
+  const btn=document.createElement('button');
+  btn.id='backToChBtn';
+  btn.className='btn btn-back';
+  btn.style.cssText='margin-top:8px;width:100%;font-size:14px';
+  btn.textContent='← Volver a la presentación';
+  btn.onclick=()=>{
+    if(lastCh){lastCh.panelView='intro';saveTV();}
+    finalChallenge(lastCh.ch,lastCh.type);renderRoles(lastCh.roles,Object.values(players));addSpecialPanelButton();
+  };
+  mp.appendChild(btn);
+}
+function specialPanelInfo(){
+  if(!lastCh)return null;
+  const rt=lastCh.ch.rt;
+  if(rt==='buzzer')return {label:'▶ Ir al pulsador',fn:'openSpecialPanel'};
+  if(rt==='hotpotato')return {label:'▶ Ir al contador',fn:'openSpecialPanel'};
+  if(rt==='humming')return {label:'▶ Ir a los cronómetros',fn:'openSpecialPanel'};
+  return null;
+}
+function addSpecialPanelButton(){
+  const info=specialPanelInfo();
+  if(!info)return;
+  const mp=document.getElementById('mainPanel');
+  if(!mp)return;
+  // avoid duplicate
+  if(document.getElementById('specialPanelBtn'))return;
+  const btn=document.createElement('button');
+  btn.id='specialPanelBtn';
+  btn.className='btn btn-gold';
+  btn.style.cssText='margin-top:14px;width:100%;font-size:16px';
+  btn.textContent=info.label;
+  btn.onclick=()=>window[info.fn]();
+  // insert before the "siguiente casilla" button if present, else append
+  mp.appendChild(btn);
+}
+function openSpecialPanel(){
+  if(!lastCh)return;
+  lastCh.panelView='special';saveTV();
+  const rt=lastCh.ch.rt;
+  if(rt==='buzzer'){renderBuzzerTV();}
+  else if(rt==='hotpotato'){renderHotPotato();}
+  else if(rt==='humming'){renderHumming();}
 }
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
