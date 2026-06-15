@@ -152,6 +152,11 @@ input::placeholder{color:var(--status-color)}
 .power-btn:disabled{opacity:.35;cursor:default}
 .power-wild{background:#8b5cf6}
 .power-steal{background:#f59e0b;color:#1a1200}
+
+.vote-opt{border:2px solid var(--wood);background:var(--card);color:#fff;border-radius:14px;padding:16px;font-weight:900;font-size:17px;cursor:pointer;font-family:inherit;transition:transform .1s,border-color .2s}
+.vote-opt:active{transform:scale(.97)}
+.vote-opt.sel{border-color:var(--gold);background:var(--gold);color:var(--gold-text)}
+.vote-opt:disabled{opacity:.5}
 </style>
 </head>
 <body>
@@ -240,6 +245,7 @@ let myName='',myTeam='',myTopic='',mySince=0,es=null,pendingRole=null,pendingCha
 let cipherState=null;
 let buzzerData=null,buzzMyState='ready',buzzTimerRaf=null;
 let wildcardsLeft=2,stealsLeft=1,curChallenge=null,roundStarted=false,curRole=null,codePoll=null;
+let voteQ=null,votedOpt=null,voteRevealed=false;
 const FB='https://okaloka-e0656-default-rtdb.europe-west1.firebasedatabase.app';
 let fbSince=0,fbPollTimer=null;
 async function fbPub(data){try{const room=myTopic.replace('oca-','');await fetch(FB+'/rooms/'+room+'/msgs.json',{method:'POST',body:JSON.stringify({t:Date.now(),d:data})});}catch(e){}}
@@ -384,7 +390,9 @@ function _processMsg(d){
     else if(d.type==='timerStart'){timerSyncStart();}
     else if(d.type==='timerPause'){timerSyncStop();}
     else if(d.type==='timerReset'){timerSyncStop();}
-    else if(d.type==='timerEnd'){timerSyncEnd();}else if(d.type==='clear'){
+    else if(d.type==='timerEnd'){timerSyncEnd();}
+    else if(d.type==='voteQ'){voteQ={q:d.q,opts:d.opts};votedOpt=null;voteRevealed=false;if(curRole&&curRole.vote)renderRoleExtra(curRole);}
+    else if(d.type==='voteReveal'){voteRevealed=true;if(curRole&&curRole.vote)renderRoleExtra(curRole);}else if(d.type==='clear'){
       sessionStorage.removeItem('ocaChallenge');
       show('sWait');
     }
@@ -778,6 +786,33 @@ function renderRoleExtra(role){
       }
     };
     wrap.appendChild(timer);wrap.appendChild(action);
+    ex.appendChild(wrap);
+    return;
+  }
+  // Voting (La Mayoría Gana)
+  if(role.vote){
+    const wrap=document.createElement('div');wrap.style.width='100%';
+    if(!voteQ){
+      wrap.innerHTML='<div style="text-align:center;color:var(--status-color);font-size:14px;padding:14px">Espera la pregunta en la TV...</div>';
+    }else{
+      let h='<div style="text-align:center;font-size:17px;font-weight:800;margin-bottom:12px">'+voteQ.q+'</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:10px">';
+      voteQ.opts.forEach((o,i)=>{
+        const sel=votedOpt===i;
+        h+='<button class="vote-opt'+(sel?' sel':'')+'" data-opt="'+i+'" '+(voteRevealed?'disabled':'')+'>'+o+'</button>';
+      });
+      h+='</div>';
+      if(votedOpt!=null&&!voteRevealed)h+='<div style="text-align:center;color:var(--status-color);font-size:12px;margin-top:10px">Voto registrado. Puedes cambiarlo hasta que se revele.</div>';
+      if(voteRevealed)h+='<div style="text-align:center;color:var(--gold);font-size:13px;font-weight:700;margin-top:10px">Mira el resultado en la TV</div>';
+      wrap.innerHTML=h;
+      wrap.querySelectorAll('.vote-opt').forEach(b=>{b.onclick=()=>{
+        if(voteRevealed)return;
+        votedOpt=parseInt(b.dataset.opt);
+        fbPub({type:'vote',name:myName,opt:votedOpt}).catch(()=>{});
+        if(navigator.vibrate)navigator.vibrate(30);
+        renderRoleExtra(curRole);
+      };});
+    }
     ex.appendChild(wrap);
     return;
   }
