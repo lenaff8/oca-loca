@@ -313,7 +313,8 @@ function subscribe(){
       const cs=document.getElementById('connStatus');if(cs)cs.textContent='● conectado';
       if(data){
         const cutoff=Date.now()-60000;
-        Object.keys(data).forEach(k=>{
+        const sorted=Object.keys(data).sort((a,b)=>data[a].t-data[b].t);
+        sorted.forEach(k=>{
           const it=data[k];
           if(it.t>=fbSince){fbSince=it.t+1;onMsgData(it.d);}
           // clean up old messages so the DB doesn't grow forever
