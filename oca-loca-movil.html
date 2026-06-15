@@ -122,15 +122,15 @@ input::placeholder{color:var(--status-color)}
 .cipher-btn.solve{background:#22c55e;color:#fff}
 .cipher-btn:disabled{opacity:.35;cursor:default}
 
-.buzzer{width:100%;aspect-ratio:1;max-width:240px;margin:10px auto;border-radius:50%;border:none;font-size:24px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:transform .1s,opacity .2s;box-shadow:0 8px 0 rgba(0,0,0,.3)}
+.buzzer{width:min(42vw,170px);height:min(42vw,170px);margin:6px auto;border-radius:50%;border:none;font-size:18px;font-weight:900;color:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .1s,opacity .2s;box-shadow:0 6px 0 rgba(0,0,0,.3)}
 .buzzer:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
 .buzzer.ready{background:radial-gradient(circle at 40% 35%,#ff6b6b,#d63031)}
 .buzzer.locked-me{background:radial-gradient(circle at 40% 35%,#22c55e,#16a34a);animation:buzzPulse 1s ease infinite}
 .buzzer.locked-other{background:#555;opacity:.6}
 .buzzer.vetoed{background:#444;opacity:.45}
 @keyframes buzzPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-.buzzer-status{text-align:center;font-size:15px;font-weight:700;color:#fff;margin-top:8px;min-height:22px}
-.buzzer-timer{text-align:center;font-size:40px;font-weight:900;color:var(--gold);margin-top:4px}
+.buzzer-status{text-align:center;font-size:13px;font-weight:700;color:#fff;margin-top:4px;min-height:18px}
+.buzzer-timer{text-align:center;font-size:30px;font-weight:900;color:var(--gold);margin-top:2px}
 
 .letter-box{background:rgba(0,0,0,.25);border-radius:18px;padding:24px;margin-top:10px;text-align:center}
 .letter-big{font-size:72px;font-weight:900;color:#fff;line-height:1}
@@ -197,7 +197,7 @@ input::placeholder{color:var(--status-color)}
   </div>
 </div>
 
-<div id="sPlay" class="screen" style="gap:8px;height:100dvh;overflow:hidden">
+<div id="sPlay" class="screen" style="gap:8px;height:100dvh;overflow:hidden;box-sizing:border-box">
   <div style="display:flex;justify-content:flex-end">
     <button onclick="leaveSession()" style="background:var(--btn-ghost-bg);border:1px solid var(--btn-ghost-border);color:var(--dim);font-size:12px;cursor:pointer;font-family:inherit;padding:5px 12px;border-radius:8px">Salir de la sala</button>
   </div>
@@ -602,7 +602,7 @@ function renderBuzzer(){
   if(buzzMyState==='locked-me'){cls='locked-me';label='¡RESPONDE!';sub='Tienes 10 segundos';}
   else if(buzzMyState==='locked-other'){cls='locked-other';label='🔒';sub='Otro equipo responde...';}
   else if(buzzMyState==='vetoed'){cls='vetoed';label='⛔';sub='Bloqueado hasta el siguiente rebote';}
-  wrap.innerHTML='<button class="buzzer '+cls+'" id="buzzBtn"'+((cls==='locked-other'||cls==='vetoed'||cls==='locked-me')?' disabled':'')+'>'+'<span style="font-size:40px">🔔</span><span>'+label+'</span></button>'+
+  wrap.innerHTML='<button class="buzzer '+cls+'" id="buzzBtn"'+((cls==='locked-other'||cls==='vetoed'||cls==='locked-me')?' disabled':'')+'>'+'<span style="font-size:30px">🔔</span><span>'+label+'</span></button>'+
     '<div class="buzzer-timer" id="buzzTimer"></div>'+
     '<div class="buzzer-status">'+sub+'</div>';
   const btn=document.getElementById('buzzBtn');
