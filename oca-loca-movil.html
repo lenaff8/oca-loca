@@ -360,7 +360,7 @@ function subscribe(){
       const ci=document.getElementById('connInfo');if(ci)ci.textContent='✓ Conectado';
       if(data){
         const items=Object.values(data).sort((a,b)=>a.t-b.t);
-        items.forEach(it=>{if(it.t>=fbSince)fbSince=it.t+1;try{_processMsg(it.d);}catch(e){}});
+        items.forEach(it=>{if(it.t>=fbSince){fbSince=it.t+1;try{_processMsg(it.d);}catch(e){}}});
       }
     }catch(e){const ci=document.getElementById('connInfo');if(ci)ci.textContent='Reconectando...';}
   };
