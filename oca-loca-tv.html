@@ -436,6 +436,7 @@ let simon={seq:[],pos:0,showing:false};
 let quizQ=null,quizShown=false;
 let majQ=null,majVotes={},majRevealed=false;
 let cardDeck=[],cardPicks={};
+let recentCh={minijuego:[],evento:[],versus:[]};
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pushTeamsToFB();
@@ -558,10 +559,26 @@ function wBack(){
 }
 
 // ════ Launch challenge ════
+function pickChallenge(type){
+  const pool=CH[type];
+  const recent=recentCh[type]||[];
+  // how many recent picks to avoid: up to ~40% of pool (at least 1, at most pool-1)
+  const avoidCount=Math.min(Math.max(1,Math.floor(pool.length*0.4)),pool.length-1);
+  const banned=new Set(recent.slice(-avoidCount).map(x=>x.n));
+  // candidates not recently used
+  let candidates=pool.filter(ch=>!banned.has(ch.n));
+  if(!candidates.length)candidates=pool;
+  const ch=candidates[Math.floor(Math.random()*candidates.length)];
+  // record it
+  recent.push(ch);
+  if(recent.length>pool.length)recent.shift();
+  recentCh[type]=recent;
+  return ch;
+}
 function launch(){
   if(busy)return;busy=true;
   const pool=CH[wType];
-  const ch=pool[Math.floor(Math.random()*pool.length)];
+  const ch=pickChallenge(wType);
   const ps=Object.values(players);
   let active;
   if(wType==='minijuego')active=ps.filter(p=>p.team===wActive);
