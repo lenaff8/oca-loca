@@ -808,7 +808,7 @@ function renderRoleExtra(role){
       wrap.querySelectorAll('.vote-opt').forEach(b=>{b.onclick=()=>{
         if(voteRevealed)return;
         votedOpt=parseInt(b.dataset.opt);
-        fbPub({type:'vote',name:myName,opt:votedOpt}).catch(()=>{});
+        fbPub({type:'vote',name:myName,team:myTeam,opt:votedOpt}).catch(()=>{});
         if(navigator.vibrate)navigator.vibrate(30);
         renderRoleExtra(curRole);
       };});
