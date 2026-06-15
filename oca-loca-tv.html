@@ -602,25 +602,40 @@ function finalChallenge(ch,type){
 
 function playTVRoulette(r,done){
   document.getElementById('rolesCard').style.display='none';
-  document.getElementById('mainPanel').innerHTML=`<div style="text-align:center">
-    <div style="font-size:48px;margin-bottom:8px">🎰</div>
-    <div style="color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.14em;margin-bottom:24px">SORTEANDO...</div>
-    <div id="roulNames" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center"></div>
-  </div>`;
-  document.getElementById('roulNames').innerHTML=r.order.map((n,i)=>`<div class="roul-name" id="rn${i}">${n}</div>`).join('');
-  let step=0;
-  (function tick(){
-    document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
-    document.getElementById('rn'+(step%r.order.length)).classList.add('lit');
-    step++;
-    if(step<r.steps.length){setTimeout(tick,r.steps[step]);}
-    else{
-      document.querySelectorAll('.roul-name').forEach(e=>e.classList.remove('lit'));
-      document.getElementById('rn'+r.winnerIdx).classList.add('winner');
-      confetti();
-      setTimeout(done,2200);
-    }
-  })();
+  // Normalize: single roulette -> wrap as one group
+  const groups=r.multi?r.groups:[{order:r.order,steps:r.steps,winnerIdx:r.winnerIdx,label:''}];
+  if(!groups.length){done();return;}
+  let html='<div style="text-align:center"><div style="font-size:48px;margin-bottom:8px">🎰</div>'+
+    '<div style="color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.14em;margin-bottom:24px">SORTEANDO...</div>'+
+    '<div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;align-items:flex-start">';
+  groups.forEach((g,gi)=>{
+    html+='<div style="display:flex;flex-direction:column;align-items:center;gap:10px">';
+    if(g.label)html+='<div style="font-size:13px;font-weight:800;color:var(--dim);letter-spacing:.06em">'+g.label+'</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:8px">'+
+      g.order.map((n,i)=>'<div class="roul-name" id="rn'+gi+'_'+i+'">'+n+'</div>').join('')+
+      '</div></div>';
+  });
+  html+='</div></div>';
+  document.getElementById('mainPanel').innerHTML=html;
+  let finished=0;
+  groups.forEach((g,gi)=>{
+    let step=0;
+    (function tick(){
+      g.order.forEach((n,i)=>{const el=document.getElementById('rn'+gi+'_'+i);if(el)el.classList.remove('lit');});
+      const cur=document.getElementById('rn'+gi+'_'+(step%g.order.length));
+      if(cur)cur.classList.add('lit');
+      step++;
+      if(step<g.steps.length){setTimeout(tick,g.steps[step]);}
+      else{
+        g.order.forEach((n,i)=>{const el=document.getElementById('rn'+gi+'_'+i);if(el)el.classList.remove('lit');});
+        const win=document.getElementById('rn'+gi+'_'+g.winnerIdx);
+        if(win)win.classList.add('winner');
+        confetti();
+        finished++;
+        if(finished===groups.length)setTimeout(done,2200);
+      }
+    })();
+  });
 }
 
 function renderRoles(roles,ps){
@@ -651,6 +666,15 @@ function confetti(){
   }
 }
 
+function buildMultiRoulette(groups){
+  // groups: [{cands:[names], winner:name, label:teamName}]
+  const built=groups.filter(g=>g.cands&&g.cands.length>1).map(g=>{
+    const r=buildRoulette(g.cands,g.winner);
+    r.label=g.label||'';
+    return r;
+  });
+  return built.length?{multi:true,groups:built}:null;
+}
 function buildRoulette(candidates,winnerName){
   const order=[...candidates].sort(()=>Math.random()-.5);
   const winnerIdx=order.indexOf(winnerName);
@@ -805,34 +829,46 @@ function assignRoles(ch,active,allPs,aT,oT){
       });
       break;}
     case'color_hunt':{
+      const groups=[];
       teams.forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
         const col=rndOf(COLORS_HUNT);
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:'FOTÓGRAFO',emoji:'📸',isSecret:false,roleDesc:'¡Fotografía algo de este color lo antes posible!',chosen:true,color:col}
           :{label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu fotógrafo.'};});
       });
+      roulette=buildMultiRoulette(groups);
       break;}
     case'globe':{
       const part=rndOf(BODY_PARTS);
+      const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:'GUARDIÁN',emoji:'🎈',isSecret:false,roleDesc:'Sujeta el globo con el rival usando solo esta parte del cuerpo:',chosen:true,bodypart:part}
           :{label:'EQUIPO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu guardián.'};});
       });
+      roulette=buildMultiRoulette(groups);
       break;}
     case'humming':{
       const movie=rndOf(MOVIES);
+      const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const singer=rnd(tp);
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:singer.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===singer.name
           ?{label:'CANTANTE',emoji:'🎤',isSecret:false,roleDesc:'Tararea esta canción para tu equipo. Cuando la adivinen, pulsa el botón para parar tu tiempo.',chosen:true,phrase:movie,hummingTeam:t}
           :{label:'ADIVINA',emoji:'🎧',isSecret:false,roleDesc:'Adivina la canción que tararea tu cantante. ¡Rápido!'};});
       });
+      roulette=buildMultiRoulette(groups);
       break;}
     case'pictionary':{
       const tp=active.filter(p=>p.team===aT);
@@ -855,23 +891,30 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'timer_vs':{
+      const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:ch.al||'CRONÓMETRO',emoji:'⏱️',isSecret:false,roleDesc:ch.ad||'Para el cronómetro a los 10 segundos.',chosen:true,timer:10}
           :{label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Observa si tu representante acierta los 10s.'};});
       });
+      roulette=buildMultiRoulette(groups);
       break;}
     case'blindtest':{
-      // One blindfolded rep per team; the opponent picks the object (no secret data needed)
+      const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:ch.al||'CIEGO',emoji:'🙈',isSecret:false,roleDesc:ch.ad||'Identifica el objeto al tacto.',chosen:true}
           :{label:ch.bl||'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:ch.bd||'El equipo rival elige el objeto.'};});
       });
+      roulette=buildMultiRoulette(groups);
       break;}
     case'all':
       active.forEach(p=>{R[p.name]={label:'PARTICIPAS',emoji:'👥',isSecret:false,roleDesc:ch.d};});
@@ -921,28 +964,30 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'rep':{
-      let firstRep=null,cands=null;
+      const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
-        if(!firstRep){firstRep=rep.name;cands=tp.map(p=>p.name);}
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú compites por tu equipo.',chosen:true}
           :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
       });
-      if(cands&&cands.length>1)roulette=buildRoulette(cands,firstRep);
+      roulette=buildMultiRoulette(groups);
       break;}
     case'rep_team':{
-      let firstRep=null,cands=null;
+      const groups=[];
       teams.forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
-        if(!firstRep){firstRep=rep.name;cands=tp.map(p=>p.name);}
+        const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
+        groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:ch.al||'REPRESENTANTE',emoji:'⭐',isSecret:false,roleDesc:ch.ad||'Tú participas por tu equipo.',chosen:true}
           :{label:ch.bl||'EQUIPO',emoji:'👥',isSecret:false,roleDesc:ch.bd||'Anima a tu representante.'};});
       });
-      if(cands&&cands.length>1)roulette=buildRoulette(cands,firstRep);
+      roulette=buildMultiRoulette(groups);
       break;}
     case'pair_team':{
       teams.forEach(t=>{
