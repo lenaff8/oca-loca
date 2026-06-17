@@ -901,27 +901,27 @@ function renderRoleExtra(role){
     const result=document.createElement('div');
     result.className='timer-result';
     let running=false,startT=0,raf=null,finalT=null;
+    // BLIND: while running we never show the live number
     const tick=()=>{
       if(!running)return;
-      const el=(Date.now()-startT)/1000;
-      disp.textContent=el.toFixed(1);
+      disp.textContent='⏱️';
       raf=requestAnimationFrame(tick);
     };
     btn.onclick=()=>{
       if(!running&&finalT===null){
         running=true;startT=Date.now();btn.textContent='⏹ Parar';
-        disp.style.color='#fff';tick();
+        disp.style.color='var(--gold)';disp.textContent='⏱️';tick();
       }else if(running){
         running=false;cancelAnimationFrame(raf);
         finalT=(Date.now()-startT)/1000;
         const diff=Math.abs(finalT-role.timer);
-        disp.textContent=finalT.toFixed(1);
+        disp.style.color='#fff';disp.textContent=finalT.toFixed(1);
         result.textContent='Objetivo: '+role.timer+'s · Te desviaste '+diff.toFixed(1)+'s';
         btn.textContent='↻ Reintentar';
         if(navigator.vibrate)navigator.vibrate(80);
       }else{
         finalT=null;running=true;startT=Date.now();btn.textContent='⏹ Parar';
-        result.textContent='';disp.style.color='#fff';tick();
+        result.textContent='';disp.style.color='var(--gold)';disp.textContent='⏱️';tick();
       }
     };
     wrap.appendChild(disp);wrap.appendChild(btn);wrap.appendChild(result);
