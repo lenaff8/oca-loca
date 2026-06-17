@@ -915,8 +915,8 @@ function renderRoleExtra(role){
         running=false;cancelAnimationFrame(raf);
         finalT=(Date.now()-startT)/1000;
         const diff=Math.abs(finalT-role.timer);
-        disp.style.color='#fff';disp.textContent=finalT.toFixed(1);
-        result.textContent='Objetivo: '+role.timer+'s · Te desviaste '+diff.toFixed(1)+'s';
+        disp.style.color='#fff';disp.textContent=finalT.toFixed(2);
+        result.textContent='Objetivo: '+role.timer+'s · Te desviaste '+diff.toFixed(2)+'s';
         btn.textContent='↻ Reintentar';
         if(navigator.vibrate)navigator.vibrate(80);
       }else{
