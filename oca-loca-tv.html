@@ -62,7 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --btn-ghost-color:#dbdee1;--btn-ghost-border:#4e5058;
   --status-color:#80848e;
   --kick-bg:#3c2022;--kick-color:#fa777c;
-  --cat-mini:#5865f2;--cat-evento:#23a55a;--cat-versus:#da373c;
+  --cat-mini:#5865f2;--cat-evento:#23a55a;--cat-versus:#da373c;--cat-musical:#eb459e;
   --role-normal:linear-gradient(160deg,#383a40,#2b2d31);
   --role-chosen:linear-gradient(160deg,#4752c4,#36408f);
   --role-secret:linear-gradient(160deg,#6b2350,#2e0f22);
@@ -79,7 +79,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --btn-ghost-color:#4b4b4b;--btn-ghost-border:#dcdcdc;
   --status-color:#9a9a9a;
   --kick-bg:#ffe3e3;--kick-color:#e21b3c;
-  --cat-mini:#1cb0f6;--cat-evento:#ff9600;--cat-versus:#e21b3c;
+  --cat-mini:#1cb0f6;--cat-evento:#ff9600;--cat-versus:#e21b3c;--cat-musical:#e91e8c;
   --role-normal:linear-gradient(160deg,#d9f1ff,#bce5ff);
   --role-chosen:linear-gradient(160deg,#fff3b0,#ffd60a);
   --role-secret:linear-gradient(160deg,#f0deff,#dcc0fa);
@@ -167,6 +167,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 <script>
 const TC=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
 const CH={
+musical:[
+ {n:"Sigue la Canción",d:"El moderador pone una canción y la pausa de golpe. El equipo debe continuar cantando el trozo que sigue. Si lo clavan, superado.",rt:"all"},
+ {n:"Adivina Cantante y Canción",d:"El moderador pone un fragmento. El equipo debe acertar el título Y el intérprete. Los dos = superado; solo uno = a medias (lo decide el grupo).",rt:"all"},
+ {n:"Guerra de Canciones (Solo)",d:"Se revela una palabra. El equipo debe cantar 3 trozos de canciones reales distintas que contengan esa palabra, con 30 segundos por intento. Si consigue las 3, superado.",rt:"songword_solo"},
+ {n:"Solo Tararear",d:"Un jugador tararea una canción (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
+ {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
+ {n:"Canciones Temáticas (Solo)",d:"Se revela una temática. El equipo debe cantar 3 trozos de canciones reales distintas que encajen con ella, con 30 segundos por intento. Si consigue las 3, superado.",rt:"songtheme_solo"},
+],
 minijuego:[
  {n:"Tiro de Honor",d:"Un jugador hace una canasta improvisada desde donde esté. El grupo decide el aro y la pelota. Encesta antes de 3 intentos.",rt:"solo",al:"LANZADOR",ad:"Tú eres quien tiene que encestar. Tienes 3 intentos."},
  {n:"Cadena Rota",d:"Al primer jugador se le asigna una frase secreta. La susurra al oído del siguiente, y así por toda la cadena. El último la dice en voz alta. Después, otro equipo revela la frase original para comprobar cuánto ha cambiado.",rt:"chain_phrase"},
@@ -447,7 +455,7 @@ let quizQ=null,quizShown=false;
 let majQ=null,majVotes={},majRevealed=false;
 let cardDeck=[],cardPicks={};
 let bankOffer=0,bankDecisions={},bankBoxes={},bankRevealed=false;
-let recentCh={minijuego:[],evento:[],versus:[]};
+let recentCh={minijuego:[],evento:[],versus:[],musical:[]};
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
   pushTeamsToFB();
@@ -531,6 +539,10 @@ function renderWizard(){
           <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
         </button>
+        <button class="cat-card" style="background:var(--cat-musical);animation-delay:180ms" onclick="wPickCat('musical')">
+          <span class="cat-emoji">🎵</span><span class="cat-name">Musical</span>
+          <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
+        </button>
       </div>`;
   }
   else if(wState==='active'){
@@ -592,7 +604,7 @@ function launch(){
   const ch=pickChallenge(wType);
   const ps=Object.values(players);
   let active;
-  if(wType==='minijuego')active=ps.filter(p=>p.team===wActive);
+  if(wType==='minijuego'||wType==='musical')active=ps.filter(p=>p.team===wActive);
   else if(wType==='evento')active=ps;
   else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
   const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
@@ -622,9 +634,9 @@ function launch(){
 function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done){
-  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
-  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
-  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
+  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
+  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️',musical:'🎵'}[type];
+  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS',musical:'MUSICAL'}[type];
   const names=CH[type].map(c=>c.n);
   const seq=[];
   for(let i=0;i<14;i++)seq.push(names[Math.floor(Math.random()*names.length)]);
@@ -644,13 +656,13 @@ function slotReveal(ch,type,done){
 }
 
 function finalChallenge(ch,type){
-  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)'}[type];
-  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️'}[type];
-  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS'}[type];
+  const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
+  const em={minijuego:'🎮',evento:'⚡',versus:'⚔️',musical:'🎵'}[type];
+  const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS',musical:'MUSICAL'}[type];
   let teamLine='';
   const tNameA=teamDefs.find(t=>t.id===wActive)?.name||('Equipo '+wActive);
   const tNameO=teamDefs.find(t=>t.id===wOpp)?.name||('Equipo '+wOpp);
-  if(type==='minijuego'&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega <strong style="color:#fff">${tNameA}</strong></div>`;
+  if((type==='minijuego'||type==='musical')&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega <strong style="color:#fff">${tNameA}</strong></div>`;
   if(type==='versus'&&wActive&&wOpp)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">${tNameA}</strong> reta a <strong style="color:#fff">${tNameO}</strong></div>`;
   document.getElementById('mainPanel').innerHTML=`
     <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:36px;text-align:center">
@@ -1008,6 +1020,14 @@ function assignRoles(ch,active,allPs,aT,oT){
           :{label:ch.bl||'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:ch.bd||'Observa la secuencia en la TV.'};});
       });
       roulette=buildMultiRoulette(groups);
+      break;}
+    case'songword_solo':{
+      const word=rndOf(SONG_WORDS);
+      active.forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Cantad 3 trozos de canciones distintas que contengan esta palabra. 30s por intento:',hunt:word,songGoal:3};});
+      break;}
+    case'songtheme_solo':{
+      const theme=rndOf(SONG_THEMES);
+      active.forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Cantad 3 trozos de canciones distintas de esta temática. 30s por intento:',hunt:theme,songGoal:3};});
       break;}
     case'quiz':{
       active.forEach(p=>{R[p.name]={label:'EN EQUIPO',emoji:'🧠',isSecret:false,roleDesc:'Responded en equipo. Mirad la pregunta en la TV.'};});
