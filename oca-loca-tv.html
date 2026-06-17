@@ -607,10 +607,10 @@ function launch(){
   if(wType==='minijuego'||wType==='musical')active=ps.filter(p=>p.team===wActive);
   else if(wType==='evento')active=ps;
   else active=ps.filter(p=>p.team===wActive||p.team===wOpp);
-  const {roles,roulette}=assignRoles(ch,active,ps,wActive,wOpp);
+  const {roles,roulette,publicHint}=assignRoles(ch,active,ps,wActive,wOpp);
   if(ch.secs){for(const n in roles){roles[n].waitStart=true;}}
   pub({type:'challenge',name:ch.n,desc:ch.d,ctype:wType,roles,roulette});
-  lastCh={ch,type:wType,roles,aT:wActive,oT:wOpp};saveTV();
+  lastCh={ch,type:wType,roles,aT:wActive,oT:wOpp,publicHint};saveTV();
   if(ch.secs){chTimerTotal=ch.secs;chTimerSecs=ch.secs;chTimerRunning=false;if(chTimer){clearInterval(chTimer);chTimer=null;}}
   if(ch.rt==='hotpotato'){hpRemaining=90;hpRunning=false;if(hpTimer){clearInterval(hpTimer);hpTimer=null;}}
   if(ch.rt==='humming'){humming={times:{},running:{},starts:{}};}
@@ -625,15 +625,15 @@ function launch(){
     addSpecialPanelButton();
   };
   if(roulette){
-    playTVRoulette(roulette,()=>{finalChallenge(ch,wType);afterReveal();});
+    playTVRoulette(roulette,()=>{finalChallenge(ch,wType,publicHint);afterReveal();});
   }else{
-    slotReveal(ch,wType,afterReveal);
+    slotReveal(ch,wType,afterReveal,publicHint);
   }
 }
 
 function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
-function slotReveal(ch,type,done){
+function slotReveal(ch,type,done,publicHint){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️',musical:'🎵'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS',musical:'MUSICAL'}[type];
@@ -651,11 +651,11 @@ function slotReveal(ch,type,done){
     document.getElementById('slotTxt').textContent=seq[i];
     i++;
     if(i<seq.length){delay*=1.18;setTimeout(step,delay);}
-    else setTimeout(()=>{finalChallenge(ch,type);done();},400);
+    else setTimeout(()=>{finalChallenge(ch,type,publicHint);done();},400);
   })();
 }
 
-function finalChallenge(ch,type){
+function finalChallenge(ch,type,publicHint){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
   const em={minijuego:'🎮',evento:'⚡',versus:'⚔️',musical:'🎵'}[type];
   const lb={minijuego:'MINIJUEGO',evento:'EVENTO',versus:'VERSUS',musical:'MUSICAL'}[type];
@@ -664,12 +664,18 @@ function finalChallenge(ch,type){
   const tNameO=teamDefs.find(t=>t.id===wOpp)?.name||('Equipo '+wOpp);
   if((type==='minijuego'||type==='musical')&&wActive)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px">Juega <strong style="color:#fff">${tNameA}</strong></div>`;
   if(type==='versus'&&wActive&&wOpp)teamLine=`<div style="color:rgba(255,255,255,.55);font-size:13px;margin-top:14px"><strong style="color:#fff">${tNameA}</strong> reta a <strong style="color:#fff">${tNameO}</strong></div>`;
+  const hint=publicHint||(lastCh&&lastCh.publicHint);
+  const hintBox=hint?`<div style="margin-top:16px;background:rgba(255,255,255,.14);border-radius:14px;padding:14px 20px;display:inline-block">
+      <div style="color:rgba(255,255,255,.6);font-size:11px;font-weight:800;letter-spacing:.1em">${hint.icon} ${hint.label}</div>
+      <div style="color:#fff;font-size:24px;font-weight:900;margin-top:2px">${hint.value}</div>
+    </div>`:'';
   document.getElementById('mainPanel').innerHTML=`
     <div class="ch-reveal" style="background:${bg};border-radius:16px;padding:36px;text-align:center">
       <div style="font-size:60px">${em}</div>
       <div style="color:rgba(255,255,255,.5);font-size:13px;font-weight:800;letter-spacing:.12em;margin:8px 0">${lb}</div>
       <div style="color:#fff;font-size:32px;font-weight:900;margin-bottom:14px;line-height:1.1">${ch.n}</div>
       <div style="color:rgba(255,255,255,.78);font-size:16px;line-height:1.7;max-width:600px;margin:0 auto">${ch.d}</div>
+      ${hintBox}
       ${teamLine}
     </div>
     <div id="chTimerHost"></div>
@@ -767,7 +773,7 @@ function buildRoulette(candidates,winnerName){
   return{order,steps,winnerIdx};
 }
 function assignRoles(ch,active,allPs,aT,oT){
-  const R={};let roulette=null;
+  const R={};let roulette=null;let publicHint=null;
   const teams=[...new Set(active.map(p=>p.team))];
   const inactive=allPs.filter(p=>!active.find(a=>a.name===p.name));
   inactive.forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la prueba.'};});
@@ -836,12 +842,12 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'hunt':{
-      const obj=rndOf(HOUSE_OBJECTS);
+      const obj=rndOf(HOUSE_OBJECTS);publicHint={icon:'🔦',label:'OBJETO A BUSCAR',value:obj};
       active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'BUSCADOR',emoji:'🔦',isSecret:false,roleDesc:'Encontrad y traed este objeto en 60 segundos:',hunt:obj};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa la búsqueda.'};});
       break;}
     case'hunt_versus':{
-      const obj=rndOf(HOUSE_OBJECTS);
+      const obj=rndOf(HOUSE_OBJECTS);publicHint={icon:'🏃',label:'OBJETO A BUSCAR',value:obj};
       active.forEach(p=>{R[p.name]={label:'CAZADOR',emoji:'🏃',isSecret:false,roleDesc:'¡A buscar! El primer equipo que traiga este objeto gana:',hunt:obj};});
       break;}
     case'number':{
@@ -893,6 +899,7 @@ function assignRoles(ch,active,allPs,aT,oT){
       // Each team gets the SAME letter shown to all its members
       const teamLetters={};
       teams.forEach(t=>{teamLetters[t]=rndOf(LETTERS);});
+      if(teams.length===1)publicHint={icon:'🔤',label:'LETRA',value:teamLetters[teams[0]]};
       active.forEach(p=>{R[p.name]={label:'BUSCADOR',emoji:'🔤',isSecret:false,roleDesc:'Encuentra y trae un objeto que empiece por esta letra. ¡Es una carrera!',letter:teamLetters[p.team]};});
       break;}
     case'pair_race':{
@@ -906,21 +913,23 @@ function assignRoles(ch,active,allPs,aT,oT){
       });
       break;}
     case'color_hunt':{
-      const groups=[];
+      const groups=[];const colorList=[];
       teams.forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
         const rep=rnd(tp);
         const col=rndOf(COLORS_HUNT);
         const tn=(teamDefs.find(x=>x.id===t)||{}).name||('Equipo '+t);
         groups.push({cands:tp.map(p=>p.name),winner:rep.name,label:tn});
+        colorList.push(tn+': '+col);
         tp.forEach(p=>{R[p.name]=p.name===rep.name
           ?{label:'FOTÓGRAFO',emoji:'📸',isSecret:false,roleDesc:'¡Fotografía algo de este color lo antes posible!',chosen:true,color:col}
           :{label:'ÁNIMO',emoji:'📣',isSecret:false,roleDesc:'Anima a tu fotógrafo.'};});
       });
+      publicHint={icon:'📸',label:'COLOR ASIGNADO',value:colorList.join(' · ')};
       roulette=buildMultiRoulette(groups);
       break;}
     case'globe':{
-      const part=rndOf(BODY_PARTS);
+      const part=rndOf(BODY_PARTS);publicHint={icon:'🎈',label:'PARTE DEL CUERPO',value:part};
       const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
@@ -958,13 +967,13 @@ function assignRoles(ch,active,allPs,aT,oT){
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
     case'songword':{
-      const word=rndOf(SONG_WORDS);
+      const word=rndOf(SONG_WORDS);publicHint={icon:'🎵',label:'PALABRA',value:word};
       [aT,oT].filter(Boolean).forEach(t=>{
         active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos (alternando equipos), cantad una canción que contenga esta palabra:',hunt:word};});
       });
       break;}
     case'songtheme':{
-      const theme=rndOf(SONG_THEMES);
+      const theme=rndOf(SONG_THEMES);publicHint={icon:'🎵',label:'TEMÁTICA',value:theme};
       [aT,oT].filter(Boolean).forEach(t=>{
         active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos (alternando equipos), cantad una canción de esta temática:',hunt:theme};});
       });
@@ -1022,11 +1031,11 @@ function assignRoles(ch,active,allPs,aT,oT){
       roulette=buildMultiRoulette(groups);
       break;}
     case'songword_solo':{
-      const word=rndOf(SONG_WORDS);
+      const word=rndOf(SONG_WORDS);publicHint={icon:'🎵',label:'PALABRA',value:word};
       active.forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Cantad 3 trozos de canciones distintas que contengan esta palabra. 30s por intento:',hunt:word,songGoal:3};});
       break;}
     case'songtheme_solo':{
-      const theme=rndOf(SONG_THEMES);
+      const theme=rndOf(SONG_THEMES);publicHint={icon:'🎵',label:'TEMÁTICA',value:theme};
       active.forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Cantad 3 trozos de canciones distintas de esta temática. 30s por intento:',hunt:theme,songGoal:3};});
       break;}
     case'quiz':{
@@ -1134,7 +1143,7 @@ function assignRoles(ch,active,allPs,aT,oT){
     default:
       active.forEach(p=>{R[p.name]={label:'PARTICIPA',emoji:'👥',isSecret:false,roleDesc:ch.d};});
   }
-  return{roles:R,roulette};
+  return{roles:R,roulette,publicHint};
 }
 
 function showQR(){
