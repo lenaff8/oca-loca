@@ -1438,6 +1438,17 @@ function showStealAnim(emoji,title,subtitle,who){
   setTimeout(()=>{if(ov.parentNode)ov.remove();},3500);
   confetti();
 }
+function addNextRoundBtn(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||document.getElementById('nextRoundBtn'))return;
+  const btn=document.createElement('button');
+  btn.id='nextRoundBtn';
+  btn.className='btn btn-gold';
+  btn.style.cssText='margin-top:8px;width:100%;font-size:17px';
+  btn.textContent='✓ Hecho — Siguiente casilla';
+  btn.onclick=()=>nextRound();
+  mp.appendChild(btn);
+}
 function addBackToChallengeBtn(){
   const mp=document.getElementById('mainPanel');
   if(!mp||document.getElementById('backToChBtn'))return;
@@ -1528,6 +1539,7 @@ function renderEndurance(){
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function endurStart(){
   endur={running:true,start:Date.now(),raf:null,fell:{},_final:0};
@@ -1563,6 +1575,7 @@ function renderSimon(){
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function simonNext(){
   simon.seq.push(Math.floor(Math.random()*4));
@@ -1613,6 +1626,8 @@ function renderQuiz(){
   html+='<button class="btn btn-gold" style="margin-top:8px;width:100%;font-size:15px" onclick="quizNext()">🔀 Otra pregunta</button>';
   html+='</div>';
   mp.innerHTML=html;
+  addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function quizNext(){pickQuizQuestion();renderQuiz();}
 function pickMajorityQuestion(){
@@ -1671,6 +1686,8 @@ function renderMajority(){
   html+='<button class="btn btn-gold" style="margin-top:10px;width:100%;font-size:15px" onclick="majNext()">🔀 Otra pregunta</button>';
   html+='</div>';
   mp.innerHTML=html;
+  addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function majReveal(){majRevealed=true;pub({type:'voteReveal'});renderMajority();}
 function majNext(){pickMajorityQuestion();renderMajority();}
@@ -1730,6 +1747,7 @@ function renderCards(){
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function pickCard(id){
   const teamsIn=teams();
@@ -1782,6 +1800,7 @@ function renderBanker(){
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function bankReveal(){
   const teamsIn=teams();
@@ -1830,6 +1849,7 @@ function renderSongDuel(){
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
 }
 function songDuelSetTurn(t){
   if(songDuel.loser)return;
