@@ -171,8 +171,8 @@ musical:[
  {n:"Sigue la Canción",d:"El moderador pone la canción indicada y la pausa de golpe en cualquier momento. El equipo debe continuar cantando el trozo que sigue. Si lo clavan, superado.",rt:"song_number"},
  {n:"Adivina Cantante y Canción",d:"El moderador pone un fragmento de la canción indicada. El equipo debe acertar el título Y el intérprete. Los dos = superado; solo uno = a medias (lo decide el grupo).",rt:"song_number"},
  {n:"Guerra de Canciones (Solo)",d:"Se revela una palabra. El equipo tiene 90 segundos en total para cantar 3 trozos de canciones reales distintas que contengan esa palabra. Si consigue las 3, superado.",rt:"songword_solo",secs:90},
- {n:"Solo Tararear",d:"Un jugador tararea una canción (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
- {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
+ {n:"Solo Tararear",d:"Un jugador tararea una canción conocida (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver_song",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
+ {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción conocida (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver_song",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
  {n:"Canciones Temáticas (Solo)",d:"Se revela una temática. El equipo debe cantar 3 trozos de canciones reales distintas que encajen con ella, con 30 segundos por intento. Si consigue las 3, superado.",rt:"songtheme_solo",secs:30},
 ],
 minijuego:[
@@ -191,8 +191,8 @@ minijuego:[
  {n:"Año de Estreno",d:"La TV muestra una película. El equipo debe adivinar el año de su estreno en España (margen de ±2 años). Se revela en la TV.",rt:"quiz",qpool:"Q_MOVIE_YEAR"},
  {n:"Sigue la Canción",d:"El moderador pone la canción indicada y la pausa de golpe en cualquier momento. El equipo debe continuar cantando el trozo que sigue. Si lo clavan, superado.",rt:"song_number"},
  {n:"Adivina Cantante y Canción",d:"El moderador pone un fragmento de la canción indicada. El equipo debe acertar el título Y el intérprete. Los dos = superado; solo uno = a medias (lo decide el grupo).",rt:"song_number"},
- {n:"Solo Tararear",d:"Un jugador tararea una canción (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
- {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
+ {n:"Solo Tararear",d:"Un jugador tararea una canción conocida (sin letra) y su equipo la adivina. La canción se le muestra en secreto en el móvil.",rt:"diver_song",al:"TARAREADOR",ad:"Tararea esta canción SIN decir la letra. Solo melodía.",bl:"ADIVINA",bd:"Adivina la canción por la melodía."},
+ {n:"Recita la Letra",d:"Un jugador DICE la letra de una canción conocida (sin cantar, como si fuera un poema) y su equipo adivina cuál es. Se le muestra en secreto.",rt:"diver_song",al:"RECITADOR",ad:"Di la letra de esta canción hablando, sin cantar ni dar la melodía.",bl:"ADIVINA",bd:"Adivina la canción por la letra recitada."},
 
  {n:"Gran Bocce",d:"Lanzad objetos intentando acercarlos al máximo a un punto marcado. El más cercano gana.",rt:"all"},
  {n:"Buceador Lingüístico",d:"Un jugador mete la cara en un cuenco de agua (o aguanta el aliento) y dice el título de una película. Su equipo debe adivinarla por el movimiento de la boca y los sonidos ahogados.",rt:"diver",al:"BUCEADOR",ad:"Mete la cara en el agua y di el título de la película aguantando el aliento. Repite si hace falta.",bl:"ADIVINA",bd:"Intentad adivinar qué película dice vuestro buceador."},
@@ -276,6 +276,7 @@ const Q_ORDER=[{q:"Ordena de MAYOR a menor población",items:["China","India","E
 const BANK_BOXES=[6,5,4,-2,-3,0,8,-4,3,7,-5,2];
 const VOTE_Q=["¿Piña en la pizza?","¿Playa o montaña?","¿Madrugar o trasnochar?","¿Perros o gatos?","¿Dulce o salado para desayunar?","¿Verano o invierno?","¿Cine o serie en casa?","¿Café o té?","¿Tortilla con cebolla o sin cebolla?","¿Móvil Android o iPhone?","¿Ducha por la mañana o por la noche?","¿Libro en papel o digital?","¿Mejor el viernes o el sábado?","¿Comedia o terror?","¿Mar o piscina?","¿Pan con tomate o sin?","¿Calcetines para dormir: sí o no?","¿Helado de chocolate o de vainilla?","¿Conducir o que te lleven?","¿Fiesta multitudinaria o plan tranquilo?"];
 const VOTE_OPTS=[["Sí","No"],["Playa","Montaña"],["Madrugar","Trasnochar"],["Perros","Gatos"],["Dulce","Salado"],["Verano","Invierno"],["Cine","Casa"],["Café","Té"],["Con cebolla","Sin cebolla"],["Android","iPhone"],["Mañana","Noche"],["Papel","Digital"],["Viernes","Sábado"],["Comedia","Terror"],["Mar","Piscina"],["Con tomate","Sin"],["Sí","No"],["Chocolate","Vainilla"],["Conducir","Que me lleven"],["Multitudinaria","Tranquilo"]];
+const KNOWN_SONGS=["Macarena — Los del Río","Aserejé — Las Ketchup","La Camisa Negra — Juanes","Bailando — Enrique Iglesias","Despacito — Luis Fonsi","Corazón Partío — Alejandro Sanz","Color Esperanza — Diego Torres","Resistiré — Duo Dinámico","La Bicicleta — Carlos Vives y Shakira","Bulería — David Bisbal","Bravo — Manuel Carrasco","Quién Te Cantará — Pablo Alborán","Sofía — Álvaro Soler","El Perdón — Nicky Jam","Felices los 4 — Maluma","Robarte un Beso — Carlos Vives","Como Camarón — Estopa","Tu Calorro — Estopa","Clavado en un Bar — Maná","Labios Compartidos — Maná","Me Gustas Tú — Manu Chao","La Flaca — Jarabe de Palo","Salir Corriendo — Amaral","Mediterráneo — Joan Manuel Serrat","La Bilirrubina — Juan Luis Guerra","Suavemente — Elvis Crespo","Vivir Mi Vida — Marc Anthony","Gasolina — Daddy Yankee","Rosas — La Oreja de Van Gogh","Cuéntame al Oído — La Oreja de Van Gogh","Antes de Ti — Vanesa Martín","Te Quiero — Hombres G","Devuélveme a mi Chica — Hombres G","Sobreviviré — Mónica Naranjo","La Fuerza del Destino — Mónica Naranjo","Lady — Mecano","Hijo de la Luna — Mecano","Náufrago — David Bustamante","A Quién Le Importa — Alaska y Dinarama","Bandido — Azúcar Moreno"];
 const HOUSE_OBJECTS=["un rollo de papel higiénico", "un calcetín suelto", "una cuchara de madera", "un peluche", "un cargador de móvil", "un libro", "un mando a distancia", "una taza", "un cojín", "un cepillo de dientes", "un bote de champú", "unas gafas de sol", "un paraguas", "una vela", "un imán de nevera", "una pinza de la ropa", "un tenedor", "un rollo de papel de cocina", "una zapatilla", "un gorro", "una bufanda", "un boli", "unas tijeras", "un peine", "una llave", "un cinturón", "una percha", "un plátano", "una manzana", "un ajo", "una lata de conservas", "un calcetín de un color llamativo", "una foto enmarcada", "un juguete", "una pila", "un post-it", "una goma del pelo", "un sobre", "una moneda antigua", "un trozo de papel de aluminio", "un tupper", "una servilleta", "un chicle", "una tirita", "un palillo", "una bolsa de plástico", "un trapo", "una esponja", "un guante", "un dado"];
 
 
@@ -844,6 +845,16 @@ function assignRoles(ch,active,allPs,aT,oT){
         :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Adivina la película.'};});
       active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
       break;}
+    case'diver_song':{
+      const tp=active.filter(p=>p.team===aT);
+      const diver=rnd(tp);
+      if(tp.length>1)roulette=buildRoulette(tp.map(p=>p.name),diver.name);
+      const song=rndOf(KNOWN_SONGS);
+      tp.forEach(p=>{R[p.name]=p.name===diver.name
+        ?{label:ch.al||'ARTISTA',emoji:'🎵',isSecret:false,roleDesc:ch.ad||'Tu canción secreta:',chosen:true,phrase:song}
+        :{label:ch.bl||'ADIVINA',emoji:'🤔',isSecret:false,roleDesc:ch.bd||'Adivina la canción.'};});
+      active.filter(p=>p.team!==aT).forEach(p=>{R[p.name]={label:'ESPECTADOR',emoji:'👁️',isSecret:false,roleDesc:'Observa.'};});
+      break;}
     case'hunt':{
       const obj=rndOf(HOUSE_OBJECTS);publicHint={icon:'🔦',label:'OBJETO A BUSCAR',value:obj};
       active.filter(p=>p.team===aT).forEach(p=>{R[p.name]={label:'BUSCADOR',emoji:'🔦',isSecret:false,roleDesc:'Encontrad y traed este objeto en 60 segundos:',hunt:obj};});
@@ -946,7 +957,7 @@ function assignRoles(ch,active,allPs,aT,oT){
       roulette=buildMultiRoulette(groups);
       break;}
     case'humming':{
-      const movie=rndOf(MOVIES);
+      const movie=rndOf(KNOWN_SONGS);
       const groups=[];
       [aT,oT].filter(Boolean).forEach(t=>{
         const tp=active.filter(p=>p.team===t);if(!tp.length)return;
