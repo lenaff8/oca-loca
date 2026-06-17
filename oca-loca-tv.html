@@ -243,8 +243,8 @@ versus:[
  {n:"Humming Battle",d:"Juega un equipo y luego el otro. Un cantante de cada equipo tararea una canción (de su móvil) y SU PROPIO equipo debe adivinarla. Cronómetro en marcha: cuando la adivinen, el cantante pulsa para parar el tiempo. El equipo más rápido gana. El tiempo se ve en la TV para evitar trampas.",rt:"humming"},
  {n:"Cazadores Rivales",d:"Se revela un objeto al azar. Ambos equipos corren a buscarlo por la casa. El primer equipo que lo traiga, gana.",rt:"hunt_versus"},
  {n:"Captura el Micro",d:"Dos filas enfrentadas, una por equipo. En el centro, un objeto que hará de micrófono. Suena 1 segundo de una canción: los dos jugadores de cabeza corren a por el micro y deben cantar la canción. El que no lo logre queda eliminado. Sigue hasta que un equipo se quede sin jugadores.",rt:"all"},
- {n:"Guerra de Canciones",d:"Se revela una palabra. Los dos equipos se turnan cantando un trozo de una canción real que la contenga. Cada equipo tiene 30 segundos para responder en su turno; el que no lo logre, pierde.",rt:"songword",secs:30},
- {n:"Canciones Temáticas",d:"Se revela una temática. Los dos equipos se turnan cantando un trozo de una canción que encaje. 30 segundos por turno; el que no sepa seguir, pierde.",rt:"songtheme",secs:30},
+ {n:"Guerra de Canciones",d:"Se revela una palabra. Los dos equipos se turnan cantando trozos de canciones reales que la contengan. Cada equipo dispone de 90 segundos EN TOTAL, repartidos en los turnos que necesite. El primero que se quede sin tiempo o no sepa continuar, pierde.",rt:"songword_duel"},
+ {n:"Canciones Temáticas",d:"Se revela una temática. Los dos equipos se turnan cantando trozos de canciones que encajen. Cada equipo dispone de 90 segundos EN TOTAL, repartidos en los turnos que necesite. El primero que se quede sin tiempo o no sepa seguir, pierde.",rt:"songtheme_duel"},
 {n:"El Reloj Humano",d:"Un representante de cada equipo arranca su cronómetro y lo detiene lo más cerca posible de los 10 segundos, A CIEGAS: con la pantalla oculta, sin mirar el número que corre ni contar en voz alta. El más preciso gana.",rt:"timer_vs",al:"CRONÓMETRO",ad:"Arranca el cronómetro y párolo a los 10 segundos. ¡A CIEGAS! No mires el número mientras corre ni cuentes en alto."},
  {n:"Blindtest de Objetos",d:"Un representante con los ojos vendados debe identificar un objeto al tacto. ¡El EQUIPO RIVAL elige el objeto para complicarlo! 60 segundos. Si acierta, gana su equipo.",rt:"blindtest",al:"CIEGO",ad:"Te vendan los ojos. Toca el objeto que te dé el equipo rival e identifícalo.",bl:"ÁNIMO",bd:"El equipo rival elige el objeto. Anima a tu representante.",secs:60},
  {n:"Pulso de Miradas",d:"Un representante de cada equipo se miran fijamente a los ojos. El primero que ría, parpadee o aparte la mirada, pierde. El otro equipo gana.",rt:"rep",al:"MIRADA",ad:"Mira fijamente a tu rival. No rías ni parpadees. ¡Aguanta!",bl:"ÁNIMO",bd:"Anima a tu representante (sin distraerle demasiado)."},
@@ -303,6 +303,7 @@ window.addEventListener('DOMContentLoaded',()=>{
             if(lastCh.ch.rt==='majority'){majQ=lastCh.majQ||null;majVotes={};majRevealed=false;if(!majQ)pickMajorityQuestion();}
             if(lastCh.ch.rt==='cards'){if(!cardDeck.length)setupCards();}
             if(lastCh.ch.rt==='banker'){if(!bankOffer)setupBanker();}
+            if((lastCh.ch.rt==='songword_duel'||lastCh.ch.rt==='songtheme_duel')&&!Object.keys(songDuel.remaining).length){setupSongDuel();}
             if(lastCh.panelView==='special'){openSpecialPanel();}
             else{addSpecialPanelButton();}
           }
@@ -455,6 +456,7 @@ let quizQ=null,quizShown=false;
 let majQ=null,majVotes={},majRevealed=false;
 let cardDeck=[],cardPicks={};
 let bankOffer=0,bankDecisions={},bankBoxes={},bankRevealed=false;
+let songDuel={remaining:{},activeTeam:null,raf:null,lastTick:0,loser:null};
 let recentCh={minijuego:[],evento:[],versus:[],musical:[]};
 function saveTeams(){
   localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
@@ -621,6 +623,7 @@ function launch(){
     if(ch.rt==='majority'){pickMajorityQuestion();}
     if(ch.rt==='cards'){setupCards();}
     if(ch.rt==='banker'){setupBanker();}
+    if(ch.rt==='songword_duel'||ch.rt==='songtheme_duel'){setupSongDuel();}
     if(ch.rt==='buzzer'){resetBuzzer();}
     addSpecialPanelButton();
   };
@@ -631,7 +634,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;songDuel={remaining:{},activeTeam:null,raf:null,lastTick:0,loser:null};buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done,publicHint){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
@@ -1043,6 +1046,20 @@ function assignRoles(ch,active,allPs,aT,oT){
       publicHint={icon:'🎵',label:'CANCIÓN Nº',value:num};
       active.forEach(p=>{R[p.name]={label:'EN EQUIPO',emoji:'🎵',isSecret:false,roleDesc:'Mirad la TV y escuchad la canción que pone el moderador.'};});
       break;}
+    case'songword_duel':{
+      const word=rndOf(SONG_WORDS);
+      publicHint={icon:'🎵',label:'PALABRA',value:word};
+      [aT,oT].filter(Boolean).forEach(t=>{
+        active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos contra el rival, cantad trozos de canciones que contengan esta palabra:',hunt:word};});
+      });
+      break;}
+    case'songtheme_duel':{
+      const theme=rndOf(SONG_THEMES);
+      publicHint={icon:'🎵',label:'TEMÁTICA',value:theme};
+      [aT,oT].filter(Boolean).forEach(t=>{
+        active.filter(p=>p.team===t).forEach(p=>{R[p.name]={label:'CANTANTE',emoji:'🎵',isSecret:false,roleDesc:'Por turnos contra el rival, cantad trozos de canciones de esta temática:',hunt:theme};});
+      });
+      break;}
     case'quiz':{
       active.forEach(p=>{R[p.name]={label:'EN EQUIPO',emoji:'🧠',isSecret:false,roleDesc:'Responded en equipo. Mirad la pregunta en la TV.'};});
       break;}
@@ -1447,6 +1464,7 @@ function specialPanelInfo(){
   if(rt==='majority')return {label:'▶ Ir a la votación',fn:'openSpecialPanel'};
   if(rt==='cards')return {label:'▶ Ir a las cartas',fn:'openSpecialPanel'};
   if(rt==='banker')return {label:'▶ Ir a la oferta',fn:'openSpecialPanel'};
+  if(rt==='songword_duel'||rt==='songtheme_duel')return {label:'▶ Ir a los cronómetros',fn:'openSpecialPanel'};
   return null;
 }
 function addSpecialPanelButton(){
@@ -1478,6 +1496,7 @@ function openSpecialPanel(){
   else if(rt==='majority'){if(!majQ)pickMajorityQuestion();renderMajority();}
   else if(rt==='cards'){if(!cardDeck.length)setupCards();renderCards();}
   else if(rt==='banker'){renderBanker();}
+  else if(rt==='songword_duel'||rt==='songtheme_duel'){if(!Object.keys(songDuel.remaining).length)setupSongDuel();renderSongDuel();}
 }
 function renderEndurance(){
   const mp=document.getElementById('mainPanel');
@@ -1769,6 +1788,74 @@ function bankReveal(){
   let bi=0;
   teamsIn.forEach(t=>{if(bankDecisions[t]==='box'){bankBoxes[t]=shuffled[bi%shuffled.length];bi++;}});
   bankRevealed=true;confetti();saveTV();renderBanker();
+}
+function setupSongDuel(){
+  const teamsIn=[lastCh.aT,lastCh.oT].filter(Boolean);
+  songDuel={remaining:{},activeTeam:null,raf:null,lastTick:0,loser:null};
+  teamsIn.forEach(t=>{songDuel.remaining[t]=90;});
+}
+function renderSongDuel(){
+  const mp=document.getElementById('mainPanel');
+  if(!mp||!lastCh||!['songword_duel','songtheme_duel'].includes(lastCh.ch.rt))return;
+  const teamsIn=[lastCh.aT,lastCh.oT].filter(Boolean);
+  const tn=t=>{const d=teamDefs.find(x=>x.id===t);return d?d.name:'Equipo '+t;};
+  let html='<div style="text-align:center"><div style="font-size:44px">🎵</div>';
+  html+='<div style="color:var(--cat-versus);font-size:14px;font-weight:900;letter-spacing:.12em;margin:6px 0">'+lastCh.ch.n.toUpperCase()+'</div>';
+  html+='<div style="display:flex;gap:14px;justify-content:center;margin-top:14px;flex-wrap:wrap">';
+  teamsIn.forEach(t=>{
+    const r=Math.max(0,songDuel.remaining[t]);
+    const isActive=songDuel.activeTeam===t;
+    const danger=r<=15&&r>0;
+    const dead=r<=0;
+    html+='<div style="background:var(--card);border:3px solid '+(dead?'#666':isActive?'#22c55e':'var(--wood)')+';border-radius:16px;padding:18px 24px;min-width:160px">';
+    html+='<div style="font-size:13px;font-weight:800;color:var(--dim)">'+tn(t)+'</div>';
+    html+='<div style="font-size:42px;font-weight:900;color:'+(dead?'#666':danger?'#e21b3c':'#fff')+';margin:6px 0">'+r.toFixed(1)+'s</div>';
+    if(dead)html+='<div style="color:#e21b3c;font-weight:900;font-size:13px">SIN TIEMPO</div>';
+    else if(isActive)html+='<div style="color:#22c55e;font-weight:900;font-size:13px">⏵ EN TURNO</div>';
+    else html+='<button class="btn" style="padding:8px 16px;font-size:13px" onclick="songDuelSetTurn(\''+t+'\')" '+(songDuel.loser?'disabled':'')+'>Pasarle el turno</button>';
+    html+='</div>';
+  });
+  html+='</div>';
+  if(!songDuel.loser){
+    if(songDuel.activeTeam){
+      html+='<button class="btn btn-gold" style="margin-top:16px;width:100%;font-size:15px" onclick="songDuelPause()">⏸ Pausar (cambiar turno)</button>';
+    }else{
+      html+='<div style="color:var(--dim);font-size:13px;margin-top:12px">Elige qué equipo empieza</div>';
+    }
+  }else{
+    const winner=teamsIn.find(t=>t!==songDuel.loser);
+    html+='<div style="font-size:20px;font-weight:900;color:#22c55e;margin-top:16px">🏆 Gana '+tn(winner)+'</div>';
+  }
+  html+='</div>';
+  mp.innerHTML=html;
+  addBackToChallengeBtn();
+}
+function songDuelSetTurn(t){
+  if(songDuel.loser)return;
+  songDuel.activeTeam=t;
+  songDuel.lastTick=Date.now();
+  songDuelTick();
+}
+function songDuelPause(){
+  songDuel.activeTeam=null;
+  if(songDuel.raf)cancelAnimationFrame(songDuel.raf);
+  renderSongDuel();
+}
+function songDuelTick(){
+  if(!songDuel.activeTeam)return;
+  const now=Date.now();
+  const dt=(now-songDuel.lastTick)/1000;
+  songDuel.lastTick=now;
+  songDuel.remaining[songDuel.activeTeam]=Math.max(0,songDuel.remaining[songDuel.activeTeam]-dt);
+  if(songDuel.remaining[songDuel.activeTeam]<=0){
+    songDuel.loser=songDuel.activeTeam;
+    songDuel.activeTeam=null;
+    confetti();
+    renderSongDuel();
+    return;
+  }
+  renderSongDuel();
+  songDuel.raf=requestAnimationFrame(songDuelTick);
 }
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
