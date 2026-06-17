@@ -1578,8 +1578,9 @@ function playSimonSequence(){
   };
   step();
 }
+const QUIZ_POOLS={Q_YEAR,Q_MORE,Q_REFRAN,Q_EMOJI,Q_TF,Q_ORDER,Q_SONG_YEAR,Q_MOVIE_YEAR};
 function pickQuizQuestion(){
-  const pool=window[lastCh.ch.qpool]||[];
+  const pool=QUIZ_POOLS[lastCh.ch.qpool]||[];
   quizQ=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
   quizShown=false;
   if(lastCh)lastCh.quizQ=quizQ;saveTV();
