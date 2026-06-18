@@ -110,6 +110,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .15s;
 }
 #themeToggle:hover{transform:scale(1.1)}
+
+/* ── Navegación con mando de TV ── */
+*:focus{outline:none}
+.tv-focus{outline:4px solid var(--gold)!important;outline-offset:3px;border-radius:12px;box-shadow:0 0 0 6px rgba(0,0,0,.3)!important;transition:outline .1s}
+#tvHelp{position:fixed;bottom:14px;right:14px;background:rgba(0,0,0,.7);color:#fff;font-size:13px;padding:8px 14px;border-radius:10px;z-index:9999;max-width:260px;line-height:1.5;opacity:.85}
+#tvHelp b{color:var(--gold)}
+@media(min-width:1600px){#tvHelp{font-size:17px;padding:12px 20px;max-width:360px}}
 </style>
 </head>
 <body>
@@ -1904,7 +1911,84 @@ function songDuelTick(){
   songDuel.raf=requestAnimationFrame(songDuelTick);
 }
 function tc(t){const i='ABCDEFGH'.indexOf(t);return TC[i>=0?i:0];}
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// ════════ NAVEGACIÓN CON MANDO DE TV ════════
+let navFocus=-1;
+function navItems(){
+  // All clickable elements currently visible on the active screen
+  const active=document.querySelector('.screen.active')||document.body;
+  const sel='button:not([disabled]), input[type=text], .cat-card, [onclick]';
+  return [...active.querySelectorAll(sel)].filter(el=>{
+    const r=el.getBoundingClientRect();
+    return r.width>0&&r.height>0&&el.offsetParent!==null;
+  });
+}
+function navClear(){document.querySelectorAll('.tv-focus').forEach(e=>e.classList.remove('tv-focus'));}
+function navSet(i){
+  const items=navItems();
+  if(!items.length){navFocus=-1;return;}
+  navClear();
+  navFocus=(i+items.length)%items.length;
+  const el=items[navFocus];
+  el.classList.add('tv-focus');
+  el.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function navMove(dir){
+  const items=navItems();
+  if(!items.length)return;
+  if(navFocus<0){navSet(0);return;}
+  // For simplicity move sequentially; works well for vertical button stacks on TV
+  navSet(navFocus+dir);
+}
+function navActivate(){
+  const items=navItems();
+  if(navFocus<0||navFocus>=items.length){navSet(0);return;}
+  const el=items[navFocus];
+  if(el.tagName==='INPUT'){el.focus();return;}
+  el.click();
+  // After an action the screen may change; reset focus to first item shortly after
+  setTimeout(()=>{navClear();navFocus=-1;},100);
+}
+document.addEventListener('keydown',e=>{
+  // Don't hijack typing in a text field
+  if(document.activeElement&&document.activeElement.tagName==='INPUT'){
+    if(e.key==='Escape')document.activeElement.blur();
+    return;
+  }
+  switch(e.key){
+    case'ArrowDown':case'ArrowRight':e.preventDefault();navMove(1);break;
+    case'ArrowUp':case'ArrowLeft':e.preventDefault();navMove(-1);break;
+    case'Enter':e.preventDefault();navActivate();break;
+    // Direct shortcuts (also work without focus navigation)
+    case' ':{ // Space = start/pause the challenge timer if present
+      e.preventDefault();
+      if(typeof chTimerRunning!=='undefined'){
+        if(chTimerRunning)chTimerPause();else chTimerStart();
+      }
+      break;}
+    case'n':case'N':{ // N = siguiente casilla
+      const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('Siguiente casilla'));
+      if(b)b.click();
+      break;}
+    case'Backspace':case'Escape':{ // Back = volver en el wizard
+      e.preventDefault();
+      const back=[...document.querySelectorAll('button')].find(x=>/volver|atrás|←/i.test(x.textContent));
+      if(back)back.click();
+      break;}
+  }
+});
+// Show a small help hint
+window.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{
+    if(document.getElementById('tvHelp'))return;
+    const h=document.createElement('div');
+    h.id='tvHelp';
+    h.innerHTML='<b>Mando:</b> ↑↓ mover · <b>OK</b> elegir · <b>ESPACIO</b> crono · <b>N</b> siguiente';
+    document.body.appendChild(h);
+  },800);
+});
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');navClear();navFocus=-1;}
+
 </script>
 
 
