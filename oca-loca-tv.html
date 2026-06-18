@@ -1999,10 +1999,6 @@ function navActivate(){
   setTimeout(()=>{navClear();navFocus=-1;},100);
 }
 document.addEventListener('keydown',e=>{
-  // ── DETECTOR TEMPORAL: muestra el código de la tecla pulsada ──
-  let dbg=document.getElementById('keyDbg');
-  if(!dbg){dbg=document.createElement('div');dbg.id='keyDbg';dbg.style.cssText='position:fixed;bottom:10px;left:10px;background:#000;color:#0f0;font-size:20px;font-family:monospace;padding:10px 16px;border-radius:8px;z-index:99999';document.body.appendChild(dbg);}
-  dbg.textContent='Tecla: "'+e.key+'"  code: "'+e.code+'"  keyCode: '+e.keyCode;
   // Don't hijack typing in a text field
   if(document.activeElement&&document.activeElement.tagName==='INPUT'){
     if(e.key==='Escape')document.activeElement.blur();
@@ -2020,7 +2016,7 @@ document.addEventListener('keydown',e=>{
       }
       break;}
     case'n':case'N':
-    case'MediaPlayPause':case'List':case'TV':case'Guide':case'ContextMenu':case'F5':{ // LIST/N = siguiente casilla / confirmar
+    case'MediaPlayPause':case'List':case'TV':case'Guide':case'ContextMenu':case'F5':case'BrowserFavorites':{ // LIST/N = siguiente casilla / confirmar
       e.preventDefault();
       const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('Siguiente casilla'));
       if(b){b.click();break;}
