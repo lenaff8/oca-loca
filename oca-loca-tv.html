@@ -1999,6 +1999,10 @@ function navActivate(){
   setTimeout(()=>{navClear();navFocus=-1;},100);
 }
 document.addEventListener('keydown',e=>{
+  // ── DETECTOR TEMPORAL: muestra el código de la tecla pulsada ──
+  let dbg=document.getElementById('keyDbg');
+  if(!dbg){dbg=document.createElement('div');dbg.id='keyDbg';dbg.style.cssText='position:fixed;bottom:10px;left:10px;background:#000;color:#0f0;font-size:20px;font-family:monospace;padding:10px 16px;border-radius:8px;z-index:99999';document.body.appendChild(dbg);}
+  dbg.textContent='Tecla: "'+e.key+'"  code: "'+e.code+'"  keyCode: '+e.keyCode;
   // Don't hijack typing in a text field
   if(document.activeElement&&document.activeElement.tagName==='INPUT'){
     if(e.key==='Escape')document.activeElement.blur();
