@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --btn-ghost-color:#dbdee1;--btn-ghost-border:#4e5058;
   --status-color:#80848e;
   --kick-bg:#3c2022;--kick-color:#fa777c;
-  --cat-mini:#5865f2;--cat-evento:#23a55a;--cat-versus:#da373c;--cat-musical:#eb459e;
+  --cat-mini:#23a55a;--cat-evento:#e6a817;--cat-versus:#da373c;--cat-musical:#3b82f6;
   --role-normal:linear-gradient(160deg,#383a40,#2b2d31);
   --role-chosen:linear-gradient(160deg,#4752c4,#36408f);
   --role-secret:linear-gradient(160deg,#6b2350,#2e0f22);
@@ -93,7 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
   --btn-ghost-color:#4b4b4b;--btn-ghost-border:#dcdcdc;
   --status-color:#9a9a9a;
   --kick-bg:#ffe3e3;--kick-color:#e21b3c;
-  --cat-mini:#1cb0f6;--cat-evento:#ff9600;--cat-versus:#e21b3c;--cat-musical:#e91e8c;
+  --cat-mini:#22c55e;--cat-evento:#f1b000;--cat-versus:#e21b3c;--cat-musical:#1cb0f6;
   --role-normal:linear-gradient(160deg,#d9f1ff,#bce5ff);
   --role-chosen:linear-gradient(160deg,#fff3b0,#ffd60a);
   --role-secret:linear-gradient(160deg,#f0deff,#dcc0fa);
@@ -600,19 +600,19 @@ function renderWizard(){
       <div class="wizard-q">¿En qué casilla ha caído?</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
         <button class="cat-card" style="background:var(--cat-mini);animation-delay:0ms" onclick="wPickCat('minijuego')">
-          <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#2ecc71;border:2px solid rgba(255,255,255,.6)"></span>
+          <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
         <button class="cat-card" style="background:var(--cat-evento);animation-delay:60ms" onclick="wPickCat('evento')">
-          <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#f1c40f;border:2px solid rgba(255,255,255,.6)"></span>
+          <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span>
           <div class="cat-sub">Juegan todos<br>los equipos</div>
         </button>
         <button class="cat-card" style="background:var(--cat-versus);animation-delay:120ms" onclick="wPickCat('versus')">
-          <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#e74c3c;border:2px solid rgba(255,255,255,.6)"></span>
+          <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
         </button>
         <button class="cat-card" style="background:var(--cat-musical);animation-delay:180ms" onclick="wPickCat('musical')">
-          <span class="cat-emoji">🎵</span><span class="cat-name">Musical</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#3498db;border:2px solid rgba(255,255,255,.6)"></span>
+          <span class="cat-emoji">🎵</span><span class="cat-name">Musical</span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
       </div>`;
