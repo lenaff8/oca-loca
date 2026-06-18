@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min-height:100vh}
-.screen{display:none;padding:20px;max-width:1400px;width:100%;margin:0 auto}.screen.active{display:block}
+.screen{display:none;padding:20px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}.screen.active{display:block}
 .card{background:var(--panel);border:1px solid var(--wood);border-radius:16px;padding:18px}
 .btn{border:none;border-radius:12px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
 .btn:hover{opacity:.9;transform:translateY(-1px)}.btn:active{transform:scale(.97)}
@@ -22,21 +22,21 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 @keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
 .status{font-size:11px;color:var(--status-color);text-align:center;margin-top:4px}
 .grid2{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-@media(min-width:900px){.gridLobby{grid-template-columns:minmax(320px,38%) 1fr}.gridGame{grid-template-columns:minmax(300px,32%) 1fr}}
+@media(min-width:900px){.gridLobby{grid-template-columns:minmax(320px,38%) 1fr;max-height:calc(100dvh - 56px);align-items:start}.gridLobby>div:first-child{max-height:calc(100dvh - 56px);overflow-y:auto;padding-right:6px}.gridGame{grid-template-columns:minmax(300px,32%) 1fr}}
 @media(min-width:1600px){
-  body{font-size:1.35rem}
+  body{font-size:1.2rem}
   .screen{max-width:2000px}
-  .screen.active{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
-  .gridLobby{grid-template-columns:minmax(420px,34%) 1fr;gap:32px}
-  .gridGame{grid-template-columns:minmax(380px,30%) 1fr;gap:32px}
-  .code{font-size:4.2rem!important}
-  .label{font-size:1rem!important}
-  #qrBox img{width:min(50vh,420px)!important;height:min(50vh,420px)!important}
+  .gridLobby{grid-template-columns:minmax(360px,30%) 1fr;gap:24px}
+  .gridGame{grid-template-columns:minmax(340px,26%) 1fr;gap:24px}
+  .code{font-size:3.2rem!important}
+  .label{font-size:.9rem!important}
+  #qrBox img{width:min(30vh,300px)!important;height:min(30vh,300px)!important}
 }
 @media(min-width:2400px){
-  body{font-size:1.7rem}
+  body{font-size:1.5rem}
   .screen{max-width:2800px}
-  .code{font-size:5.5rem!important}
+  .code{font-size:4.2rem!important}
+  #qrBox img{width:min(28vh,320px)!important;height:min(28vh,320px)!important}
 }
 
 /* ── Wizard ── */
