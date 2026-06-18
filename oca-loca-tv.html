@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 /* ── Wizard ── */
 .wizard-q{font-size:24px;font-weight:900;color:var(--text);text-align:center;margin-bottom:24px;animation:fadeUp .35s ease both}
 @keyframes fadeUp{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-.cat-card{border:none;border-radius:20px;padding:36px 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both}
+.cat-card{position:relative;border:none;border-radius:20px;padding:36px 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both}
 .cat-card:hover{transform:translateY(-4px) scale(1.02)}
 .cat-card:active{transform:scale(.97)}
 .cat-emoji{font-size:56px;display:block;margin-bottom:10px}
@@ -552,19 +552,19 @@ function renderWizard(){
       <div class="wizard-q">¿En qué casilla ha caído?</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
         <button class="cat-card" style="background:var(--cat-mini);animation-delay:0ms" onclick="wPickCat('minijuego')">
-          <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span>
+          <span class="cat-emoji">🎮</span><span class="cat-name">Minijuego</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#2ecc71;border:2px solid rgba(255,255,255,.6)"></span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
         <button class="cat-card" style="background:var(--cat-evento);animation-delay:60ms" onclick="wPickCat('evento')">
-          <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span>
+          <span class="cat-emoji">⚡</span><span class="cat-name">Evento</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#f1c40f;border:2px solid rgba(255,255,255,.6)"></span>
           <div class="cat-sub">Juegan todos<br>los equipos</div>
         </button>
         <button class="cat-card" style="background:var(--cat-versus);animation-delay:120ms" onclick="wPickCat('versus')">
-          <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
+          <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#e74c3c;border:2px solid rgba(255,255,255,.6)"></span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
         </button>
         <button class="cat-card" style="background:var(--cat-musical);animation-delay:180ms" onclick="wPickCat('musical')">
-          <span class="cat-emoji">🎵</span><span class="cat-name">Musical</span>
+          <span class="cat-emoji">🎵</span><span class="cat-name">Musical</span><span style="position:absolute;top:12px;right:14px;width:16px;height:16px;border-radius:50%;background:#3498db;border:2px solid rgba(255,255,255,.6)"></span>
           <div class="cat-sub">Juega el equipo<br>que tiró el dado</div>
         </button>
       </div>`;
@@ -1975,15 +1975,32 @@ document.addEventListener('keydown',e=>{
       const back=[...document.querySelectorAll('button')].find(x=>/volver|atrás|←/i.test(x.textContent));
       if(back)back.click();
       break;}
+    // ── Teclas de color del mando: elegir categoría directamente ──
+    case'ColorF0Red':case'r':case'R':tvColorKey('versus');break;
+    case'ColorF1Green':case'g':case'G':tvColorKey('minijuego');break;
+    case'ColorF2Yellow':case'y':case'Y':tvColorKey('evento');break;
+    case'ColorF3Blue':case'b':case'B':tvColorKey('musical');break;
+  }
+  // ── Teclas numéricas: elegir la opción N de la pantalla actual (equipos, etc.) ──
+  if(/^[1-9]$/.test(e.key)){
+    const idx=parseInt(e.key)-1;
+    const items=navItems();
+    if(items[idx]){navSet(idx);items[idx].click();setTimeout(()=>{navClear();navFocus=-1;},100);}
   }
 });
+function tvColorKey(cat){
+  // Only act when we're on the category-selection screen of the wizard
+  if(typeof wState!=='undefined'&&wState==='cat'&&typeof wPickCat==='function'){
+    wPickCat(cat);
+  }
+}
 // Show a small help hint
 window.addEventListener('DOMContentLoaded',()=>{
   setTimeout(()=>{
     if(document.getElementById('tvHelp'))return;
     const h=document.createElement('div');
     h.id='tvHelp';
-    h.innerHTML='<b>Mando:</b> ↑↓ mover · <b>OK</b> elegir · <b>ESPACIO</b> crono · <b>N</b> siguiente';
+    h.innerHTML='<b>Mando:</b> ↑↓ mover · OK elegir · ESPACIO crono · N siguiente<br><span style="color:#e74c3c">●</span> Versus · <span style="color:#2ecc71">●</span> Minijuego · <span style="color:#f1c40f">●</span> Evento · <span style="color:#3498db">●</span> Musical';
     document.body.appendChild(h);
   },800);
 });
