@@ -498,16 +498,43 @@ function addTeam(){
   inp.value='';saveTeams();
 }
 function renameTeam(idx){
-  const name=prompt('Nuevo nombre:',teamDefs[idx].name);
-  if(name&&name.trim()){teamDefs[idx].name=name.trim();saveTeams();}
+  const old=document.getElementById('tvDialog');if(old)old.remove();
+  const ov=document.createElement('div');
+  ov.id='tvDialog';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px';
+  ov.innerHTML='<div style="background:var(--card,#2b2d3a);border-radius:20px;padding:32px;max-width:520px;width:100%;text-align:center">'+
+    '<div style="font-size:20px;font-weight:800;color:var(--text,#fff);margin-bottom:18px">Nuevo nombre del equipo</div>'+
+    '<input id="tvRenameInput" type="text" value="'+teamDefs[idx].name.replace(/"/g,'&quot;')+'" style="width:100%;padding:14px;font-size:18px;border-radius:12px;border:2px solid var(--wood,#4e5058);background:var(--bg,#1e1f26);color:var(--text,#fff);box-sizing:border-box;text-align:center;margin-bottom:18px">'+
+    '<div style="display:flex;gap:14px;justify-content:center">'+
+      '<button id="tvRenameNo" class="btn" style="padding:14px 28px;font-size:17px;background:var(--btn-ghost-bg,#3a3c4a);color:var(--text,#fff)">Cancelar</button>'+
+      '<button id="tvRenameYes" class="btn btn-gold" style="padding:14px 28px;font-size:17px">Guardar</button>'+
+    '</div></div>';
+  document.body.appendChild(ov);
+  const inp=document.getElementById('tvRenameInput');
+  const close=()=>{ov.remove();navClear();navFocus=-1;};
+  const save=()=>{const v=inp.value.trim();if(v){teamDefs[idx].name=v;saveTeams();}close();};
+  document.getElementById('tvRenameNo').onclick=close;
+  document.getElementById('tvRenameYes').onclick=save;
+  inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();save();}});
+  setTimeout(()=>{inp.focus();inp.select();},60);
 }
 function deleteTeam(id){
-  if(Object.values(players).some(p=>p.team===id)){alert('Hay jugadores en este equipo.');return;}
-  if(!confirm('¿Eliminar este equipo?'))return;
-  teamDefs=teamDefs.filter(t=>t.id!==id);
-  // Re-assign IDs to keep them sequential
-  teamDefs=teamDefs.map((t,i)=>({...t,id:'ABCDEFGH'[i],color:TC[i]}));
-  saveTeams();
+  if(Object.values(players).some(p=>p.team===id)){tvToast('Hay jugadores en este equipo.');return;}
+  tvConfirm('¿Eliminar este equipo?',()=>{
+    teamDefs=teamDefs.filter(t=>t.id!==id);
+    // Re-assign IDs to keep them sequential
+    teamDefs=teamDefs.map((t,i)=>({...t,id:'ABCDEFGH'[i],color:TC[i]}));
+    saveTeams();
+  });
+}
+function tvToast(msg){
+  const old=document.getElementById('tvToast');if(old)old.remove();
+  const t=document.createElement('div');
+  t.id='tvToast';
+  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:14px 26px;border-radius:12px;font-size:17px;font-weight:700;z-index:10001';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
 }
 function renderTeamDefs(){
   const el=document.getElementById('teamDefList');if(!el)return;
@@ -526,8 +553,27 @@ function saveTV(){
 }
 function goGame(){pub({type:'start'});tvInGame=true;show('sGame');wizardReset();saveTV();}
 function initTeams(){renderTeamDefs();renderPlayers();}
+function tvConfirm(msg,onYes){
+  // Remove any existing dialog
+  const old=document.getElementById('tvDialog');if(old)old.remove();
+  const ov=document.createElement('div');
+  ov.id='tvDialog';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px';
+  ov.innerHTML='<div style="background:var(--card,#2b2d3a);border-radius:20px;padding:32px;max-width:520px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)">'+
+    '<div style="font-size:20px;font-weight:800;color:var(--text,#fff);margin-bottom:24px;line-height:1.5">'+msg+'</div>'+
+    '<div style="display:flex;gap:14px;justify-content:center">'+
+      '<button id="tvDlgNo" class="btn" style="padding:14px 28px;font-size:17px;background:var(--btn-ghost-bg,#3a3c4a);color:var(--text,#fff)">Cancelar</button>'+
+      '<button id="tvDlgYes" class="btn btn-gold" style="padding:14px 28px;font-size:17px">Sí, continuar</button>'+
+    '</div></div>';
+  document.body.appendChild(ov);
+  const close=()=>{ov.remove();navClear();navFocus=-1;};
+  document.getElementById('tvDlgNo').onclick=close;
+  document.getElementById('tvDlgYes').onclick=()=>{close();onYes();};
+  // Auto-focus the confirm button for remote navigation
+  setTimeout(()=>{navClear();const yes=document.getElementById('tvDlgYes');if(yes)yes.classList.add('tv-focus');navFocus=-1;},50);
+}
 function newRoom(){
-  if(!confirm('¿Crear una sala nueva? Se desconectarán todos los jugadores y se borrarán los equipos.'))return;
+  tvConfirm('¿Crear una sala nueva? Se desconectarán todos los jugadores y se borrarán los equipos.',()=>{
   pub({type:'clear'});
   localStorage.removeItem('ocaTV');
   localStorage.removeItem('ocaTeams');
@@ -536,10 +582,12 @@ function newRoom(){
   // clear the URL hash so a fresh code is generated on reload
   history.replaceState(null,'',location.pathname+location.search);
   location.reload();
+  });
 }
 function kickPlayer(name){
-  if(!confirm('¿Eliminar a '+name+' de la lista?'))return;
+  tvConfirm('¿Eliminar a '+name+' de la lista?',()=>{
   delete players[name];saveTV();renderPlayers();
+  });
 }
 
 // ════ WIZARD ════
