@@ -26,6 +26,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 @media(min-width:1600px){
   body{font-size:1.35rem}
   .screen{max-width:2000px}
+  .screen.active{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
   .gridLobby{grid-template-columns:minmax(420px,34%) 1fr;gap:32px}
   .gridGame{grid-template-columns:minmax(380px,30%) 1fr;gap:32px}
   .code{font-size:4.2rem!important}
@@ -41,10 +42,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 /* ── Wizard ── */
 .wizard-q{font-size:24px;font-weight:900;color:var(--text);text-align:center;margin-bottom:24px;animation:fadeUp .35s ease both}
 @keyframes fadeUp{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
-.cat-card{position:relative;border:none;border-radius:20px;padding:36px 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both}
+.cat-card{position:relative;border:none;border-radius:20px;padding:clamp(16px,3vh,40px) 20px;cursor:pointer;font-family:inherit;text-align:center;color:#fff;transition:transform .15s,box-shadow .15s;animation:fadeUp .35s ease both;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .cat-card:hover{transform:translateY(-4px) scale(1.02)}
 .cat-card:active{transform:scale(.97)}
-.cat-emoji{font-size:56px;display:block;margin-bottom:10px}
+.cat-emoji{font-size:clamp(36px,5vh,64px);display:block;margin-bottom:8px}
 .cat-name{font-size:22px;font-weight:900;letter-spacing:.02em}
 .cat-sub{font-size:12px;opacity:.65;margin-top:6px;line-height:1.5}
 .team-big{border:3px solid transparent;border-radius:18px;padding:28px 14px;cursor:pointer;font-family:inherit;color:#fff;font-size:26px;font-weight:900;transition:transform .12s;min-width:110px;animation:fadeUp .3s ease both}
@@ -114,9 +115,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 /* ── Navegación con mando de TV ── */
 *:focus{outline:none}
 .tv-focus{outline:4px solid var(--gold)!important;outline-offset:3px;border-radius:12px;box-shadow:0 0 0 6px rgba(0,0,0,.3)!important;transition:outline .1s}
-#tvHelp{position:fixed;bottom:14px;right:14px;background:rgba(0,0,0,.7);color:#fff;font-size:13px;padding:8px 14px;border-radius:10px;z-index:9999;max-width:260px;line-height:1.5;opacity:.85}
+#tvHelp{position:fixed;top:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:6px 10px;border-radius:8px;z-index:9999;max-width:230px;line-height:1.4;opacity:.7}
 #tvHelp b{color:var(--gold)}
-@media(min-width:1600px){#tvHelp{font-size:17px;padding:12px 20px;max-width:360px}}
+@media(min-width:1600px){#tvHelp{font-size:13px;padding:8px 14px;max-width:300px}}
 </style>
 </head>
 <body>
@@ -598,7 +599,7 @@ function renderWizard(){
   if(wState==='cat'){
     mp.innerHTML=`
       <div class="wizard-q">¿En qué casilla ha caído?</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-height:calc(100vh - 180px)">
         <button class="cat-card" style="background:var(--cat-versus);animation-delay:0ms" onclick="wPickCat('versus')">
           <span class="cat-emoji">⚔️</span><span class="cat-name">Versus</span>
           <div class="cat-sub">Un equipo<br>reta a otro</div>
