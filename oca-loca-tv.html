@@ -2015,9 +2015,13 @@ document.addEventListener('keydown',e=>{
         if(chTimerRunning)chTimerPause();else chTimerStart();
       }
       break;}
-    case'n':case'N':{ // N = siguiente casilla
+    case'n':case'N':
+    case'MediaPlayPause':case'List':case'TV':case'Guide':case'ContextMenu':case'F5':{ // LIST/N = siguiente casilla / confirmar
+      e.preventDefault();
       const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('Siguiente casilla'));
-      if(b)b.click();
+      if(b){b.click();break;}
+      // If no 'next' button, treat as confirm of the focused item
+      navActivate();
       break;}
     case'Backspace':case'Escape':{ // Back = volver en el wizard
       e.preventDefault();
@@ -2030,7 +2034,13 @@ document.addEventListener('keydown',e=>{
     case'ColorF2Yellow':case'y':case'Y':tvColorKey('musical');break;
     case'ColorF3Blue':case'b':case'B':tvColorKey('minijuego');break;
   }
-  // ── Teclas numéricas: elegir la opción N de la pantalla actual (equipos, etc.) ──
+  // ── Tecla 0: Nueva sala ──
+  if(e.key==='0'){
+    const nr=[...document.querySelectorAll('button')].find(x=>/nueva sala/i.test(x.textContent));
+    if(nr)nr.click();
+    return;
+  }
+  // ── Teclas numéricas 1-9: elegir la opción N de la pantalla actual (equipos, etc.) ──
   if(/^[1-9]$/.test(e.key)){
     const idx=parseInt(e.key)-1;
     const items=navItems();
@@ -2049,7 +2059,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(document.getElementById('tvHelp'))return;
     const h=document.createElement('div');
     h.id='tvHelp';
-    h.innerHTML='<b>Mando:</b> ↑↓ mover · OK elegir · ESPACIO crono · N siguiente<br><span style="color:#e74c3c">●</span> Versus · <span style="color:#2ecc71">●</span> Evento · <span style="color:#f1c40f">●</span> Musical · <span style="color:#3498db">●</span> Minijuego';
+    h.innerHTML='<b>Mando:</b> ↑↓ mover · OK/nº elegir · LIST siguiente · 0 nueva sala · ESPACIO crono<br><span style="color:#e74c3c">●</span> Versus · <span style="color:#2ecc71">●</span> Evento · <span style="color:#f1c40f">●</span> Musical · <span style="color:#3498db">●</span> Minijuego';
     document.body.appendChild(h);
   },800);
 });
