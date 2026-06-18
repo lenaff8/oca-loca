@@ -158,9 +158,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
 </div>
 
 <div id="sGame" class="screen">
-  <div class="grid2 gridGame">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card" style="text-align:center;padding:12px">
+  <div class="grid2 gridGame" style="align-items:stretch">
+    <div style="display:flex;flex-direction:column;gap:12px;min-height:0">
+      <div class="card" style="text-align:center;padding:12px;flex-shrink:0">
         <div style="display:flex;align-items:center;justify-content:center;gap:14px">
           <div>
             <div class="label">SALA</div>
@@ -171,16 +171,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;min
         <div class="status" id="connStatus">●  conectado</div>
         <button class="btn btn-back" style="width:100%;margin-top:8px;font-size:11px;padding:7px" onclick="newRoom()">↻ Nueva sala</button>
       </div>
+      <div class="card" style="flex:1;min-height:0;overflow-y:auto">
+        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
+        <div id="pListG" style="margin-top:6px"></div>
+      </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div id="mainPanel" class="card" style="min-height:380px;display:flex;flex-direction:column;justify-content:center"></div>
       <div id="rolesCard" class="card" style="display:none">
         <div class="label">ROLES (visibles en los móviles)</div>
         <div id="roleList" style="margin-top:8px"></div>
-      </div>
-      <div class="card">
-        <div class="label">JUGADORES (<span id="pCountG">0</span>)</div>
-        <div id="pListG" style="margin-top:6px"></div>
       </div>
     </div>
   </div>
