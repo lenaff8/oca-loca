@@ -705,7 +705,7 @@ function launch(){
   }
 }
 
-function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;songDuel={remaining:{},activeTeam:null,raf:null,lastTick:0,loser:null};buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
+function nextRound(){pub({type:'clear'});lastCh=null;busy=false;cardDeck=[];cardPicks={};bankDecisions={};bankBoxes={};bankRevealed=false;songDuel={remaining:{},activeTeam:null,raf:null,lastTick:0,loser:null};humming={times:{},running:{},starts:{}};if(hummingRaf){cancelAnimationFrame(hummingRaf);hummingRaf=null;}buzzer={locked:null,lockedTeam:null,vetoed:[],deadline:0};if(buzzerTimer){clearInterval(buzzerTimer);buzzerTimer=null;}if(hpTimer){clearInterval(hpTimer);hpTimer=null;}if(chTimer){clearInterval(chTimer);chTimer=null;}saveTV();wizardReset();}
 
 function slotReveal(ch,type,done,publicHint){
   const bg={minijuego:'var(--cat-mini)',evento:'var(--cat-evento)',versus:'var(--cat-versus)',musical:'var(--cat-musical)'}[type];
@@ -1388,32 +1388,55 @@ function renderHumming(){
   const mp=document.getElementById('mainPanel');
   if(!mp||!lastCh||lastCh.ch.rt!=='humming')return;
   const teamsIn=[lastCh.aT,lastCh.oT].filter(Boolean);
-  let html='<div style="text-align:center"><div style="font-size:52px">🎤</div>';
+  let html='<div style="text-align:center"><div style="font-size:48px">🎤</div>';
   html+='<div style="color:var(--cat-versus);font-size:15px;font-weight:900;letter-spacing:.12em;margin:6px 0">HUMMING BATTLE</div>';
-  html+='<div style="display:flex;gap:14px;justify-content:center;margin-top:14px;flex-wrap:wrap">';
+  html+='<div style="color:var(--dim);font-size:13px;margin-bottom:8px">El cantante tararea; cuando su equipo acierte, pulsa PARAR. El tiempo más bajo gana.</div>';
+  html+='<div style="display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap">';
   teamsIn.forEach(t=>{
     let secs;
     if(humming.running[t])secs=((Date.now()-humming.starts[t])/1000).toFixed(1);
     else if(humming.times[t]!=null)secs=humming.times[t].toFixed(1);
-    else secs='—';
+    else secs='0.0';
     const done=humming.times[t]!=null;
     const run=humming.running[t];
-    html+='<div style="background:var(--card);border-radius:16px;padding:18px 22px;min-width:130px;border:2px solid '+(run?'var(--gold)':done?'#22c55e':'var(--wood)')+'">';
-    html+='<div style="font-size:13px;font-weight:800;color:var(--dim);margin-bottom:6px">'+teamNm(t)+'</div>';
-    html+='<div style="font-size:38px;font-weight:900;color:'+(done?'#22c55e':'var(--gold)')+'">'+secs+(secs!=='—'?'s':'')+'</div>';
+    html+='<div style="background:var(--card);border-radius:16px;padding:16px 20px;min-width:150px;border:3px solid '+(run?'var(--gold)':done?'#22c55e':'var(--wood)')+'">';
+    html+='<div style="font-size:14px;font-weight:800;color:var(--dim);margin-bottom:6px">'+teamNm(t)+'</div>';
+    html+='<div style="font-size:40px;font-weight:900;color:'+(done?'#22c55e':run?'var(--gold)':'#fff')+'">'+secs+'s</div>';
+    // Per-team control button
+    if(!done){
+      if(run)html+='<button class="btn btn-gold" style="margin-top:10px;width:100%;font-size:15px" onclick="hummStopTV(\''+t+'\')">⏹ Parar</button>';
+      else html+='<button class="btn" style="margin-top:10px;width:100%;font-size:15px;background:#22c55e;color:#fff" onclick="hummStartTV(\''+t+'\')">▶ Empezar</button>';
+    }else{
+      html+='<button class="btn btn-back" style="margin-top:10px;width:100%;font-size:12px" onclick="hummResetTV(\''+t+'\')">↺ Repetir</button>';
+    }
     html+='</div>';
   });
   html+='</div>';
-  // Winner
-  const allDone=teamsIn.every(t=>humming.times[t]!=null);
-  if(allDone&&teamsIn.length>=2){
+  const allDone=teamsIn.length>=2&&teamsIn.every(t=>humming.times[t]!=null);
+  if(allDone){
     const win=teamsIn.reduce((a,b)=>humming.times[a]<humming.times[b]?a:b);
-    html+='<div style="font-size:22px;font-weight:900;color:#22c55e;margin-top:16px">🏆 Gana '+teamNm(win)+'</div>';
+    html+='<div style="font-size:24px;font-weight:900;color:#22c55e;margin-top:16px">🏆 Gana '+teamNm(win)+'</div>';
   }
-  html+='<button class="btn btn-gold" style="margin-top:18px;padding:12px 28px;font-size:15px" onclick="nextRound()">✓ Hecho — Siguiente casilla</button>';
   html+='</div>';
   mp.innerHTML=html;
   addBackToChallengeBtn();
+  addNextRoundBtn();
+}
+function hummStartTV(t){
+  humming.running[t]=true;humming.starts[t]=Date.now();humming.times[t]=null;
+  renderHumming();
+  if(!hummingRaf)hummingTick();
+}
+function hummStopTV(t){
+  if(!humming.running[t])return;
+  humming.times[t]=(Date.now()-humming.starts[t])/1000;
+  humming.running[t]=false;
+  if(humming.times[t]!=null)confetti();
+  renderHumming();
+}
+function hummResetTV(t){
+  humming.times[t]=null;humming.running[t]=false;
+  renderHumming();
 }
 function renderChTimer(){
   const host=document.getElementById('chTimerHost');
