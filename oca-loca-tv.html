@@ -2093,11 +2093,6 @@ function tvColorKey(cat){
 }
 // Show a small help hint
 window.addEventListener('DOMContentLoaded',()=>{
-  // TEMP: show viewport dimensions
-  const vp=document.createElement('div');
-  vp.style.cssText='position:fixed;top:10px;left:10px;background:#000;color:#0ff;font-size:22px;font-family:monospace;padding:8px 14px;border-radius:8px;z-index:99999';
-  const upd=()=>{vp.textContent=window.innerWidth+' x '+window.innerHeight+' (dpr '+window.devicePixelRatio+')';};
-  upd();window.addEventListener('resize',upd);document.body.appendChild(vp);
   setTimeout(()=>{
     if(document.getElementById('tvHelp'))return;
     const h=document.createElement('div');
