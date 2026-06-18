@@ -2040,11 +2040,26 @@ document.addEventListener('keydown',e=>{
     if(nr)nr.click();
     return;
   }
-  // ── Teclas numéricas 1-9: elegir la opción N de la pantalla actual (equipos, etc.) ──
-  if(/^[1-9]$/.test(e.key)){
+  // ── Tecla 9: agrandar/empequeñecer el QR ──
+  if(e.key==='9'){
+    const m=document.getElementById('qrModal');
+    if(m){
+      if(m.style.display==='flex'){m.style.display='none';}
+      else if(window.__qrBig){document.getElementById('qrModalImg').src=window.__qrBig;m.style.display='flex';}
+    }
+    return;
+  }
+  // ── Teclas numéricas 1-8: elegir equipo o categoría (NO el QR ni inputs) ──
+  if(/^[1-8]$/.test(e.key)){
     const idx=parseInt(e.key)-1;
-    const items=navItems();
-    if(items[idx]){navSet(idx);items[idx].click();setTimeout(()=>{navClear();navFocus=-1;},100);}
+    const active=document.querySelector('.screen.active')||document.body;
+    // Priority: team buttons, then category cards, then special-panel option buttons
+    let targets=[...active.querySelectorAll('.team-big')];
+    if(!targets.length)targets=[...active.querySelectorAll('.cat-card')];
+    if(!targets.length)targets=[...active.querySelectorAll('.vote-opt, .roul-name')];
+    targets=targets.filter(el=>!el.disabled&&el.offsetParent!==null);
+    if(targets[idx]){navClear();targets[idx].click();}
+    return;
   }
 });
 function tvColorKey(cat){
@@ -2059,7 +2074,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(document.getElementById('tvHelp'))return;
     const h=document.createElement('div');
     h.id='tvHelp';
-    h.innerHTML='<b>Mando:</b> ↑↓ mover · OK/nº elegir · LIST siguiente · 0 nueva sala · ESPACIO crono<br><span style="color:#e74c3c">●</span> Versus · <span style="color:#2ecc71">●</span> Evento · <span style="color:#f1c40f">●</span> Musical · <span style="color:#3498db">●</span> Minijuego';
+    h.innerHTML='<b>Mando:</b> 1-8 equipo · LIST siguiente · 0 nueva sala · 9 QR · ESPACIO crono<br><span style="color:#e74c3c">●</span> Versus · <span style="color:#2ecc71">●</span> Evento · <span style="color:#f1c40f">●</span> Musical · <span style="color:#3498db">●</span> Minijuego';
     document.body.appendChild(h);
   },800);
 });
