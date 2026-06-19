@@ -181,6 +181,12 @@ input::placeholder{color:var(--status-color)}
     <div>
       <div class="label">EQUIPO</div>
       <div id="teamBtns" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"></div>
+      <div id="createTeamBox" style="display:none;margin-top:10px">
+        <div style="display:flex;gap:8px">
+          <input id="newTeamMovil" type="text" placeholder="Nuevo equipo..." style="flex:1" maxlength="16">
+          <button class="btn" style="white-space:nowrap;padding:0 16px" onclick="createTeamMovil()">+ Crear</button>
+        </div>
+      </div>
     </div>
     <div style="flex:1"></div>
     <button class="btn btn-gold" onclick="joinRoom()">Unirse →</button>
@@ -317,14 +323,41 @@ function setTeamStatus(){
   const msg=map[window._connState]||'Buscando equipos de la sala...';
   el.innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">'+msg+'</p>';
 }
+const TC_MOVIL=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
+async function createTeamMovil(){
+  const code=((document.getElementById('codeIn')||{}).value||'').toUpperCase().trim();
+  if(code.length<6)return;
+  const inp=document.getElementById('newTeamMovil');
+  const name=(inp.value||'').trim();
+  if(!name)return;
+  // Re-fetch latest teams to avoid overwriting others' additions
+  let current=[];
+  try{
+    const r=await fetch(FB+'/rooms/'+code+'/teams.json');
+    if(r.ok){const d=await r.json();if(Array.isArray(d))current=d;}
+  }catch(e){}
+  if(current.length>=8){inp.value='';return;}
+  if(current.some(t=>t.name.toLowerCase()===name.toLowerCase())){inp.value='';return;}
+  const id='ABCDEFGH'[current.length];
+  current.push({id,name,color:TC_MOVIL[current.length]});
+  try{
+    await fetch(FB+'/rooms/'+code+'/teams.json',{method:'PUT',body:JSON.stringify(current)});
+    teamDefs=current;
+    inp.value='';
+    renderTeamBtns();
+  }catch(e){}
+}
 function renderTeamBtns(){
   const codeVal=(document.getElementById('codeIn')||{}).value||'';
+  const box=document.getElementById('createTeamBox');
   if(codeVal.trim().length<6){
+    if(box)box.style.display='none';
     document.getElementById('teamBtns').innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">Introduce el código de sala para ver los equipos</p>';
     return;
   }
+  if(box)box.style.display=(teamDefs.length<8?'block':'none');
   if(!teamDefs.length){
-    document.getElementById('teamBtns').innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">Buscando equipos de la sala...</p>';
+    document.getElementById('teamBtns').innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">Aún no hay equipos. ¡Crea el primero!</p>';
     return;
   }
   document.getElementById('teamBtns').innerHTML=teamDefs.map(t=>
