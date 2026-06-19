@@ -324,6 +324,26 @@ function setTeamStatus(){
   el.innerHTML='<p style="color:var(--status-color);font-size:12px;grid-column:1/-1;margin:0">'+msg+'</p>';
 }
 const TC_MOVIL=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#e91e8c','#1abc9c','#e67e22'];
+async function deleteTeamMovil(id){
+  const code=((document.getElementById('codeIn')||{}).value||'').toUpperCase().trim();
+  if(code.length<6)return;
+  if(!confirm('¿Borrar este equipo?'))return;
+  // Re-fetch latest list
+  let current=[];
+  try{
+    const r=await fetch(FB+'/rooms/'+code+'/teams.json');
+    if(r.ok){const d=await r.json();if(Array.isArray(d))current=d;}
+  }catch(e){}
+  current=current.filter(t=>t.id!==id);
+  // Re-assign sequential IDs and colors so they stay consistent with the TV
+  current=current.map((t,i)=>({...t,id:'ABCDEFGH'[i],color:TC_MOVIL[i]}));
+  if(myTeam===id)myTeam='';
+  try{
+    await fetch(FB+'/rooms/'+code+'/teams.json',{method:'PUT',body:JSON.stringify(current)});
+    teamDefs=current;
+    renderTeamBtns();
+  }catch(e){}
+}
 async function createTeamMovil(){
   const code=((document.getElementById('codeIn')||{}).value||'').toUpperCase().trim();
   if(code.length<6)return;
@@ -361,7 +381,10 @@ function renderTeamBtns(){
     return;
   }
   document.getElementById('teamBtns').innerHTML=teamDefs.map(t=>
-    `<button class="tBtn ${myTeam===t.id?'sel':(myTeam?'dimmed':'')}" style="background:${t.color};color:#fff;font-size:14px;padding:14px 4px" onclick="pickTeam('${t.id}')">${t.name}</button>`).join('');
+    `<div style="position:relative">
+      <button class="tBtn ${myTeam===t.id?'sel':(myTeam?'dimmed':'')}" style="background:${t.color};color:#fff;font-size:14px;padding:14px 4px;width:100%" onclick="pickTeam('${t.id}')">${t.name}</button>
+      <button onclick="deleteTeamMovil('${t.id}')" title="Borrar equipo" style="position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:1;cursor:pointer;padding:0">✕</button>
+    </div>`).join('');
 }
 function pickTeam(t){myTeam=t;renderTeamBtns();if(navigator.vibrate)navigator.vibrate(15);}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('sJoin').classList.contains('active'))joinRoom();});
