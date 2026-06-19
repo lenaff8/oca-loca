@@ -454,13 +454,11 @@ function teams(){return [...new Set(Object.values(players).map(p=>p.team))].sort
 function buildGroupedList(ps,showKick){
   if(!ps.length)return '<p style="color:var(--status-color);font-size:13px">Sin jugadores aún</p>';
   let h='';
-  teamDefs.forEach(function(t){
-    const tp=ps.filter(function(p){return p.team===t.id;});
-    if(!tp.length)return;
+  const renderGroup=function(label,color,tp){
     h+='<div style="margin-bottom:10px">';
     h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">';
-    h+='<div class="dot" style="background:'+t.color+';width:14px;height:14px"></div>';
-    h+='<span style="font-size:13px;font-weight:900;color:'+t.color+'">'+t.name+'</span>';
+    h+='<div class="dot" style="background:'+color+';width:14px;height:14px"></div>';
+    h+='<span style="font-size:13px;font-weight:900;color:'+color+'">'+label+'</span>';
     h+='<span style="font-size:11px;color:var(--status-color)">'+tp.length+' jug.</span>';
     h+='</div>';
     tp.forEach(function(p){
@@ -473,7 +471,17 @@ function buildGroupedList(ps,showKick){
       h+='</div>';
     });
     h+='</div>';
+  };
+  const assigned=[];
+  teamDefs.forEach(function(t){
+    const tp=ps.filter(function(p){return p.team===t.id;});
+    tp.forEach(function(p){assigned.push(p.name);});
+    if(!tp.length)return;
+    renderGroup(t.name,t.color,tp);
   });
+  // Players without a (valid) team yet
+  const noTeam=ps.filter(function(p){return !assigned.includes(p.name);});
+  if(noTeam.length)renderGroup('Sin equipo','var(--status-color)',noTeam);
   return h;
 }
 function renderPlayers(){
