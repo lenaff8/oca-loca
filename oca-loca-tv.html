@@ -393,6 +393,25 @@ function subscribe(){
   };
   poll();
   fbPollTimer=setInterval(poll,1000);
+  // Also poll teams.json so teams created from phones appear on the TV
+  const pollTeams=async()=>{
+    try{
+      const r=await fetch(FB+'/rooms/'+room+'/teams.json');
+      if(!r.ok)return;
+      const data=await r.json();
+      if(Array.isArray(data)){
+        // Adopt remote teams if they differ (e.g. a phone added one)
+        if(JSON.stringify(data)!==JSON.stringify(teamDefs)){
+          teamDefs=data;
+          localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
+          renderTeamDefs();renderPlayers();
+          if(typeof renderWizard==='function')renderWizard();
+        }
+      }
+    }catch(e){}
+  };
+  pollTeams();
+  setInterval(pollTeams,1500);
 }
 function onMsgData(d){ // d is already the parsed message object
   try{ _processMsg(d); }catch(e){}
