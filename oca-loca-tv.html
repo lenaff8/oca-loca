@@ -348,7 +348,24 @@ window.addEventListener('DOMContentLoaded',()=>{
   topic='oca-'+code;
   if(location.hash!=='#'+code){history.replaceState(null,'','#'+code);}
   saveTV();
-  setTimeout(pushTeamsToFB,500);
+  // On startup, ADOPT existing teams from Firebase (e.g. created on phones) instead of overwriting them.
+  setTimeout(async()=>{
+    try{
+      const r=await fetch(FB+'/rooms/'+code+'/teams.json');
+      if(r.ok){
+        const data=await r.json();
+        if(Array.isArray(data)&&data.length){
+          teamDefs=data;
+          localStorage.setItem('ocaTeams',JSON.stringify(teamDefs));
+          renderTeamDefs();renderPlayers();
+          if(typeof renderWizard==='function')renderWizard();
+          return;
+        }
+      }
+    }catch(e){}
+    // Firebase had no teams: publish whatever we have locally (may be empty)
+    pushTeamsToFB();
+  },500);
   setInterval(()=>{
     const ls=document.getElementById('lobbyStatus');
     if(ls)ls.textContent='Sala '+topic.replace('oca-','')+' · '+teamDefs.length+' equipos';
